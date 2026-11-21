@@ -40,8 +40,8 @@ URL: `?fast=1`(연출 단축) `?level=2|3`(그 레벨부터) `?words=moon,map,�
 - `js/voice.js`, `js/voice-data.js`, `assets/voice/*` ← `uv run --with numpy python tools/build_voice.py`
   (단어·/m/ = 팩 공식 음성, 튜터 대사 = phonics-api TTS 통합 목소리 + whisper 되읽기 검사 30/30 통과. 키 `~/.config/phonics-api/key` 필요)
 - `assets/img/*` ← `tools/fill_start.py`(LaMa, START 위 손 지우기) → `tools/cut_art.py`(rembg birefnet: 로고·START·손)
-  → `tools/build_art.py`. 배경 = 사용자 파일 `design/puzzle_bg.png`(다운로드의 puzzle_bg.png, 2026-11-21 교체;
-  전에는 `tools/clean_bg.py`로 목업에서 UI를 지운 배경)
+  → `tools/build_art.py`. 배경·로고 = 사용자 파일 `design/puzzle_bg.png`·`design/puzzle_logo.png`(다운로드, 2026-11-21 교체;
+  전에는 `tools/clean_bg.py`로 목업에서 UI를 지운 배경과 목업에서 자른 로고)
 - `js/bgm-data.js`, `assets/audio/bgm.mp3` ← `uv run --with numpy --with scipy python tools/make_bgm.py` (C장조 120BPM 자체 곡)
 
 ## QA (headless, Playwright 1.62)
