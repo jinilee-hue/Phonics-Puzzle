@@ -1,7 +1,7 @@
 # Phonics Puzzle (파닉스 퍼즐) — 레슨팩 m 단어 직소 퍼즐
 
 교재 **FPR K Unit 1 Lesson 1 (Mm)** 레슨팩(`../공통자료/FP.K.U1L1-lesson-pack`)의 m 그림 단어로 만든 직소 퍼즐.
-그림이 먼저 보이고 단어를 들려준 뒤 조각으로 흩어져 PIECES 트레이로 날아간다. 흐린 그림 위에 조각을 끌어다 맞추면
+그림은 레슨팩 단어 그림을 놀이방과 같은 밝은 파스텔 장면 안에 앉힌 것(단어마다 다른 장소)이다. 그림이 먼저 보이고 단어를 들려준 뒤 조각으로 흩어져 PIECES 트레이로 날아간다. 흐린 그림 위에 조각을 끌어다 맞추면
 색 폭발·별·음표·+100. 다 맞추면 이음새가 사라지고 단어(m은 분홍)와 "/m/ /m/ 단어" 챈트(팩 음성) → 아이가 단어를 말한다
 (맞으면 금색 마이크 +300, 두 번 놓쳐도 "잘했어!" 하고 넘어감, 마이크를 누르면 다시 시도) → 다음.
 
@@ -35,7 +35,8 @@ URL: `?fast=1`(연출 단축) `?level=2|3`(그 레벨부터) `?words=moon,map,�
 | `js/audio.js` | 팩 음성(단어·/m/), 합성 효과음(스냅은 조각마다 음이 올라감), 배경음악 |
 
 ## 생성물 (손으로 고치지 말 것)
-- `assets/pics/*.webp`, `js/words.js` ← `uv run --with pillow --with numpy python tools/build_pics.py` (팩 그림 + 단어별 파스텔 배경, 1200×1000)
+- `assets/pics/*.webp`, `js/words.js` ← `uv run --with pillow python tools/build_pics.py`
+  (`assets/scenes/<단어>.jpg` 파스텔 장면을 1200×1000으로 맞춰 자른다. 장면 파일은 이 스크립트가 그리지 않는다.)
 - `js/voice.js`, `js/voice-data.js`, `assets/voice/*` ← `uv run --with numpy python tools/build_voice.py`
   (단어·/m/ = 팩 공식 음성, 튜터 대사 = phonics-api TTS 통합 목소리 + whisper 되읽기 검사 30/30 통과. 키 `~/.config/phonics-api/key` 필요)
 - `assets/img/*` ← `tools/fill_start.py`(LaMa, START 위 손 지우기) → `tools/cut_art.py`(rembg birefnet: 로고·START·손)
