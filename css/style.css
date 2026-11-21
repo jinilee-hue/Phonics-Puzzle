@@ -403,6 +403,26 @@ img { -webkit-user-drag: none; user-select: none; }
 @keyframes ribBumpS { 35% { transform: scale(1.3) rotate(-4deg); } }
 @keyframes ribBump { 35% { transform: translate(-50%, -50%) scale(1.3) rotate(-4deg); } }
 /* candy pills still drawn in CSS (the clear card's Next — the sheet has no such button) */
+/* the tutor: the user's bunny standing left of the board, pointing at it (user: "보드판 왼쪽에 튜터 넣을 캐릭터").
+   It breathes; while a line plays it bobs (talk); it hops on a snap, cheers when a picture is done, tilts on a wrong spot,
+   leans in for a hint. Feet on a soft floor shadow. */
+.tutor { position: absolute; left: calc(1 * var(--u)); top: calc(42.5 * var(--u)); height: calc(52 * var(--u)); aspect-ratio: 816 / 1248; z-index: 4;   /* (the pointing hand stays in view, just short of the frame) */ pointer-events: none;
+  transform-origin: 50% 100%; animation: tutorIn .7s cubic-bezier(.2, 1.3, .4, 1) .1s both; }
+.tutor::after { content: ''; position: absolute; left: 18%; right: 22%; bottom: -1.5%; height: 5%; border-radius: 50%; background: radial-gradient(closest-side, var(--shadow), transparent); z-index: -1; }
+.tutor img { display: block; width: 100%; height: 100%; transform-origin: 50% 100%; filter: drop-shadow(0 calc(.6 * var(--u)) calc(.8 * var(--u)) var(--shadow)); animation: tutorIdle 3.4s ease-in-out infinite; }
+@keyframes tutorIn { 0% { transform: translateX(calc(-30 * var(--u))) rotate(-8deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes tutorIdle { 0%, 100% { transform: scale(1, 1) rotate(0); } 50% { transform: scale(1.012, .988) rotate(-.6deg); } }
+.tutor.talk img { animation: tutorTalk .34s ease-in-out infinite; }
+@keyframes tutorTalk { 0%, 100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(calc(-.5 * var(--u))) scale(.99, 1.015); } }
+.tutor.hop img { animation: tutorHop .5s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes tutorHop { 0% { transform: scale(1.04, .94); } 45% { transform: translateY(calc(-2.6 * var(--u))) scale(.97, 1.04); } 100% { transform: none; } }
+.tutor.cheer img { animation: tutorCheer .9s cubic-bezier(.3, 1.4, .5, 1) 2; }
+@keyframes tutorCheer { 0% { transform: scale(1.05, .93); } 35% { transform: translateY(calc(-5 * var(--u))) rotate(-6deg) scale(.96, 1.05); } 60% { transform: translateY(calc(-3 * var(--u))) rotate(5deg); } 100% { transform: none; } }
+.tutor.oops img { animation: tutorOops .6s ease-in-out; }
+@keyframes tutorOops { 20% { transform: rotate(-5deg); } 45% { transform: rotate(4deg); } 70% { transform: rotate(-2deg); } 100% { transform: none; } }
+.tutor.lean img { animation: tutorLean 1.6s ease-in-out 2; }
+@keyframes tutorLean { 0%, 100% { transform: none; } 40%, 60% { transform: translateX(calc(1.2 * var(--u))) rotate(4deg); } }
+
 /* level = a tab on the board's top edge, left of the logo (user: "레벨은 원래 있던 퍼즐판 상단에 붙은게 나아"), in the PIECES
    tab's colours, raised like the frame (user: "이것도 좀 볼륨감줘"): light on its top and left, shade on its right, a soft
    gloss streak; its bottom tucked under the frame */

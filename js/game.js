@@ -24,7 +24,7 @@
     logoWrap: $('#logoWrap'), start: $('#btnStart'), titleHand: $('#titleHand'), gameLogo: $('#gameLogo'),
     frame: $('#frame'), lights: $('#lights'), board: $('#board'), ghost: $('#ghost'), placed: $('#placed'), full: $('#full'), hint: $('#hint'),
     tray: $('#tray'), list: $('#trayList'), view: $('#trayView'), dots: $('#trayDots'), up: $('#btnUp'), down: $('#btnDown'),
-    word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), stars: $('#titleStars'), bubbles: $('#bubbles'),
+    word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), stars: $('#titleStars'), tutor: $('#tutor'), bubbles: $('#bubbles'),
     score: $('#score'), level: $('#boardTabTxt'), hudL: $('.hud-left'), sys: $('.sys:not(.sys-left)'),
     clear: $('#clear'), clearTitle: $('#clearTitle'), clearPics: $('#clearPics'), clearScore: $('#clearScore'), go: $('#btnGo'), goTxt: $('#goTxt'),
   };
@@ -59,6 +59,11 @@
     CandyFX.stars(x, y, Math.max(4, Math.round(16 * power)), Math.min(1, 0.45 + power * 0.55));
     if (!candyRaf) { candyLast = 0; candyRaf = requestAnimationFrame(candyLoop); }
   }
+
+  // ── the tutor (the user's bunny): bobs while a line plays, reacts to the play ─────────────────────────
+  function tutor(act) { if (G.screen === 'game') restartAnim(E.tutor, act); }
+  setInterval(() => { E.tutor.classList.toggle('talk', G.screen === 'game' && S.talking > 0 && !E.tutor.matches('.hop,.cheer,.oops,.lean')); }, 120);
+  ['animationend'].forEach(ev => E.tutor.addEventListener(ev, (e) => { if (e.target === E.tutor.firstElementChild) E.tutor.classList.remove('hop', 'cheer', 'oops', 'lean'); }));
 
   // ── level = the tab on the board's top edge ───────────────────────────────────────────────────────
   function showLevel() {
@@ -403,7 +408,7 @@
     if (Math.hypot(px - tx, py - ty) < cu.k * 0.42) return snap(d, br, bs);
     const onBoard = x > br.left && x < br.right && y > br.top && y < br.bottom;
     if (onBoard) {                     // a wrong place: a soft boing, the right place glows for a moment
-      S.sfx('boing'); restartAnim(E.frame, 'nope');
+      S.sfx('boing'); restartAnim(E.frame, 'nope'); tutor('oops');
       showHint(p, 1500);
       if (!G.oops) { G.oops = true; S.say('t:oops'); }       // said once per picture
     }
@@ -454,7 +459,7 @@
       restartAnim(E.board, 'ping');
       // the burst: rainbow rays + stars, notes and confetti from the piece's middle
       const cx = br.left + (tl + cu.cw / 2 + cu.m) * bs, cy = br.top + (tt + cu.ch / 2 + cu.m) * bs;
-      S.sfx('snap');
+      S.sfx('snap'); tutor('hop');
       candyBurst(cx, cy, 0.55);                       // Toy Catch's catch burst, a little smaller for one piece
       addScore(100, cx, cy);
       if (G.left === 0) complete(tok); else armHint();
@@ -488,7 +493,7 @@
     const p = slot && G.pieces[+slot.dataset.i];
     if (!p || p.placed || !p.cv.isConnected) return;
     showHint(p, 3400);
-    S.say('t:hint');
+    S.say('t:hint'); tutor('lean');
     // the hand glides from the piece to its place, twice
     const sr = stage.getBoundingClientRect(), k = u(), cr = p.cv.getBoundingClientRect(), br = E.board.getBoundingClientRect(), bs = br.width / IW, cu = G.cut;
     const a = [cr.left + cr.width * .5 - sr.left, cr.top + cr.height * .5 - sr.top];
@@ -521,7 +526,7 @@
     G.busy = true; clearTimeout(G.hintT);
     await wait(380);
     if (!alive(tok)) return;
-    E.board.classList.add('done'); restartAnim(E.board, 'shine'); E.frame.classList.add('party');
+    E.board.classList.add('done'); restartAnim(E.board, 'shine'); E.frame.classList.add('party'); tutor('cheer');
     S.sfx('win');
     FX.confetti(110);
     const br = E.board.getBoundingClientRect(), k = u() / 9;
@@ -564,7 +569,7 @@
         const v = await listenOnce(tok, mic, w, t);
         if (!alive(tok)) return;
         if (v === 'ok') {
-          mic.className = 'mic ok';
+          mic.className = 'mic ok'; tutor('cheer');
           S.sfx('win');
           const r = mic.getBoundingClientRect();
           candyBurst(r.left + r.width / 2, r.top + r.height / 2, 0.7);

@@ -5,6 +5,8 @@
   1800 px wide; the mockup cut only if it is missing
 - START = the user's own file design/puzzle_btn_start.png (2026-11-21, from ~/Downloads, 1080x396, transparent);
   the mockup cut only if it is missing
+- tutor = the user's own character design/puzzle_tuter.png (2026-11-21, from ~/Downloads/puzzle_tuter.png, transparent bunny)
+  -> assets/img/tutor.webp, as it is
 - hand = the phonics games' common white hand (../Toy-Catch/assets/img/hand.webp — the same file Croco, Phonics Match and
   Magic Block use; user: "손가락도 흰색 공통으로 쓰고 있는게 있지않아?"), copied as it is
 uv run --with pillow python tools/build_art.py
@@ -21,6 +23,9 @@ bg = Image.open(src if src.exists() else W / 'bg_clean.png').convert('RGB')
 bg.resize((2064, 1152), Image.LANCZOS).save(OUT / 'bg.webp', quality=82, method=6)
 import shutil
 shutil.copyfile(ROOT.parent / 'Toy-Catch/assets/img/hand.webp', OUT / 'hand.webp')
+tut = ROOT / 'design/puzzle_tuter.png'
+if tut.exists():
+    Image.open(tut).convert('RGBA').save(OUT / 'tutor.webp', quality=90, method=6)
 for n in ('logo', 'start'):
     own = ROOT / {'logo': 'design/puzzle_logo.png', 'start': 'design/puzzle_btn_start.png'}.get(n, 'design/-')
     im = Image.open(own if own.exists() else W / f'cut/{n}.png').convert('RGBA')
