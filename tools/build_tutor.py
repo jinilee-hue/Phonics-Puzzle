@@ -2,8 +2,9 @@
 다시 만들어줘"). From the user's design/puzzle_tuter.png (816 x 1248, transparent):
   assets/img/tutor_base.webp  — the bunny without its ears above the head and without its painted eyes (filled with skin)
   assets/img/tutor_ear_l.webp — the left ear, assets/img/tutor_ear_r.webp — the right ear
-  assets/img/tutor_mouth.webp — the open mouth alone (the base has muzzle skin under it), so it can open and close
-  with the voice (user: "토끼 말할때 입도 움직이게 해줘")
+  assets/img/tutor_brow_l.webp, tutor_brow_r.webp — the eyebrows alone, so the face can change (user: "토끼 표정도 말할때
+  마다 바뀌게"); the base has skin under them and under the mouth — the mouth is drawn as SVG in index.html (the squashed
+  picture of the mouth looked wrong: user "입이 어색한데")
 All three are full-size canvases (same box, layered in the page: ears BEHIND the base). Each ear keeps a 30 px strip below
 its cut line, hidden behind the head, so a small rotation never opens a gap; the base fades out over 8 px at the cut so
 there is no seam. The new eyes (white, iris, pupil, light) are SVG in index.html, drawn over the base at the old eyes.
@@ -39,6 +40,7 @@ base[y0:y1, x0:x1, :3] = sub
 r, g, b = src[..., 0], src[..., 1], src[..., 2]
 mbox = (yy > 528) & (yy < 650) & (xx > 384) & (xx < 506)
 mouth = mbox & (((r > 120) & (g < 120) & (b < 110)) | ((r < 140) & (g < 70) & (b < 60)) | ((r > 225) & (g > 225) & (b > 215)))
+mouth |= mbox & (yy > 550) & (np.abs(r - g) < 32) & (np.abs(g - b) < 32) & (r > 140)   # the teeth's grey shading and the gap between them
 mouth = ndi.binary_fill_holes(ndi.binary_closing(mouth, iterations=3))
 lab, n = ndi.label(mouth)                                                # the mouth only (the nose's tip is in the box too)
 mouth = lab == (1 + int(np.argmax(ndi.sum(mouth, lab, range(1, n + 1)))))
@@ -55,6 +57,27 @@ for _ in range(3000):
     sub[hole] = avg[hole]
 base[y0:y1, x0:x1, :3] = sub
 print('mouth box', xs.min(), xs.max(), ys.min(), ys.max())
+
+# ── eyebrows: their own layers (the brown strokes above the eyes), skin under them ─────────────────────────────────────
+def smooth_fill(mask):
+    ys, xs = np.nonzero(mask)
+    y0, y1, x0, x1 = ys.min() - 2, ys.max() + 3, xs.min() - 2, xs.max() + 3
+    sub = base[y0:y1, x0:x1, :3].copy(); hole = mask[y0:y1, x0:x1]
+    sub[hole] = sub[~hole].mean(0)
+    for _ in range(2500):
+        avg = (np.roll(sub, 1, 0) + np.roll(sub, -1, 0) + np.roll(sub, 1, 1) + np.roll(sub, -1, 1)) / 4
+        sub[hole] = avg[hole]
+    base[y0:y1, x0:x1, :3] = sub
+brows = []
+for x0, x1, y0, y1 in [(278, 364, 390, 438), (464, 521, 359, 412)]:
+    m = np.zeros((H, W), bool)
+    m[y0:y1, x0:x1] = (r < 175)[y0:y1, x0:x1] & (g < 120)[y0:y1, x0:x1] & (b < 95)[y0:y1, x0:x1]
+    lab, n = ndi.label(m)
+    m = lab == (1 + int(np.argmax(ndi.sum(m, lab, range(1, n + 1)))))
+    cut = ndi.binary_dilation(m, iterations=6)                            # with its soft clay shadow
+    layer = src.copy(); layer[..., 3] = src[..., 3] * np.clip(ndi.gaussian_filter(cut.astype(np.float32), 1.2), 0, 1)
+    brows.append(layer)
+    smooth_fill(ndi.binary_dilation(cut, iterations=3))
 
 # ── ears: above a cut line each; the base keeps the head ─────────────────────────────────────────────────────────
 def dist_left(x, y):        # signed px above the left ear's cut line (98,342)-(264,246); > 0 = above
@@ -87,7 +110,7 @@ ear_r = src.copy(); ear_r[..., 3] = 255 * alpha * cover_r
 base[..., 3] = src[..., 3] * (1 - np.maximum(soft_l, soft_r))
 
 out = ROOT / 'assets/img'
-for name, arr in [('tutor_base', base), ('tutor_ear_l', ear_l), ('tutor_ear_r', ear_r), ('tutor_mouth', mouth_layer)]:
+for name, arr in [('tutor_base', base), ('tutor_ear_l', ear_l), ('tutor_ear_r', ear_r), ('tutor_brow_l', brows[0]), ('tutor_brow_r', brows[1])]:
     # lossless: lossy layers came out a shade apart, and the cut showed as a faint box on the head
     Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8)).save(out / f'{name}.webp', lossless=True, method=6)
     print(name, (out / f'{name}.webp').stat().st_size // 1024, 'KB')

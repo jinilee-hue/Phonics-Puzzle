@@ -61,18 +61,75 @@
   }
 
   // ── the tutor (the user's bunny): bobs while a line plays, reacts to the play ─────────────────────────
-  function tutor(act) { if (G.screen === 'game') restartAnim(E.tutor, act); }
+  function tutor(act) {
+    if (G.screen !== 'game') return;
+    restartAnim(E.tutor, act);
+    const fx = { hop: ['happy', 900], cheer: ['happy', 1800], oops: ['oops', 1300], lean: ['cheeky', 1600] }[act];
+    if (fx) setFace(fx[0], fx[1]);
+  }
   setInterval(() => { E.tutor.classList.toggle('talk', G.screen === 'game' && S.talking > 0 && !E.tutor.matches('.hop,.cheer,.oops,.lean')); }, 120);
-  // the mouth follows the voice: open = the drawing's own smile (1); while a line plays it opens and shuts with the
-  // loudness (quick to open, a little slower to close), a touch wider when nearly shut
-  let mouthY = 1;
-  (function mouthLoop() {
-    const talking = G.screen === 'game' && S.talking > 0;
-    const target = talking ? 0.32 + 0.68 * Math.min(1, S.voiceLevel() * 1.7) : 1;
-    mouthY += (target - mouthY) * (target > mouthY ? 0.55 : 0.32);
-    E.tutor.style.setProperty('--my', mouthY.toFixed(3));
-    E.tutor.style.setProperty('--mx', (1 + (1 - mouthY) * 0.08).toFixed(3));
-    requestAnimationFrame(mouthLoop);
+  // ── the tutor's face: a drawn mouth (user: "입이 어색한데" — the squashed picture of the mouth) and a face per line
+  // (user: "토끼 표정도 말할때 마다 바뀌게"). Mouth = a top lip curve L→R and a bowl under it whose depth follows the voice;
+  // two front teeth hang from the lip, the tongue sits in the bowl. Each face has its own mouth shape (image px). ──────
+  const FACES = {
+    smile:  { lx: 394, ly: 556, rx: 497, ry: 545, bend: 6,   D: 95,  round: 0,   rest: 1 },
+    happy:  { lx: 387, ly: 550, rx: 504, ry: 537, bend: 9,   D: 90,  round: 0,   rest: .95 },
+    wow:    { lx: 414, ly: 553, rx: 478, ry: 548, bend: -10, D: 98,  round: 1,   rest: 1 },
+    wink:   { lx: 395, ly: 557, rx: 500, ry: 539, bend: 6,   D: 84,  round: 0,   rest: .9 },
+    cheeky: { lx: 399, ly: 559, rx: 496, ry: 540, bend: 4,   D: 72,  round: .1,  rest: .85 },
+    oops:   { lx: 416, ly: 563, rx: 476, ry: 559, bend: -5,  D: 46,  round: .6,  rest: .7 },
+  };
+  const LINE_FACES = ['smile', 'happy', 'wow', 'wink', 'cheeky'];
+  const mEl = {
+    in: E.tutor.querySelector('.m-in'), rim: E.tutor.querySelector('.m-rim'), lip: E.tutor.querySelector('.m-lip'),
+    shade: E.tutor.querySelector('.m-shade'), clip: document.getElementById('tMouthClipPath'),
+    tongue: E.tutor.querySelector('.m-tongue'), teeth: [...E.tutor.querySelectorAll('.m-tooth')],
+  };
+  let face = 'smile', faceUntil = 0, lastLineFace = 'smile', wasTalking = false, faceBack = 0;
+  const M = Object.assign({}, FACES.smile);    // the mouth's current shape (eased toward the face's)
+  let mOpen = 1;
+  E.tutor.dataset.face = face;
+  function setFace(name, ms) {
+    face = name; E.tutor.dataset.face = name;
+    clearTimeout(faceBack);
+    if (ms) { faceUntil = performance.now() + ms; faceBack = setTimeout(() => { faceUntil = 0; if (!S.talking) setFace('smile'); }, ms); }
+  }
+  function drawMouth() {
+    const L = [M.lx, M.ly], R = [M.rx, M.ry], wd = R[0] - L[0];
+    const mx = (L[0] + R[0]) / 2, my = (L[1] + R[1]) / 2 + M.bend;
+    const d = M.D * (0.1 + 0.9 * mOpen);
+    const c1 = [R[0] + wd * (-0.04 + 0.2 * M.round), R[1] + d * (1.15 - 0.1 * M.round)];
+    const c2 = [L[0] - wd * (-0.04 + 0.2 * M.round), L[1] + d * (1.25 - 0.15 * M.round)];
+    const f = n => n.toFixed(1);
+    const top = `M${f(L[0])} ${f(L[1])}Q${f(mx)} ${f(my)} ${f(R[0])} ${f(R[1])}`;
+    const bowl = `C${f(c1[0])} ${f(c1[1])} ${f(c2[0])} ${f(c2[1])} ${f(L[0])} ${f(L[1])}`;
+    const path = top + bowl + 'Z';
+    mEl.in.setAttribute('d', path); mEl.rim.setAttribute('d', path); mEl.clip.setAttribute('d', path);
+    mEl.shade.setAttribute('d', `M${f(L[0] + 4)} ${f(L[1] - 4)}Q${f(mx)} ${f(my - 4)} ${f(R[0] - 4)} ${f(R[1] - 4)}`);
+    mEl.lip.setAttribute('d', `M${f(R[0] - 2)} ${f(R[1] + 3)}C${f(c1[0])} ${f(c1[1] + 3)} ${f(c2[0])} ${f(c2[1] + 3)} ${f(L[0] + 2)} ${f(L[1] + 3)}`);
+    const bottom = 0.125 * R[1] + 0.375 * c1[1] + 0.375 * c2[1] + 0.125 * L[1];
+    mEl.tongue.setAttribute('cx', f(mx + wd * 0.02)); mEl.tongue.setAttribute('cy', f(bottom - d * 0.2));
+    mEl.tongue.setAttribute('rx', f(wd * 0.37)); mEl.tongue.setAttribute('ry', f(Math.max(4, d * 0.34)));
+    const topY = x => { const t = (x - L[0]) / wd, u = 1 - t; return u * u * L[1] + 2 * u * t * my + t * t * R[1]; };
+    [0.41, 0.615].forEach((t, i) => {
+      const x = L[0] + wd * t, tw = Math.min(21, wd * 0.2);
+      mEl.teeth[i].setAttribute('x', f(x)); mEl.teeth[i].setAttribute('y', f(topY(x + tw / 2) - 5)); mEl.teeth[i].setAttribute('width', f(tw));
+    });
+  }
+  (function faceLoop() {
+    const now = performance.now(), talking = G.screen === 'game' && S.talking > 0;
+    if (talking && !wasTalking && now > faceUntil) {             // a new line: a new face (never the same twice running)
+      let n; do { n = LINE_FACES[(Math.random() * LINE_FACES.length) | 0]; } while (n === lastLineFace);
+      lastLineFace = n; setFace(n);
+    }
+    if (!talking && wasTalking && now > faceUntil) { clearTimeout(faceBack); faceBack = setTimeout(() => { if (!S.talking && performance.now() > faceUntil) setFace('smile'); }, 700); }
+    wasTalking = talking;
+    const F = FACES[face];
+    for (const k of ['lx', 'ly', 'rx', 'ry', 'bend', 'D', 'round']) M[k] += (F[k] - M[k]) * 0.2;
+    const target = talking ? 0.12 + 0.88 * Math.min(1, S.voiceLevel() * 1.7) : F.rest;
+    mOpen += (target - mOpen) * (target > mOpen ? 0.55 : 0.3);
+    drawMouth();
+    requestAnimationFrame(faceLoop);
   })();
   const rig = E.tutor.querySelector('.rig');
   rig.addEventListener('animationend', (e) => { if (e.target === rig) E.tutor.classList.remove('hop', 'cheer', 'oops', 'lean'); });
@@ -747,7 +804,7 @@
     endDrag(x, y);
     return true;
   }
-  window.__pp = { G, E, startGame, showTitle, startPuzzle, solveOne, beginDrag, moveDrag, endDrag, levelClear, fake, judgeSpeech };
+  window.__pp = { G, E, startGame, showTitle, startPuzzle, solveOne, beginDrag, moveDrag, endDrag, levelClear, fake, judgeSpeech, setFace };
   showTitle();
   window.__ready = true;
 })();

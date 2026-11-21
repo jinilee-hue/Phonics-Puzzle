@@ -15,6 +15,10 @@
   소리·나가기·키는 시트의 빈 분홍 젤리 + 같은 아이콘 그림체. 점수·레벨 글자는 빈 리본 위에 실시간으로 쓴다.
   게임: 왼쪽 레벨·점수, 오른쪽 소리·나가기 / 타이틀: 왼쪽 키, 오른쪽 언어 토글(파닉스 공통 토글, 분홍)·소리·나가기.
   높이 7.6u, 가장자리 3u(파닉스 공통). 시트의 Home·Restart·뒤로·일시정지·설정·국기는 잘라만 둠.
+- 튜터 = 사용자 토끼(`design/puzzle_tuter.png`). `tools/build_tutor.py`가 몸통·두 귀·두 눈썹으로 나눈다(무손실, 원래 눈·입·눈썹
+  자리는 피부로 채움). 눈·입은 SVG(index.html .face): 눈 깜빡임·조각 따라보기, 입은 음성 크기를 따라 벌어짐.
+  표정 6가지(smile·happy·wow·wink·cheeky·oops) — 대사마다 바뀌고, 맞히면 happy, 틀리면 oops, 힌트는 cheeky.
+  QA: `uv run --with playwright==1.62.0 --with pillow python tools/qa/tutor_faces.py <out>`
 - 손 = 파닉스 공통 흰 손(`../Toy-Catch/assets/img/hand.webp`, Croco·Match·Magic Block과 같은 파일, 손끝 38%·2%).
   액자 별 = `assets/img/ui/frame_star.svg`(둥근 볼록 별), 모서리 별은 둥근 모서리 안쪽으로.
 

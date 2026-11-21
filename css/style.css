@@ -418,13 +418,34 @@ img { -webkit-user-drag: none; user-select: none; }
 /* the ears sway by skewing round their base line (the base stays on the head; a turn lifted it off and showed a gap) */
 @keyframes earL { 0%, 76%, 100% { transform: skewX(0); } 82% { transform: skewX(-7deg); } 88% { transform: skewX(4deg); } 94% { transform: skewX(-1.5deg); } }
 @keyframes earR { 0%, 80%, 100% { transform: skewX(0); } 85% { transform: skewX(6deg); } 91% { transform: skewX(-3.5deg); } 96% { transform: skewX(1.2deg); } }
-.tutor .mouth { transform-origin: 54.5% 44%; transform: scale(var(--mx, 1), var(--my, 1)); }   /* --my follows the voice (game.js) */
-.tutor .eyes { overflow: visible; }
-.tutor .eyes .iris { transform: translate(calc(var(--lx) * 1px), calc(var(--ly) * 1px)); transition: transform .2s ease-out; }
-.tutor .eyes .open { transform-box: fill-box; transform-origin: 50% 55%; transition: transform .07s ease-in; }
-.tutor.blink .eyes .open { transform: scaleY(0); }   /* the eye squeezes shut over the skin painted under it (tools/build_tutor.py) */
-.tutor .eyes .lash { opacity: 0; transition: opacity .05s; }
-.tutor.blink .eyes .lash { opacity: 1; transition-delay: .04s; }   /* a closed eye = a soft curved line */
+.tutor .face { overflow: visible; }
+/* faces (user: "토끼 표정도 말할때 마다 바뀌게"): each line gets one — smile (as drawn), happy (^ ^ eyes), wow (big eyes, brows
+   up), wink, cheeky (looks aside), and oops on a wrong spot; the brows move, the eyes change, the mouth takes the face's
+   shape (game.js FACES) */
+.tutor .brow { transition: transform .28s cubic-bezier(.3, 1.4, .5, 1); }
+.tutor .brow-l { transform-origin: 39.1% 33.2%; }
+.tutor .brow-r { transform-origin: 60.3% 30.8%; }
+.tutor[data-face="happy"] .brow-l { transform: translateY(-.7%) rotate(-12deg); }
+.tutor[data-face="happy"] .brow-r { transform: translateY(-.5%) rotate(10deg); }
+.tutor[data-face="wow"] .brow-l { transform: translateY(-1.7%) rotate(-17deg); }
+.tutor[data-face="wow"] .brow-r { transform: translateY(-1.5%) rotate(6deg); }
+.tutor[data-face="wink"] .brow-l { transform: translateY(-.6%) rotate(-6deg); }
+.tutor[data-face="wink"] .brow-r { transform: translateY(.5%) rotate(14deg); }
+.tutor[data-face="cheeky"] .brow-l { transform: translateY(.3%) rotate(4deg); }
+.tutor[data-face="cheeky"] .brow-r { transform: translateY(-.9%) rotate(-6deg); }
+.tutor[data-face="oops"] .brow-l { transform: translateY(-.9%) rotate(-22deg); }
+.tutor[data-face="oops"] .brow-r { transform: translateY(-.2%) rotate(30deg); }
+.tutor .eye .open, .tutor .eye .happy { transform-box: fill-box; transform-origin: 50% 55%; transition: transform .2s cubic-bezier(.3, 1.4, .5, 1), opacity .12s; }
+.tutor .eye .happy { opacity: 0; transform: scaleY(.4); }
+.tutor[data-face="happy"] .eye .open, .tutor[data-face="wink"] .eye-r .open { transform: scaleY(0); }
+.tutor[data-face="happy"] .eye .happy, .tutor[data-face="wink"] .eye-r .happy { opacity: 1; transform: none; }
+.tutor[data-face="happy"] .eye .lash, .tutor[data-face="wink"] .eye-r .lash { display: none; }
+.tutor[data-face="wow"] .eye .open { transform: scale(1.13); }
+.tutor[data-face="oops"] .eye .open { transform: scale(.93, .9); }
+.tutor .face .iris { transform: translate(calc(var(--lx) * 1px), calc(var(--ly) * 1px)); transition: transform .2s ease-out; }
+.tutor.blink .face .open { transform: scaleY(0); transition-duration: .07s; }   /* the eye squeezes shut over the skin painted under it (tools/build_tutor.py) */
+.tutor .face .lash { opacity: 0; transition: opacity .05s; }
+.tutor.blink .face .lash { opacity: 1; transition-delay: .04s; }   /* a closed eye = a soft curved line */
 @keyframes tutorIn { 0% { transform: translateX(calc(-30 * var(--u))) rotate(-8deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
 @keyframes tutorIdle { 0%, 100% { transform: scale(1, 1) rotate(0); } 50% { transform: scale(1.012, .988) rotate(-.6deg); } }
 .tutor.talk .rig { animation: tutorTalk .34s ease-in-out infinite; }

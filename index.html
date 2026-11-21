@@ -6,7 +6,7 @@
 <title>Phonics Puzzle</title>
 <link rel="stylesheet" href="css/font.css?v=54832f73">
 <link rel="stylesheet" href="css/font-ko.css?v=fa5b8de1">
-<link rel="stylesheet" href="css/style.css?v=f93b7554">
+<link rel="stylesheet" href="css/style.css?v=1d034c67">
 </head>
 <body>
 <div id="app" data-screen="title">
@@ -29,30 +29,44 @@
     <div class="game-el tutor" id="tutor">
       <svg class="tutor-shadow" viewBox="0 0 816 1248" aria-hidden="true"><defs><filter id="tShadowBlur" x="-30%" y="-200%" width="160%" height="500%"><feGaussianBlur stdDeviation="7"/></filter></defs>
         <g filter="url(#tShadowBlur)"><ellipse cx="340" cy="1236" rx="250" ry="24" fill="#2a1e46" opacity=".16"/><ellipse cx="212" cy="1240" rx="86" ry="15" fill="#2a1e46" opacity=".34"/><ellipse cx="465" cy="1220" rx="76" ry="13" fill="#2a1e46" opacity=".3"/></g></svg>
-      <div class="rig"><img class="ear ear-l" src="assets/img/tutor_ear_l.webp" alt="" draggable="false"><img class="ear ear-r" src="assets/img/tutor_ear_r.webp" alt="" draggable="false"><img class="body" src="assets/img/tutor_base.webp" alt="" draggable="false"><img class="mouth" src="assets/img/tutor_mouth.webp" alt="" draggable="false">
-        <svg class="eyes" viewBox="0 0 816 1248" aria-hidden="true"><defs>
+      <div class="rig"><img class="ear ear-l" src="assets/img/tutor_ear_l.webp" alt="" draggable="false"><img class="ear ear-r" src="assets/img/tutor_ear_r.webp" alt="" draggable="false"><img class="body" src="assets/img/tutor_base.webp" alt="" draggable="false"><img class="brow brow-l" src="assets/img/tutor_brow_l.webp" alt="" draggable="false"><img class="brow brow-r" src="assets/img/tutor_brow_r.webp" alt="" draggable="false">
+        <svg class="face" viewBox="0 0 816 1248" aria-hidden="true"><defs>
         <radialGradient id="tEyeW" cx="45%" cy="40%" r="62%"><stop offset="0" stop-color="#ffffff"/><stop offset=".72" stop-color="#fbf7f2"/><stop offset="1" stop-color="#e9ddd2"/></radialGradient>
         <radialGradient id="tIris" cx="42%" cy="62%" r="62%"><stop offset="0" stop-color="#a86f3e"/><stop offset=".55" stop-color="#5e3418"/><stop offset="1" stop-color="#2a1408"/></radialGradient>
         <linearGradient id="tLidShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4a2c" stop-opacity=".28"/><stop offset=".32" stop-color="#7a4a2c" stop-opacity="0"/></linearGradient>
-        <clipPath id="tEyeClip"><ellipse rx="33" ry="38"/></clipPath></defs>
-        <g transform="translate(331 490)"><g class="eye">
-          <g class="open"><ellipse rx="33" ry="38" fill="url(#tEyeW)" stroke="#7a4a2c" stroke-opacity=".38" stroke-width="2.4"/>
+        <clipPath id="tEyeClip"><ellipse rx="33" ry="38"/></clipPath>
+        <linearGradient id="tMouthIn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f0f08"/><stop offset=".45" stop-color="#7c2015"/><stop offset="1" stop-color="#a83f30"/></linearGradient>
+        <radialGradient id="tTongue" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#f6a08a"/><stop offset=".6" stop-color="#e57a62"/><stop offset="1" stop-color="#c85a46"/></radialGradient>
+        <linearGradient id="tTooth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".8" stop-color="#f3efe9"/><stop offset="1" stop-color="#d9d2c9"/></linearGradient>
+        <clipPath id="tMouthClip"><path id="tMouthClipPath" d=""/></clipPath></defs>
+        <!-- the mouth, drawn (game.js tutorMouth): its shape follows the voice and the face -->
+        <g class="mouth">
+          <path class="m-shade" d="" fill="none" stroke="#b9805a" stroke-opacity=".35" stroke-width="7" stroke-linecap="round"/>
+          <path class="m-in" d="" fill="url(#tMouthIn)"/>
+          <g clip-path="url(#tMouthClip)">
+            <ellipse class="m-tongue" cx="446" cy="630" rx="36" ry="28" fill="url(#tTongue)"/>
+            <rect class="m-tooth" x="0" y="0" width="21" height="26" rx="6" fill="url(#tTooth)" stroke="#cfc6bb" stroke-width="1.2"/>
+            <rect class="m-tooth" x="0" y="0" width="21" height="26" rx="6" fill="url(#tTooth)" stroke="#cfc6bb" stroke-width="1.2"/>
+          </g>
+          <path class="m-rim" d="" fill="none" stroke="#5e1a10" stroke-opacity=".7" stroke-width="3.2" stroke-linejoin="round"/>
+          <path class="m-lip" d="" fill="none" stroke="#ffc9ad" stroke-opacity=".85" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <g class="eye eye-l" transform="translate(331 490)"><g class="open"><ellipse rx="33" ry="38" fill="url(#tEyeW)" stroke="#7a4a2c" stroke-opacity=".38" stroke-width="2.4"/>
           <g clip-path="url(#tEyeClip)">
             <g class="iris"><ellipse rx="22.5" ry="24.5" fill="url(#tIris)"/><ellipse rx="11" ry="12.5" fill="#1d0f07"/>
               <ellipse cx="8.5" cy="-10" rx="7.5" ry="5.6" fill="#fff" opacity=".95" transform="rotate(-22 8.5 -10)"/><circle cx="-8" cy="9.5" r="3.2" fill="#fff" opacity=".8"/></g>
             <rect x="-35" y="-40" width="70" height="80" fill="url(#tLidShade)"/>
           </g></g>
           <path class="lash" d="M-27 4Q0 19 27 4" fill="none" stroke="#5a3320" stroke-width="4.5" stroke-linecap="round"/>
-        </g></g>
-        <g transform="translate(516 467) scale(.86 .93)"><g class="eye">
-          <g class="open"><ellipse rx="33" ry="38" fill="url(#tEyeW)" stroke="#7a4a2c" stroke-opacity=".38" stroke-width="2.4"/>
+          <path class="happy" d="M-28 11Q0 -24 28 11" fill="none" stroke="#4a2a18" stroke-width="9.5" stroke-linecap="round"/></g>
+        <g class="eye eye-r" transform="translate(516 467) scale(.86 .93)"><g class="open"><ellipse rx="33" ry="38" fill="url(#tEyeW)" stroke="#7a4a2c" stroke-opacity=".38" stroke-width="2.4"/>
           <g clip-path="url(#tEyeClip)">
             <g class="iris"><ellipse rx="22.5" ry="24.5" fill="url(#tIris)"/><ellipse rx="11" ry="12.5" fill="#1d0f07"/>
               <ellipse cx="8.5" cy="-10" rx="7.5" ry="5.6" fill="#fff" opacity=".95" transform="rotate(-22 8.5 -10)"/><circle cx="-8" cy="9.5" r="3.2" fill="#fff" opacity=".8"/></g>
             <rect x="-35" y="-40" width="70" height="80" fill="url(#tLidShade)"/>
           </g></g>
           <path class="lash" d="M-27 4Q0 19 27 4" fill="none" stroke="#5a3320" stroke-width="4.5" stroke-linecap="round"/>
-        </g></g></svg></div>
+          <path class="happy" d="M-28 11Q0 -24 28 11" fill="none" stroke="#4a2a18" stroke-width="9.5" stroke-linecap="round"/></g></svg></div>
     </div>
     <div class="game-el frame" id="frame">
       <div class="lights" id="lights" aria-hidden="true"></div>
@@ -131,6 +145,6 @@
 <script src="js/candyfx.js?v=862b486b"></script>
 <script src="js/jigsaw.js?v=9c864933"></script>
 <script src="js/fx.js?v=78baa07e"></script>
-<script src="js/game.js?v=f88d14f2"></script>
+<script src="js/game.js?v=87c6b695"></script>
 </body>
 </html>
