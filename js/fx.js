@@ -1,7 +1,7 @@
 /* Phonics Puzzle — particles on one full-window canvas (#fx): sparkles, little stars, music notes, confetti, glow dots.
  * Sprites are drawn once into small canvases and stamped with drawImage (cheap enough for a few hundred at once).
  * The motions follow the reference video: the sparkle trail behind a dragged piece, the burst of stars and notes when
- * a piece snaps, the sparkle comets running round the frame, the spiral of the START transition.
+ * a piece snaps, the sparkle comets running round the frame.
  */
 (function () {
   'use strict';
@@ -70,27 +70,18 @@
     wake();
   }
   let running = false, last = 0;
-  const effects = [];                                  // drawn every frame until their end time (spiral ribbons)
   function wake() { if (!running) { running = true; last = performance.now(); requestAnimationFrame(tick); } }
   function tick(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
-    for (let i = effects.length - 1; i >= 0; i--) { if (now >= effects[i].end) effects.splice(i, 1); else effects[i].draw(g, now); }
     for (let i = parts.length - 1; i >= 0; i--) {
       const p = parts[i];
       p.t += dt;
       if (p.t >= p.life) { parts.splice(i, 1); continue; }
-      if (p.orbit) {                                   // spiral arms (START transition)
-        const o = p.orbit;
-        o.a += o.w * dt * (1 + p.t * o.acc);
-        o.r = Math.max(0, o.r + o.vr * dt);
-        p.x = o.cx + Math.cos(o.a) * o.r; p.y = o.cy + Math.sin(o.a) * o.r * o.flat;
-      } else {
-        const k = Math.pow(p.drag, dt * 60);
-        p.vx *= k; p.vy = p.vy * k + p.g * dt;
-        p.x += p.vx * dt; p.y += p.vy * dt;
-      }
+      const k = Math.pow(p.drag, dt * 60);
+      p.vx *= k; p.vy = p.vy * k + p.g * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt;
       p.rot += p.vr * dt;
       const f = p.t / p.life;
       const a = p.alpha * (f < 0.12 ? f / 0.12 : 1 - Math.pow((f - 0.12) / 0.88, 2));
@@ -105,7 +96,7 @@
       }
     }
     g.globalAlpha = 1;
-    if (parts.length || effects.length) requestAnimationFrame(tick); else { running = false; g.clearRect(0, 0, W, H); }
+    if (parts.length) requestAnimationFrame(tick); else { running = false; g.clearRect(0, 0, W, H); }
   }
 
   const FX = {
@@ -160,38 +151,7 @@
         step();
       });
     },
-    /** the START transition: sparkles on spiral arms round the middle, turning faster and opening out */
-    spiral(cx, cy, ms = 1700) {
-      const R = Math.hypot(W, H) * 0.5, ARMS = 3;
-      // glowing ribbons on three trailing spiral arms (pink, cyan, gold), turning faster and opening out
-      const t0 = performance.now(), ARM_COL = [tok('--fx-pink'), tok('--fx-cyan'), tok('--fx-gold')];
-      effects.push({ end: t0 + ms, draw(c, now) {
-        const f = Math.min(1, (now - t0) / ms), al = f < 0.18 ? f / 0.18 : f > 0.68 ? Math.max(0, (1 - f) / 0.32) : 1;
-        const rot = f * 3 + f * f * 8, sc = 0.22 + f * 1.5, RR = R * sc;
-        c.save(); c.globalCompositeOperation = 'lighter'; c.lineCap = 'round'; c.lineJoin = 'round';
-        ARM_COL.forEach((col, k) => {
-          c.beginPath();
-          for (let i = 0; i <= 64; i++) {
-            const q = i / 64, a = k * Math.PI * 2 / 3 + rot - q * 4.6, r = RR * (0.03 + 0.97 * Math.pow(q, 1.5));
-            const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r * 0.8;
-            i ? c.lineTo(x, y) : c.moveTo(x, y);
-          }
-          const gr = c.createRadialGradient(cx, cy, 0, cx, cy, RR);
-          gr.addColorStop(0, col + '00'); gr.addColorStop(0.15, col + 'cc'); gr.addColorStop(0.7, col + '66'); gr.addColorStop(1, col + '00');
-          c.globalAlpha = al * 0.35; c.lineWidth = RR * 0.16; c.strokeStyle = gr; c.stroke();
-          c.globalAlpha = al * 0.6; c.lineWidth = RR * 0.06; c.stroke();
-          c.globalAlpha = al * 0.5; c.lineWidth = Math.max(2, RR * 0.012); c.strokeStyle = '#ffffff'; c.stroke();
-        });
-        c.restore();
-      } });
-      wake();
-      for (let i = 0; i < 420; i++) {
-        const arm = i % ARMS, f = Math.pow(Math.random(), 0.8), a0 = arm * (Math.PI * 2 / ARMS) + f * 5.2 + rnd(-0.12, 0.12);
-        add({ x: cx, y: cy, life: ms / 1000 * rnd(0.8, 1), size: rnd(8, 26) * (0.6 + f * 0.8), img: Math.random() < 0.72 ? spark(pick(WARM)) : dot(pick(COLORS)), twinkle: true, ph: rnd(0, 6),
-          orbit: { cx, cy, a: a0, r: 12 + f * R * 0.85, vr: 40 + f * 160, w: 3.2 - f * 1.4, acc: 1.2, flat: 0.8 } });
-      }
-    },
-    clear() { parts.length = 0; effects.length = 0; },
+    clear() { parts.length = 0; },
     count: () => parts.length,
   };
   window.FX = FX;

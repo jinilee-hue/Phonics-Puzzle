@@ -1,5 +1,6 @@
 /* Phonics Puzzle — the game.
- * Title (logo drop, START shine, tapping hand) → START: flash + spiral of sparkles → game screen (frame + sparkle comets,
+ * Title (logo drop + float + glint, twinkling stars, slow room drift with pointer parallax, START shine, tapping hand) →
+ * START: sparkle burst, the logo lifts away → game screen (frame + sparkle comets,
  * HUD pop, tray slides in) → 3 levels x 6 pictures from the lesson pack FP.K.U1L1 (every m-word with a picture):
  * level 1 = 2x2 pieces, level 2 = 3x2, level 3 = 3x3. Each puzzle: the picture shows and its word is said, it breaks
  * into pieces that fly into the PIECES tray, the child drags them onto the faint picture (snap = colour burst, stars,
@@ -23,7 +24,7 @@
     logoWrap: $('#logoWrap'), start: $('#btnStart'), titleHand: $('#titleHand'), gameLogo: $('#gameLogo'),
     frame: $('#frame'), lights: $('#lights'), board: $('#board'), ghost: $('#ghost'), placed: $('#placed'), full: $('#full'), hint: $('#hint'),
     tray: $('#tray'), list: $('#trayList'), view: $('#trayView'), dots: $('#trayDots'), up: $('#btnUp'), down: $('#btnDown'),
-    word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), swirl: $('#swirl'),
+    word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), stars: $('#titleStars'),
     score: $('#score'), level: $('#levelTxt'), hudL: $('.hud-left'), sys: $('.sys'),
     clear: $('#clear'), clearTitle: $('#clearTitle'), clearPics: $('#clearPics'), clearScore: $('#clearScore'), go: $('#btnGo'), goTxt: $('#goTxt'),
   };
@@ -61,6 +62,38 @@
     for (let i = down - 1; i >= 1; i--) put(IN, IN + (FH - 2 * IN) * i / down, i % 4 === 0);
     E.lights.innerHTML = html;
   })();
+  // score / level written on the sheet's blank ribbons: an outline layer under a gradient-filled one
+  function setRib(el, t, bump) {
+    t = String(t);
+    if (el.dataset.t !== t || !el.firstChild || el.firstChild.nodeType === 3) { el.dataset.t = t; el.innerHTML = `<span class="o">${t}</span><span class="f">${t}</span>`; }
+    if (bump) restartAnim(el, 'bump');
+  }
+  [E.score, E.level].forEach(el => { el.classList.add('rib-txt'); setRib(el, el.textContent); });
+  // twinkling stars over the title room (user: "배경에 별 반짝이 좀 더"): sparkles and little candy stars, seeded positions,
+  // each on its own beat; some drift up slowly. They sit behind the logo and START.
+  (function titleStars() {
+    let s = 7;
+    const R = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+    const cols = ['--fx-white', '--fx-gold', '--fx-yellow', '--fx-pink', '--fx-cyan', '--fx-purple'];
+    let html = '';
+    for (let i = 0; i < 58; i++) {
+      const star = R() < 0.3, x = R() * 100, y = R() * 100;
+      const size = star ? 1.6 + R() * 1.8 : 1.4 + R() * 3.2;
+      const c = star ? cols[2 + ((R() * 4) | 0)] : cols[(R() * 3) | 0];
+      html += `<i class="tstar ${star ? 'st' : 'sp'}${R() < 0.35 ? ' drift' : ''}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;--s:calc(${size.toFixed(2)} * var(--u));--c:var(${c});--t:${(2.2 + R() * 3).toFixed(2)}s;--d:${(-R() * 5).toFixed(2)}s"><b></b></i>`;
+    }
+    E.stars.innerHTML = html;
+  })();
+  // pointer parallax on the title: the room and stars lean away, the logo toward the pointer (a touch screen just drifts)
+  let pxRaf = 0;
+  addEventListener('pointermove', (e) => {
+    if (G.screen !== 'title' || e.pointerType === 'touch' || pxRaf) return;
+    pxRaf = requestAnimationFrame(() => {
+      pxRaf = 0;
+      app.style.setProperty('--px', ((e.clientX / innerWidth) * 2 - 1).toFixed(3));
+      app.style.setProperty('--py', ((e.clientY / innerHeight) * 2 - 1).toFixed(3));
+    });
+  });
   // little twinkles over the title logo
   (function twinkles() {
     const at = [[9, 14], [30, 8], [58, 6], [86, 12], [94, 44], [5, 52], [50, 30], [72, 70], [22, 74]];
@@ -74,7 +107,8 @@
     G.screen = 'title'; app.dataset.screen = 'title'; G.busy = true;
     E.clear.classList.remove('show'); E.word.classList.remove('show'); E.next.classList.remove('show'); hideHand();
     E.drag.innerHTML = ''; E.bursts.innerHTML = '';
-    restartAnim(E.logoWrap, 'drop'); E.logoWrap.classList.remove('float');
+    E.logoWrap.classList.remove('float', 'leave'); E.stars.classList.remove('leave'); E.titleHand.classList.remove('leave');
+    restartAnim(E.logoWrap, 'drop');
     setTimeout(() => { if (G.screen === 'title') E.logoWrap.classList.add('float'); }, 1150);
     E.start.classList.remove('hit'); E.start.style.opacity = ''; restartAnim(E.start, 'in');
     restartAnim(E.sys, 'pop');
@@ -95,30 +129,33 @@
     FX.trail(x, y, 1, k / 9);
   }
 
-  E.start.addEventListener('click', () => { if (G.screen === 'title' && !app.classList.contains('swirling')) startGame(); });
+  let starting = false;
+  E.start.addEventListener('click', () => { if (G.screen === 'title' && !starting) startGame(); });
   async function startGame() {
     S.unlock(); S.startBgm(); S.sfx('start'); S.stopVoice();
     STT.preload();                       // the on-device backup recogniser loads while the first puzzle plays
     const tok = ++G.tok;
+    starting = true;
     clearInterval(ambient);
+    // no colour swirl (user: "색들이 회오리 처럼 들어가는건 안어울려"): START bursts into gold sparkles, the logo lifts
+    // away and the stars fade, then the game screen comes in
     const r = E.start.getBoundingClientRect();
-    FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 24, 160, u() / 9);
+    FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 26, 170, u() / 9);
     restartAnim(E.start, 'hit');
-    await wait(250);
-    // the spiral: haze arms + sparkles turn round the middle, the title blurs away, the game appears behind
-    app.classList.add('swirling'); restartAnim(E.swirl, 'on'); S.sfx('swirl');
-    FX.spiral(innerWidth / 2, innerHeight / 2, 1700);
-    await wait(950);
+    await wait(160);
+    E.logoWrap.classList.remove('float'); restartAnim(E.logoWrap, 'leave'); E.stars.classList.add('leave'); E.titleHand.classList.add('leave');
+    S.sfx('whoosh');
+    await wait(560);
+    starting = false;
     if (!alive(tok)) return;
+    app.style.setProperty('--px', 0); app.style.setProperty('--py', 0);
     newGame();
     enterGame(tok);
-    app.classList.remove('swirling');
-    later(900, () => E.swirl.classList.remove('on'));
   }
   function newGame() {
     G.order = Q.get('words') ? Q.get('words').split(',').map(w => WORDS.find(x => x.w === w)).filter(Boolean) : shuffle(WORDS);
     G.level = Math.min(LEVELS.length - 1, Math.max(0, (+Q.get('level') || 1) - 1)); G.idx = 0; G.score = 0; G.taught = false;
-    E.score.textContent = '0';
+    setRib(E.score, 0);
     loadImg(G.order[G.level * PER]);
   }
   async function enterGame(tok) {
@@ -163,7 +200,7 @@
     E.drag.innerHTML = '';
     const cfg = LEVELS[G.level], word = G.order[G.level * PER + G.idx];
     G.word = word;
-    E.level.textContent = `${G.level + 1}-${G.idx + 1}`;
+    setRib(E.level, `${G.level + 1}-${G.idx + 1}`);
     const img = await loadImg(word);
     if (!alive(tok)) return;
     G.img = img;
@@ -398,8 +435,7 @@
   }
   function addScore(n, x, y) {
     G.score += n;
-    E.score.textContent = G.score;
-    restartAnim(E.score, 'bump');
+    setRib(E.score, G.score, true);
     const t = document.createElement('b');
     t.className = 'plus'; t.textContent = '+' + n; t.style.left = x + 'px'; t.style.top = y + 'px';
     E.bursts.appendChild(t);
@@ -597,6 +633,7 @@
     startPuzzle();
   });
   $('#btnHome').addEventListener('click', () => { S.sfx('tap'); showTitle(); });
+  $('#btnHomeTop').addEventListener('click', () => { if (G.screen !== 'game') return; S.sfx('tap'); showTitle(); });
 
   // ── HUD ─────────────────────────────────────────────────────────────────────────────────────────────────
   $('#btnRestart').addEventListener('click', () => { if (G.screen !== 'game' || E.clear.classList.contains('show')) return; S.sfx('tap'); startPuzzle(); });
@@ -605,8 +642,8 @@
   btnSound.addEventListener('click', () => { S.unlock(); S.setMuted(!S.muted); paintSound(); if (!S.muted) S.sfx('tap'); });
   paintSound();
   const btnLang = $('#btnLang');
-  function paintLang() { btnLang.dataset.l = S.lang; btnLang.querySelectorAll('.flag').forEach(f => f.classList.toggle('on', f.dataset.l === S.lang)); btnLang.setAttribute('aria-pressed', String(S.lang === 'ko')); }
-  btnLang.addEventListener('click', () => { S.unlock(); S.setLang(S.lang === 'ko' ? 'en' : 'ko'); paintLang(); S.sfx('tap'); });
+  function paintLang() { btnLang.querySelectorAll('.flagbtn').forEach(f => { const on = f.dataset.l === S.lang; f.classList.toggle('on', on); f.setAttribute('aria-pressed', String(on)); }); }
+  btnLang.querySelectorAll('.flagbtn').forEach(f => f.addEventListener('click', () => { S.unlock(); S.setLang(f.dataset.l); paintLang(); S.sfx('tap'); }));
   paintLang();
   $('#btnExit').addEventListener('click', () => {
     S.sfx('tap');

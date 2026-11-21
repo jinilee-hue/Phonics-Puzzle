@@ -9,8 +9,11 @@
   mail·mask·match·mice·mouth + 문장 단어 mug. `my`(기능어, 소녀 그림)는 제외.
 - 3레벨 × 6그림(게임마다 섞음): 레벨1 2×2, 레벨2 3×2, 레벨3 3×3. 6그림마다 LEVEL CLEAR 카드, 3레벨 끝 ALL CLEAR.
 - 디자인 = 사용자 목업 2장(`design/ref_title.png`, `ref_game.png`), 모션 = 참고 영상(`design/ref_motion.mp4`):
-  로고 낙하·START 반짝임·탭하는 손 → START 섬광 + 나선(분홍·하늘·금 리본 + 반짝이) → 액자 둘레 반짝이 혜성·HUD 팝업·트레이 슬라이드.
-- 상단 바 = 파닉스 공통(Toy Catch): 버튼 높이 7.6u, 가장자리 3u. 왼쪽 점수·레벨, 오른쪽 Restart·소리·나가기. 언어 토글은 타이틀에만.
+  로고 낙하·둥실거림·빛줄기, 배경 별 반짝임·느린 드리프트(마우스 시차), START 반짝임·탭하는 손 → START 금색 반짝이 + 로고가 떠오르며 퇴장
+  (색 회오리는 사용자 요청으로 뺌) → 액자 둘레 반짝이 혜성·HUD 팝업·트레이 슬라이드.
+- 버튼 = 사용자 시트 `design/puzzle_assets.png`를 `tools/cut_buttons.py`로 잘라 그대로(`assets/img/ui`): Home·Restart·점수 리본·LEVEL 배지·
+  위/아래·소리·국기. 점수·레벨 글자는 빈 리본 위에 실시간으로 쓴다. 게임: 왼쪽 Home·점수, 오른쪽 레벨·Restart·소리 /
+  타이틀: 왼쪽 키, 오른쪽 국기·소리·나가기. 높이 7.6u, 가장자리 3u(파닉스 공통). 뒤로·일시정지·설정은 잘라만 둠(기능 미정).
 
 ## 실행
 `실행.command` 더블클릭 (또는 `python3 tools/serve.py 5267` → http://127.0.0.1:5267/).
@@ -48,5 +51,7 @@ URL: `?fast=1`(연출 단축) `?level=2|3`(그 레벨부터) `?words=moon,map,�
 - `uv run --with playwright==1.62.0 python tools/qa/shot.py <out> [W H]` — 타이틀→전환→퍼즐→드래그→스냅→오답→완성→힌트→클리어 스크린샷
 - `uv run --with playwright==1.62.0 python tools/qa/level3.py <out> W H` — 3×3, 트레이 스크롤, 전부 맞추기
 - `uv run --with playwright==1.62.0 --with pillow python tools/qa/swirl.py <out>` — START 전환 프레임
+- `uv run --with playwright==1.62.0 --with pillow python tools/qa/ui_check.py <out>` — 타이틀·전환·HUD·소리 꺼짐·클리어 카드·4:3
+- `uv run --with playwright==1.62.0 python tools/qa/word_match.py [url]` — 18판 전부: 보이는 단어 = 판 위 그림 = 들려준 단어
 - `uv run --with playwright==1.62.0 python tools/qa/judge_check.py [api|device]` — 팩 녹음 18개를 실제 판정 경로로: 자기 단어 ok,
   다른 단어 불통과여야 함 (2026-11-21 api: 18/18 · 0/18)

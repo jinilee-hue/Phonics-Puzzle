@@ -123,7 +123,6 @@
       }
       case 'boing': tone('sine', 300, 140, t, 0.25, 0.28); tone('triangle', 160, 120, t + 0.05, 0.2, 0.1); break;
       case 'whoosh': noise(t, 0.45, 0.25, 900, 0.6); break;
-      case 'swirl': noise(t, 1.3, 0.16, 700, 0.5); [84, 88, 91, 96, 100, 103].forEach((n, i) => tone('sine', NOTE(n), NOTE(n), t + i * 0.09, 0.3, 0.07)); break;
       case 'start': [72, 76, 79, 84].forEach((n, i) => tone('triangle', NOTE(n), NOTE(n), t + i * 0.06, 0.2, 0.25)); break;
       case 'fly': tone('sine', 600, 1300, t, 0.14, 0.08); break;
       case 'win': [72, 76, 79, 84, 79, 84, 88].forEach((n, i) => tone('triangle', NOTE(n), NOTE(n), t + i * 0.11, i === 6 ? 0.8 : 0.2, 0.28)); noise(t + 0.6, 0.6, 0.05, 7000, 0.7, 'highpass'); break;
