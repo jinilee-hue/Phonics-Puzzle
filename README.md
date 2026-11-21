@@ -11,7 +11,7 @@
 - 디자인 = 사용자 목업 2장(`design/ref_title.png`, `ref_game.png`), 모션 = 참고 영상(`design/ref_motion.mp4`):
   로고 낙하·둥실거림·빛줄기, 배경 별 반짝임·느린 드리프트(마우스 시차), START 반짝임·탭하는 손 → START 금색 반짝이 + 로고가 떠오르며 퇴장
   (색 회오리는 사용자 요청으로 뺌) → 액자 둘레 반짝이 혜성·HUD 팝업·트레이 슬라이드.
-- 버튼 = 사용자 시트 `design/puzzle_assets.png`를 `tools/cut_buttons.py`로 잘라 그대로(`assets/img/ui`): 점수 리본·LEVEL 배지·위/아래,
+- 버튼 = 사용자 시트 `design/puzzle_assets.png`를 `tools/cut_buttons.py`로 잘라 그대로(`assets/img/ui`): LEVEL 배지·위/아래. 점수 = 시트 트로피(`tools/cut_trophy.py`) + 둥근 상자,
   소리·나가기·키는 시트의 빈 분홍 젤리 + 같은 아이콘 그림체. 점수·레벨 글자는 빈 리본 위에 실시간으로 쓴다.
   게임: 왼쪽 레벨·점수, 오른쪽 소리·나가기 / 타이틀: 왼쪽 키, 오른쪽 언어 토글(파닉스 공통 토글, 분홍)·소리·나가기.
   높이 7.6u, 가장자리 3u(파닉스 공통). 시트의 Home·Restart·뒤로·일시정지·설정·국기는 잘라만 둠.

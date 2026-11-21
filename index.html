@@ -6,7 +6,7 @@
 <title>Phonics Puzzle</title>
 <link rel="stylesheet" href="css/font.css?v=54832f73">
 <link rel="stylesheet" href="css/font-ko.css?v=fa5b8de1">
-<link rel="stylesheet" href="css/style.css?v=4ecfb52a">
+<link rel="stylesheet" href="css/style.css?v=4cdb8527">
 </head>
 <body>
 <div id="app" data-screen="title">
@@ -48,7 +48,7 @@
        design/puzzle_assets.png, cut by tools/cut_buttons.py; score and level are written live on the blank ribbons -->
   <div class="hud-left game-el">
     <div class="level-rib" id="levelBadge"><img src="assets/img/ui/level.webp" alt="" draggable="false"><b id="levelTxt" data-t="1-1">1-1</b></div>
-    <div class="score-rib" id="scorePill"><img src="assets/img/ui/score.webp" alt="" draggable="false"><b id="score" data-t="0">0</b></div>
+    <div class="score-box" id="scorePill"><img class="trophy-img" src="assets/img/ui/trophy.webp" alt="" draggable="false"><b id="score" data-t="0">0</b></div>
   </div>
   <!-- phonics-api key (title only): a teacher enters it once per device; dot mint = the company server judges, sand = on-device -->
   <div class="sys sys-left title-el">
@@ -70,7 +70,7 @@
       <div class="clear-stars"><i></i><i></i><i></i></div>
       <div class="clear-title" id="clearTitle">LEVEL 1 CLEAR!</div>
       <div class="clear-pics" id="clearPics"></div>
-      <div class="clear-score"><svg class="trophy" viewBox="0 0 48 48" aria-hidden="true"><path class="cup" d="M14 6h20v9c0 7-4.5 12-10 12S14 22 14 15z"/><path class="ear" d="M14 9H8.5c0 6 2.5 9.5 6.5 10M34 9h5.5c0 6-2.5 9.5-6.5 10"/><path class="cup" d="M20.5 26.5h7l1 7h-9z"/><rect class="cup" x="14.5" y="33" width="19" height="6" rx="2.5"/><path class="star" d="m24 10.5 1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z"/></svg><b id="clearScore">0</b></div>
+      <div class="clear-score"><img class="trophy-img" src="assets/img/ui/trophy.webp" alt="" draggable="false"><b id="clearScore">0</b></div>
       <div class="clear-btns">
         <button class="imgbtn pill" id="btnHome" aria-label="Home"><img src="assets/img/ui/home.webp" alt="" draggable="false"></button>
         <button class="pill-btn go" id="btnGo" aria-label="Next level"><span id="goTxt">Next</span><svg viewBox="0 0 24 24"><path d="M9 5.5 16.5 12 9 18.5"/></svg></button>
