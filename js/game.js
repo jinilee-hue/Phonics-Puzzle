@@ -25,7 +25,7 @@
     frame: $('#frame'), lights: $('#lights'), board: $('#board'), ghost: $('#ghost'), placed: $('#placed'), full: $('#full'), hint: $('#hint'),
     tray: $('#tray'), list: $('#trayList'), view: $('#trayView'), dots: $('#trayDots'), up: $('#btnUp'), down: $('#btnDown'),
     word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), stars: $('#titleStars'), bubbles: $('#bubbles'),
-    score: $('#score'), level: $('#levelTxt'), hudL: $('.hud-left'), sys: $('.sys:not(.sys-left)'),
+    score: $('#score'), level: $('#boardTabTxt'), hudL: $('.hud-left'), sys: $('.sys:not(.sys-left)'),
     clear: $('#clear'), clearTitle: $('#clearTitle'), clearPics: $('#clearPics'), clearScore: $('#clearScore'), go: $('#btnGo'), goTxt: $('#goTxt'),
   };
   const G = { screen: 'title', tok: 0, order: [], level: 0, idx: 0, score: 0, cut: null, img: null, word: null, pieces: [], left: 0,
@@ -60,6 +60,12 @@
     if (!candyRaf) { candyLast = 0; candyRaf = requestAnimationFrame(candyLoop); }
   }
 
+  // ── level = the tab on the board's top edge ───────────────────────────────────────────────────────
+  function showLevel() {
+    const t = `${G.level + 1}-${G.idx + 1}`;
+    if (E.level.textContent !== t) { E.level.textContent = t; restartAnim(E.level, 'bump'); }
+  }
+
   // ── frame lights: bulbs (pink / blue / yellow) with a star at each corner and every few bulbs ─────────────
   // (the board's frame, and the result card's frame in the same style)
   function layoutLights(el, FW, FH, across, down) {
@@ -89,7 +95,7 @@
     if (el.dataset.t !== t || !el.firstChild || el.firstChild.nodeType === 3) { el.dataset.t = t; el.innerHTML = `<span class="o">${t}</span><span class="f">${t}</span>`; }
     if (bump) restartAnim(el, 'bump');
   }
-  [E.score, E.level, E.clearScore].forEach(el => { el.classList.add('rib-txt'); setRib(el, el.textContent); });
+  [E.score, E.clearScore].forEach(el => { el.classList.add('rib-txt'); setRib(el, el.textContent); });
   // twinkling stars over the title room (user: "배경에 별 반짝이 좀 더"): sparkles and little candy stars, seeded positions,
   // each on its own beat; some drift up slowly. They sit behind the logo and START.
   (function titleStars() {
@@ -234,7 +240,7 @@
     E.drag.innerHTML = '';
     const cfg = LEVELS[G.level], word = G.order[G.level * PER + G.idx];
     G.word = word;
-    setRib(E.level, `${G.level + 1}-${G.idx + 1}`);
+    showLevel();
     const img = await loadImg(word);
     if (!alive(tok)) return;
     G.img = img;

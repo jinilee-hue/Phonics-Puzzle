@@ -6,7 +6,7 @@
 <title>Phonics Puzzle</title>
 <link rel="stylesheet" href="css/font.css?v=54832f73">
 <link rel="stylesheet" href="css/font-ko.css?v=fa5b8de1">
-<link rel="stylesheet" href="css/style.css?v=038eef60">
+<link rel="stylesheet" href="css/style.css?v=844558a9">
 </head>
 <body>
 <div id="app" data-screen="title">
@@ -22,6 +22,8 @@
 
     <!-- game -->
     <img class="game-el game-logo" id="gameLogo" src="assets/img/logo.webp" alt="" draggable="false">
+    <!-- the level on a tab on the board's top edge, the PIECES tab's shape (user picked C of three) -->
+    <div class="game-el board-tab" id="boardTab"><small>LEVEL</small><b id="boardTabTxt">1-1</b></div>
     <div class="game-el frame" id="frame">
       <div class="lights" id="lights" aria-hidden="true"></div>
       <div class="board" id="board">
@@ -33,6 +35,11 @@
       </div>
     </div>
     <div class="game-el tray" id="tray">
+      <!-- the tab and the body are ONE outline (user: "타이틀이랑 붙였더니 매끄럽지가 않네") -->
+      <svg class="tray-shape" viewBox="0 0 30 80.2" preserveAspectRatio="none" aria-hidden="true"><defs>
+        <linearGradient id="trayFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--tray-top)"/><stop offset=".08" style="stop-color:var(--tray-hi)"/><stop offset=".42" style="stop-color:var(--tray)"/><stop offset="1" style="stop-color:var(--tray-lo)"/></linearGradient>
+        <clipPath id="trayClip"><path d="M8.1 0H21.9A2.6 2.6 0 0 1 24.5 2.6V3.2A2 2 0 0 0 26.5 5.2H26.8A3.2 3.2 0 0 1 30 8.4V76.8A3.4 3.4 0 0 1 26.6 80.2H3.4A3.4 3.4 0 0 1 0 76.8V8.4A3.2 3.2 0 0 1 3.2 5.2H3.5A2 2 0 0 0 5.5 3.2V2.6A2.6 2.6 0 0 1 8.1 0Z"/></clipPath></defs>
+        <path d="M8.1 0H21.9A2.6 2.6 0 0 1 24.5 2.6V3.2A2 2 0 0 0 26.5 5.2H26.8A3.2 3.2 0 0 1 30 8.4V76.8A3.4 3.4 0 0 1 26.6 80.2H3.4A3.4 3.4 0 0 1 0 76.8V8.4A3.2 3.2 0 0 1 3.2 5.2H3.5A2 2 0 0 0 5.5 3.2V2.6A2.6 2.6 0 0 1 8.1 0Z" fill="url(#trayFill)"/><rect x="0" y="79.4" width="30" height=".8" clip-path="url(#trayClip)" style="fill:var(--tray-shade)"/></svg>
       <div class="tray-tab">PIECES</div>
       <button class="tray-btn up" id="btnUp" aria-label="Up"><img src="assets/img/ui/up.webp" alt="" draggable="false"></button>
       <div class="tray-view" id="trayView"><div class="tray-list" id="trayList"></div></div>
@@ -48,7 +55,6 @@
        design/puzzle_assets.png, cut by tools/cut_buttons.py; score and level are written live on the blank ribbons -->
   <div class="hud-left game-el">
     <div class="score-box" id="scorePill"><img class="trophy-img" src="assets/img/ui/trophy.webp" alt="" draggable="false"><b id="score" data-t="0">0</b></div>
-    <div class="level-rib" id="levelBadge"><img src="assets/img/ui/level.webp" alt="" draggable="false"><b id="levelTxt" data-t="1-1">1-1</b></div>
   </div>
   <!-- phonics-api key (title only): a teacher enters it once per device; dot mint = the company server judges, sand = on-device -->
   <div class="sys sys-left title-el">
@@ -96,6 +102,6 @@
 <script src="js/candyfx.js?v=862b486b"></script>
 <script src="js/jigsaw.js?v=9c864933"></script>
 <script src="js/fx.js?v=78baa07e"></script>
-<script src="js/game.js?v=a2c45244"></script>
+<script src="js/game.js?v=ae2711a8"></script>
 </body>
 </html>

@@ -27,7 +27,7 @@ with sync_playwright() as p:
           const c = document.createElement('canvas'); c.width = 24; c.height = 20; const g = c.getContext('2d');
           g.drawImage(document.querySelector('#full'), 0, 0, 24, 20); const a = g.getImageData(0, 0, 24, 20).data;
           const d = Object.entries(__thumbs).map(([w, t]) => { let s = 0; for (let i = 0; i < a.length; i += 4) s += Math.abs(a[i]-t[i]) + Math.abs(a[i+1]-t[i+1]) + Math.abs(a[i+2]-t[i+2]); return [w, s / (a.length / 4 * 3)]; }).sort((x, y) => x[1] - y[1]);
-          return { level: document.querySelector('#levelTxt').textContent, shown: document.querySelector('#wordBar .word').textContent,
+          return { level: document.querySelector('#boardTabTxt').textContent, shown: document.querySelector('#wordBar .word').textContent,
                    board: d[0][0], diff: +d[0][1].toFixed(1), next: d[1][0], nextDiff: +d[1][1].toFixed(1), said: __said.filter(k => k.startsWith('w:')) };
         }''')
         r['ok'] = r['shown'] == r['board'] and ('w:' + r['shown']) in r['said']

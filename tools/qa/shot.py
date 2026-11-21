@@ -50,7 +50,7 @@ with sync_playwright() as p:
         pg.wait_for_selector('.mic.ok', timeout=20000); time.sleep(0.25); pg.screenshot(path=str(out / '09c_ok.png'))
     pg.wait_for_selector('#btnNext.show', timeout=20000)
     time.sleep(0.6); pg.screenshot(path=str(out / '10_word.png'))
-    print('level text', pg.inner_text('#levelTxt'), 'score', pg.inner_text('#score'))
+    print('level text', pg.inner_text('#boardTabTxt'), 'score', pg.inner_text('#score'))
     # hint after idle on the next puzzle
     pg.click('#btnNext', force=True)
     pg.wait_for_function('!window.__pp.G.busy', timeout=20000)

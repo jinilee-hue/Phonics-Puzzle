@@ -255,19 +255,15 @@ img { -webkit-user-drag: none; user-select: none; }
 @keyframes party { 50% { filter: brightness(1.8); transform: scale(1.25); } }
 
 /* ── pieces tray ─────────────────────────────────────────────────────────────── */
-.tray { position: absolute; left: calc(137 * var(--u)); top: calc(21 * var(--u)); width: calc(30 * var(--u)); height: calc(75 * var(--u)); border-radius: calc(3.4 * var(--u)); z-index: 4;
-  background: linear-gradient(var(--tray-hi), var(--tray) 40%, var(--tray-lo));
-  box-shadow: inset 0 calc(-.8 * var(--u)) 0 var(--tray-shade), 0 calc(1.4 * var(--u)) calc(2 * var(--u)) var(--shadow); }
+.tray { position: absolute; left: calc(137 * var(--u)); top: calc(21 * var(--u)); width: calc(30 * var(--u)); height: calc(75 * var(--u)); z-index: 4; }
+/* the tray + PIECES tab painted as one SVG outline (index.html .tray-shape), in the same 30 u wide units */
+.tray-shape { position: absolute; left: 0; top: calc(-5.2 * var(--u)); width: 100%; height: calc(80.2 * var(--u)); overflow: visible; pointer-events: none;
+  filter: drop-shadow(0 calc(1.4 * var(--u)) calc(1.6 * var(--u)) var(--shadow)); }
 .tray.intro { animation: trayIn .7s cubic-bezier(.2, 1.2, .4, 1) both; }
-.tray-tab::before, .tray-tab::after { content: ''; position: absolute; bottom: calc(2.2 * var(--u)); width: calc(2.4 * var(--u)); height: calc(2.4 * var(--u)); pointer-events: none; }
-.tray-tab::before { left: calc(-2.4 * var(--u)); background: radial-gradient(circle at 0 0, transparent calc(2.4 * var(--u) - .5px), var(--tray-hi) calc(2.4 * var(--u))); }
-.tray-tab::after { right: calc(-2.4 * var(--u)); background: radial-gradient(circle at 100% 0, transparent calc(2.4 * var(--u) - .5px), var(--tray-hi) calc(2.4 * var(--u))); }
 @keyframes trayIn { 0% { transform: translateX(calc(40 * var(--u))); opacity: 0; } 100% { transform: none; opacity: 1; } }
-.tray-tab { position: absolute; left: 50%; top: calc(-5.2 * var(--u)); transform: translateX(-50%); width: calc(21 * var(--u)); height: calc(6.4 * var(--u)); border-radius: calc(2.6 * var(--u)) calc(2.6 * var(--u)) 0 0;
-  /* one piece with the tray (user: "타이틀 영역과 한 덩어리로 보이게"): the tab's colour runs into the body's top colour, it
-     reaches into the body (no seam), and the two meet in rounded inside corners */
-  height: calc(7.4 * var(--u)); z-index: 1;
-  background: linear-gradient(var(--tray-top), var(--tray-hi)); display: grid; place-items: center; padding: 0 0 calc(1 * var(--u));
+.tray-tab { position: absolute; left: 50%; top: calc(-5.2 * var(--u)); transform: translateX(-50%); width: calc(19 * var(--u)); height: calc(6.4 * var(--u)); border-radius: calc(2.6 * var(--u)) calc(2.6 * var(--u)) 0 0;
+  /* (its shape is part of the tray's outline — .tray-shape; here only the label) */
+  height: calc(5.2 * var(--u)); z-index: 1; background: none; display: grid; place-items: center; padding: calc(.5 * var(--u)) 0 0;
   font-weight: 800; font-size: calc(3.5 * var(--u)); letter-spacing: .04em; color: var(--tray-ink); text-shadow: 0 calc(.3 * var(--u)) 0 var(--tray-ink-shadow); line-height: 1; }
 .tray-btn { position: absolute; left: 50%; width: calc(10.6 * var(--u)); height: calc(10.6 * var(--u)); margin-left: calc(-5.3 * var(--u)); z-index: 2; transition: transform .1s, filter .2s, opacity .2s;
   filter: drop-shadow(0 calc(.5 * var(--u)) calc(.6 * var(--u)) var(--tray-shade)); }
@@ -386,9 +382,6 @@ img { -webkit-user-drag: none; user-select: none; }
 .lang-tog .flag:not(.on) svg { transform: scale(.68); opacity: .6; filter: grayscale(.3); }
 .lang-tog:active { transform: scale(.96); }
 /* score ribbon + level badge */
-.level-rib { position: relative; flex: none; filter: drop-shadow(0 calc(.06 * var(--hb)) calc(.08 * var(--hb)) var(--shadow)); }
-.level-rib { height: calc(1.72 * var(--hb)); aspect-ratio: 372 / 275; margin-left: calc(-.05 * var(--hb)); }
-.level-rib img { display: block; width: 100%; height: 100%; }
 /* score = the sheet's trophy + a plain rounded box (user: "리본이 너무 많으니까 트로피만 … 점수판은 라운드 박스 형태로 심플하게") */
 .score-box { position: relative; flex: none; display: flex; align-items: center; justify-content: center; height: calc(.86 * var(--hb)); min-width: calc(2.5 * var(--hb));
   /* a gold candy pill like the jelly buttons (user: "끝에가 둥글게 … 스타일도 버튼과 비슷했으면"): fully round ends, a glossy cap,
@@ -405,12 +398,24 @@ img { -webkit-user-drag: none; user-select: none; }
 .rib-txt .o { position: absolute; left: 0; top: 0; padding-top: inherit; color: var(--edge); -webkit-text-stroke: var(--sw) var(--edge); text-shadow: 0 calc(var(--sw) * .7) calc(var(--sw) * .6) var(--rib-shadow); }
 .rib-txt .f { position: relative; background: var(--fill); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .score-box .rib-txt { position: relative; transform: none; font-size: calc(.62 * var(--hb)); --sw: .17em; --edge: var(--score-edge); --fill: linear-gradient(var(--score-hi) 18%, var(--score-mid) 55%, var(--score-lo) 90%); }
-.level-rib .rib-txt { left: 50%; top: 63.6%; font-size: calc(.56 * var(--hb)); --sw: .16em; --edge: var(--level-edge); --fill: linear-gradient(var(--level-hi) 20%, var(--level-lo) 90%); }
 .rib-txt.bump { animation: ribBump .5s cubic-bezier(.2, 1.8, .4, 1); }
 .score-box .rib-txt.bump { animation: ribBumpS .5s cubic-bezier(.2, 1.8, .4, 1); }
 @keyframes ribBumpS { 35% { transform: scale(1.3) rotate(-4deg); } }
 @keyframes ribBump { 35% { transform: translate(-50%, -50%) scale(1.3) rotate(-4deg); } }
 /* candy pills still drawn in CSS (the clear card's Next — the sheet has no such button) */
+/* level = a tall tab on the board's LEFT edge, the PIECES tab's shape and colours turned on its side (user picked C, then:
+   "보드판 왼쪽에 세로로 길게"): rounded on the outside, its right end tucked under the frame; LEVEL over the number */
+.board-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(1.2 * var(--u));
+  position: absolute; left: calc(27.6 * var(--u)); top: calc(30 * var(--u)); width: calc(10.8 * var(--u)); height: calc(24 * var(--u)); z-index: 2;
+  padding-right: calc(1.4 * var(--u)); border-radius: calc(2.8 * var(--u)) 0 0 calc(2.8 * var(--u));
+  background: linear-gradient(90deg, var(--tray-top), var(--tray-hi) 45%, var(--tray));
+  color: var(--tray-ink); text-shadow: 0 calc(.3 * var(--u)) 0 var(--tray-ink-shadow); font-weight: 800; line-height: 1;
+  filter: drop-shadow(0 calc(.5 * var(--u)) calc(.7 * var(--u)) var(--shadow)); transform-origin: 100% 50%; animation: tabIn .6s cubic-bezier(.2, 1.4, .4, 1) .15s both; }
+@keyframes tabIn { 0% { transform: translateX(calc(6 * var(--u))) scaleX(.4); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.board-tab small { font-size: calc(2 * var(--u)); letter-spacing: .08em; }
+.board-tab b { font-size: calc(4 * var(--u)); display: inline-block; }
+.board-tab b.bump { animation: ribBumpS .5s cubic-bezier(.2, 1.8, .4, 1); }
+
 /* candy jelly pills (the result card's Home / Next): the round jelly buttons' look — glossy cap, light from below, the side
    under it, a white spot; Home in the sound / exit pink, Next in the Next button's gold */
 .pill-btn { --e: calc(.09 * var(--hb)); --pt: #ff9fca; --pm: #f45a9c; --pl: #df3f86; --pg: #ffc9e2; --pb: #c9357a; --pd: #b02b6a; --pi: #8c2054;
