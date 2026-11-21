@@ -1,0 +1,7 @@
+# the user's mockups, model sheet, motion reference and cut sources stay local
+design/
+dev/voice_build.log
+__pycache__/
+.DS_Store
+~$*
+dev/eval/
