@@ -10,7 +10,7 @@
   const A = { ctx: null, muted: false, lang: 'ko', talking: 0, bgmOn: false, bgmLevel: 1 };
   try { const l = localStorage.getItem('ppLang'); if (l === 'en' || l === 'ko') A.lang = l; } catch (e) { /* storage off */ }
   try { A.muted = localStorage.getItem('ppMuted') === '1'; } catch (e) { /* storage off */ }
-  let master, voiceBus, sfxBus, musicBus;
+  let master, voiceBus, sfxBus, musicBus, analyser, levelBuf;
   const buffers = new Map();
   let cur = null, voiceTok = 0, seqTok = 0;
   const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -23,6 +23,7 @@
     const ctx = A.ctx = new AC();
     master = ctx.createGain(); master.connect(ctx.destination); master.gain.value = A.muted ? 0 : 1;
     voiceBus = ctx.createGain(); voiceBus.connect(master);
+    analyser = ctx.createAnalyser(); analyser.fftSize = 512; levelBuf = new Float32Array(analyser.fftSize); voiceBus.connect(analyser);
     sfxBus = ctx.createGain(); sfxBus.gain.value = 0.5; sfxBus.connect(master);
     musicBus = ctx.createGain(); musicBus.gain.value = 0; musicBus.connect(master);
     setTimeout(() => Object.keys(V.clips).forEach(k => decode(k)), 50);
@@ -76,6 +77,13 @@
   A.chant = word => A.seq(['s:m', 0.12, 's:m', 0.2, 'w:' + word], 0.05);
   function stopCur() { if (cur) { try { cur.onended = null; cur.stop(); } catch (e) { /* done */ } cur = null; talk(-1); } }
   A.stopVoice = function () { voiceTok++; seqTok++; stopCur(); };
+  /** 0..1 loudness of the voice playing right now (the tutor's mouth follows it) */
+  A.voiceLevel = function () {
+    if (!analyser || !A.talking) return 0;
+    analyser.getFloatTimeDomainData(levelBuf);
+    let q = 0; for (let i = 0; i < levelBuf.length; i++) q += levelBuf[i] * levelBuf[i];
+    return Math.min(1, Math.sqrt(q / levelBuf.length) * 5.5);
+  };
   function talk(d) { A.talking = Math.max(0, A.talking + d); duck(); }
   // while the child's word is being recorded the music goes almost silent (through the speakers it got into the mic)
   A.listening = false;

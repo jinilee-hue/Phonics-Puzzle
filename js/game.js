@@ -63,6 +63,17 @@
   // ── the tutor (the user's bunny): bobs while a line plays, reacts to the play ─────────────────────────
   function tutor(act) { if (G.screen === 'game') restartAnim(E.tutor, act); }
   setInterval(() => { E.tutor.classList.toggle('talk', G.screen === 'game' && S.talking > 0 && !E.tutor.matches('.hop,.cheer,.oops,.lean')); }, 120);
+  // the mouth follows the voice: open = the drawing's own smile (1); while a line plays it opens and shuts with the
+  // loudness (quick to open, a little slower to close), a touch wider when nearly shut
+  let mouthY = 1;
+  (function mouthLoop() {
+    const talking = G.screen === 'game' && S.talking > 0;
+    const target = talking ? 0.32 + 0.68 * Math.min(1, S.voiceLevel() * 1.7) : 1;
+    mouthY += (target - mouthY) * (target > mouthY ? 0.55 : 0.32);
+    E.tutor.style.setProperty('--my', mouthY.toFixed(3));
+    E.tutor.style.setProperty('--mx', (1 + (1 - mouthY) * 0.08).toFixed(3));
+    requestAnimationFrame(mouthLoop);
+  })();
   const rig = E.tutor.querySelector('.rig');
   rig.addEventListener('animationend', (e) => { if (e.target === rig) E.tutor.classList.remove('hop', 'cheer', 'oops', 'lean'); });
   // blinks now and then (a double blink sometimes)
