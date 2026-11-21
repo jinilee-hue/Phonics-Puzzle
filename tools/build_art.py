@@ -6,7 +6,7 @@
 - START = the user's own file design/puzzle_btn_start.png (2026-11-21, from ~/Downloads, 1080x396, transparent);
   the mockup cut only if it is missing
 - tutor = the user's own character design/puzzle_tuter.png (2026-11-21, from ~/Downloads/puzzle_tuter.png, transparent bunny)
-  -> assets/img/tutor.webp, as it is
+  -> assets/img/tutor.webp as it is (the game uses the layers from tools/build_tutor.py)
 - hand = the phonics games' common white hand (../Toy-Catch/assets/img/hand.webp — the same file Croco, Phonics Match and
   Magic Block use; user: "손가락도 흰색 공통으로 쓰고 있는게 있지않아?"), copied as it is
 uv run --with pillow python tools/build_art.py

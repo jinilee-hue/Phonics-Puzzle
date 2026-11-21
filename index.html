@@ -6,7 +6,7 @@
 <title>Phonics Puzzle</title>
 <link rel="stylesheet" href="css/font.css?v=54832f73">
 <link rel="stylesheet" href="css/font-ko.css?v=fa5b8de1">
-<link rel="stylesheet" href="css/style.css?v=8471582e">
+<link rel="stylesheet" href="css/style.css?v=0f65825d">
 </head>
 <body>
 <div id="app" data-screen="title">
@@ -24,8 +24,36 @@
     <img class="game-el game-logo" id="gameLogo" src="assets/img/logo.webp" alt="" draggable="false">
     <!-- the level on a tab on the board's top edge (user picked C of three; kept on the top edge) -->
     <div class="game-el board-tab" id="boardTab"><small>LEVEL</small><b id="boardTabTxt">1-1</b></div>
-    <!-- the tutor (the user's bunny), left of the board, pointing at it -->
-    <div class="game-el tutor" id="tutor"><img src="assets/img/tutor.webp" alt="" draggable="false"></div>
+    <!-- the tutor (the user's bunny), left of the board, pointing at it: layers from tools/build_tutor.py (ears behind the body
+         so they can wiggle) + new SVG eyes (white, iris, light) that blink and look at the pieces -->
+    <div class="game-el tutor" id="tutor">
+      <svg class="tutor-shadow" viewBox="0 0 816 1248" aria-hidden="true"><defs><filter id="tShadowBlur" x="-30%" y="-200%" width="160%" height="500%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+        <g filter="url(#tShadowBlur)"><ellipse cx="340" cy="1236" rx="250" ry="24" fill="#2a1e46" opacity=".16"/><ellipse cx="212" cy="1240" rx="86" ry="15" fill="#2a1e46" opacity=".34"/><ellipse cx="465" cy="1220" rx="76" ry="13" fill="#2a1e46" opacity=".3"/></g></svg>
+      <div class="rig"><img class="ear ear-l" src="assets/img/tutor_ear_l.webp" alt="" draggable="false"><img class="ear ear-r" src="assets/img/tutor_ear_r.webp" alt="" draggable="false"><img class="body" src="assets/img/tutor_base.webp" alt="" draggable="false">
+        <svg class="eyes" viewBox="0 0 816 1248" aria-hidden="true"><defs>
+        <radialGradient id="tEyeW" cx="45%" cy="40%" r="62%"><stop offset="0" stop-color="#ffffff"/><stop offset=".72" stop-color="#fbf7f2"/><stop offset="1" stop-color="#e9ddd2"/></radialGradient>
+        <radialGradient id="tIris" cx="42%" cy="62%" r="62%"><stop offset="0" stop-color="#a86f3e"/><stop offset=".55" stop-color="#5e3418"/><stop offset="1" stop-color="#2a1408"/></radialGradient>
+        <linearGradient id="tLidShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4a2c" stop-opacity=".28"/><stop offset=".32" stop-color="#7a4a2c" stop-opacity="0"/></linearGradient>
+        <clipPath id="tEyeClip"><ellipse rx="33" ry="38"/></clipPath></defs>
+        <g transform="translate(331 490)"><g class="eye">
+          <g class="open"><ellipse rx="33" ry="38" fill="url(#tEyeW)" stroke="#7a4a2c" stroke-opacity=".38" stroke-width="2.4"/>
+          <g clip-path="url(#tEyeClip)">
+            <g class="iris"><ellipse rx="22.5" ry="24.5" fill="url(#tIris)"/><ellipse rx="11" ry="12.5" fill="#1d0f07"/>
+              <ellipse cx="8.5" cy="-10" rx="7.5" ry="5.6" fill="#fff" opacity=".95" transform="rotate(-22 8.5 -10)"/><circle cx="-8" cy="9.5" r="3.2" fill="#fff" opacity=".8"/></g>
+            <rect x="-35" y="-40" width="70" height="80" fill="url(#tLidShade)"/>
+          </g></g>
+          <path class="lash" d="M-27 4Q0 19 27 4" fill="none" stroke="#5a3320" stroke-width="4.5" stroke-linecap="round"/>
+        </g></g>
+        <g transform="translate(516 467) scale(.86 .93)"><g class="eye">
+          <g class="open"><ellipse rx="33" ry="38" fill="url(#tEyeW)" stroke="#7a4a2c" stroke-opacity=".38" stroke-width="2.4"/>
+          <g clip-path="url(#tEyeClip)">
+            <g class="iris"><ellipse rx="22.5" ry="24.5" fill="url(#tIris)"/><ellipse rx="11" ry="12.5" fill="#1d0f07"/>
+              <ellipse cx="8.5" cy="-10" rx="7.5" ry="5.6" fill="#fff" opacity=".95" transform="rotate(-22 8.5 -10)"/><circle cx="-8" cy="9.5" r="3.2" fill="#fff" opacity=".8"/></g>
+            <rect x="-35" y="-40" width="70" height="80" fill="url(#tLidShade)"/>
+          </g></g>
+          <path class="lash" d="M-27 4Q0 19 27 4" fill="none" stroke="#5a3320" stroke-width="4.5" stroke-linecap="round"/>
+        </g></g></svg></div>
+    </div>
     <div class="game-el frame" id="frame">
       <div class="lights" id="lights" aria-hidden="true"></div>
       <div class="board" id="board">
@@ -103,6 +131,6 @@
 <script src="js/candyfx.js?v=862b486b"></script>
 <script src="js/jigsaw.js?v=9c864933"></script>
 <script src="js/fx.js?v=78baa07e"></script>
-<script src="js/game.js?v=3b2f6c24"></script>
+<script src="js/game.js?v=06062a1a"></script>
 </body>
 </html>

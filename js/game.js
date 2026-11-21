@@ -63,7 +63,26 @@
   // ── the tutor (the user's bunny): bobs while a line plays, reacts to the play ─────────────────────────
   function tutor(act) { if (G.screen === 'game') restartAnim(E.tutor, act); }
   setInterval(() => { E.tutor.classList.toggle('talk', G.screen === 'game' && S.talking > 0 && !E.tutor.matches('.hop,.cheer,.oops,.lean')); }, 120);
-  ['animationend'].forEach(ev => E.tutor.addEventListener(ev, (e) => { if (e.target === E.tutor.firstElementChild) E.tutor.classList.remove('hop', 'cheer', 'oops', 'lean'); }));
+  const rig = E.tutor.querySelector('.rig');
+  rig.addEventListener('animationend', (e) => { if (e.target === rig) E.tutor.classList.remove('hop', 'cheer', 'oops', 'lean'); });
+  // blinks now and then (a double blink sometimes)
+  (function blink() {
+    setTimeout(() => {
+      E.tutor.classList.add('blink'); setTimeout(() => E.tutor.classList.remove('blink'), 140);
+      if (Math.random() < 0.25) setTimeout(() => { E.tutor.classList.add('blink'); setTimeout(() => E.tutor.classList.remove('blink'), 130); }, 300);
+      blink();
+    }, 2200 + Math.random() * 3200);
+  })();
+  /** the eyes look toward a screen point (the dragged piece, the place it snapped to, the hint); null = the board */
+  let lookBack = 0;
+  function lookAt(x, y, hold) {
+    if (x == null) { const br = E.board.getBoundingClientRect(); x = br.left + br.width * .4; y = br.top + br.height * .5; }
+    const r = E.tutor.getBoundingClientRect(), ex = r.left + r.width * .52, ey = r.top + r.height * .385;
+    const dx = x - ex, dy = y - ey, d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / (r.width * .8)) * 8;
+    E.tutor.style.setProperty('--lx', (dx / d * k).toFixed(2)); E.tutor.style.setProperty('--ly', (dy / d * k * .85).toFixed(2));
+    clearTimeout(lookBack);
+    if (hold) lookBack = setTimeout(() => lookAt(null), hold);
+  }
 
   // ── level = the tab on the board's top edge ───────────────────────────────────────────────────────
   function showLevel() {
@@ -397,7 +416,7 @@
     const d = G.drag;
     d.el.style.left = x - d.fx * d.pw + 'px'; d.el.style.top = y - d.fy * d.ph + 'px';
     const now = performance.now();
-    if (now - d.t > 34) { d.t = now; FX.trail(x, y, 1, u() / 9); }
+    if (now - d.t > 34) { d.t = now; FX.trail(x, y, 1, u() / 9); lookAt(x, y); }
   }
   function endDrag(x, y) {
     const d = G.drag; G.drag = null;
@@ -415,6 +434,7 @@
     backToTray(d);
   }
   function backToTray(d) {
+    lookAt(null);
     const p = d.p, el = d.el, slot = d.slot;
     if (!slot || !slot.isConnected) { el.remove(); return; }
     const fit = fitIn(slot.getBoundingClientRect(), p);
@@ -459,7 +479,7 @@
       restartAnim(E.board, 'ping');
       // the burst: rainbow rays + stars, notes and confetti from the piece's middle
       const cx = br.left + (tl + cu.cw / 2 + cu.m) * bs, cy = br.top + (tt + cu.ch / 2 + cu.m) * bs;
-      S.sfx('snap'); tutor('hop');
+      S.sfx('snap'); tutor('hop'); lookAt(cx, cy, 900);
       candyBurst(cx, cy, 0.55);                       // Toy Catch's catch burst, a little smaller for one piece
       addScore(100, cx, cy);
       if (G.left === 0) complete(tok); else armHint();
@@ -494,6 +514,7 @@
     if (!p || p.placed || !p.cv.isConnected) return;
     showHint(p, 3400);
     S.say('t:hint'); tutor('lean');
+    { const hb = E.board.getBoundingClientRect(), hs = hb.width / IW, hcu = G.cut; lookAt(hb.left + (p.c * hcu.cw + hcu.cw / 2) * hs, hb.top + (p.r * hcu.ch + hcu.ch / 2) * hs, 3000); }
     // the hand glides from the piece to its place, twice
     const sr = stage.getBoundingClientRect(), k = u(), cr = p.cv.getBoundingClientRect(), br = E.board.getBoundingClientRect(), bs = br.width / IW, cu = G.cut;
     const a = [cr.left + cr.width * .5 - sr.left, cr.top + cr.height * .5 - sr.top];
