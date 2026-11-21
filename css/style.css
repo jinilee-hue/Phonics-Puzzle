@@ -44,8 +44,17 @@
   --green-ink: #1c7a33;
   --pink: #ff5fa2;
   --api-on: #6fdcb8;
-  --icon-fill: #ffd9e7;
-  --icon-edge: #d8457e;
+  --frame-side: #d9571f;     /* the board frame's thickness */
+  --frame-lip: #e8692c;
+  --frame-wall: rgba(120, 40, 10, 0.45);
+  --frame-gloss-2: rgba(255, 245, 225, 0.7);
+  --socket: rgba(150, 55, 15, 0.35);
+  --bub-pink: rgba(255, 130, 215, 0.85);
+  --bub-cyan: rgba(120, 220, 255, 0.85);
+  --bub-yellow: rgba(255, 238, 130, 0.8);
+  --bub-mint: rgba(140, 255, 200, 0.8);
+  --bub-rim: rgba(255, 255, 255, 0.85);
+  --bub-hl: rgba(255, 255, 255, 0.95);
   --score-hi: #fff6a8;
   --score-mid: #ffcb2f;
   --score-lo: #f59a14;
@@ -123,10 +132,24 @@ img { -webkit-user-drag: none; user-select: none; }
   translate: calc(var(--px, 0) * -.5 * var(--u)) calc(var(--py, 0) * -.4 * var(--u)); transition: translate 1s cubic-bezier(.2, .7, .3, 1), opacity .5s; }
 .title-stars.leave { opacity: 0; }
 .tstar { position: absolute; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); filter: drop-shadow(0 0 calc(var(--s) * .35) var(--c)); animation: tTwinkle var(--t) ease-in-out var(--d) infinite both; }
-.tstar b { position: absolute; inset: 0; background: radial-gradient(circle, var(--white) 0 22%, var(--c) 60%); }
-.tstar.sp b { clip-path: polygon(50% 0, 59% 41%, 100% 50%, 59% 59%, 50% 100%, 41% 59%, 0 50%, 41% 41%); }
-.tstar.st b { clip-path: polygon(50% 2%, 62% 36%, 98% 37%, 69% 58%, 80% 93%, 50% 72%, 20% 93%, 31% 58%, 2% 37%, 38% 36%); background: radial-gradient(circle at 40% 35%, var(--white) 0 12%, var(--c) 55%); }
+.tstar b { position: absolute; inset: 0; background: radial-gradient(circle, var(--white) 0 30%, var(--c) 75%); -webkit-mask: var(--shape) center / contain no-repeat; mask: var(--shape) center / contain no-repeat; }
+.tstar.sp { --shape: url(../assets/img/ui/sparkle.svg); }   /* (user: "반짝이는 별들의 모양도 다시 봐바") */
+.tstar.st { --shape: url(../assets/img/ui/star_round.svg); }
+.tstar.st b { background: radial-gradient(circle at 40% 35%, var(--white) 0 14%, var(--c) 60%); }
 .tstar.drift { animation: tTwinkle var(--t) ease-in-out var(--d) infinite both, tDrift calc(var(--t) * 4) ease-in-out var(--d) infinite alternate; }
+/* soap bubbles (user: "인트로에 비눗방울 효과 영상참고해서"): clear, a thin rainbow rim, two light spots; each rises on its own,
+   swaying and wobbling a little; behind the logo and START, never in the way of a tap */
+.bubbles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; transition: opacity .5s; }
+.bubbles.leave { opacity: 0; }
+.bubble { position: absolute; left: var(--x); top: 100%; width: var(--s); height: var(--s); animation: bubRise var(--d) linear var(--dl) infinite both; }
+.bubble i { position: absolute; inset: 0; animation: bubSway var(--sw) ease-in-out infinite alternate; }
+.bubble b { position: absolute; inset: 0; border-radius: 50%; animation: bubWobble 2.8s ease-in-out infinite; }
+.bubble .bd { background: radial-gradient(circle, var(--white-a0) 0 55%, var(--bub-rim) 80%, var(--white-a0) 86%), conic-gradient(from var(--hue, 200deg), var(--bub-pink), var(--bub-cyan), var(--bub-yellow), var(--bub-mint), var(--bub-pink));
+  -webkit-mask: radial-gradient(circle, rgba(0,0,0,.1) 0 50%, rgba(0,0,0,.55) 66%, #000 78%, #000 84%, transparent 87%); mask: radial-gradient(circle, rgba(0,0,0,.1) 0 50%, rgba(0,0,0,.55) 66%, #000 78%, #000 84%, transparent 87%); }
+.bubble .hl { background: radial-gradient(ellipse 22% 14% at 31% 27%, var(--bub-hl) 0 35%, var(--white-a0) 100%), radial-gradient(circle at 70% 73%, var(--white-a90) 0 4.5%, var(--white-a0) 8%); box-shadow: inset 0 0 0 calc(var(--s) * .025) var(--white-a40); }
+@keyframes bubRise { 0% { transform: translateY(0); opacity: 0; } 6% { opacity: 1; } 88% { opacity: 1; } 100% { transform: translateY(calc(-100vh - 120%)); opacity: 0; } }
+@keyframes bubSway { from { translate: calc(var(--a) * -1) 0; } to { translate: var(--a) 0; } }
+@keyframes bubWobble { 0%, 100% { scale: 1 1; } 50% { scale: 1.05 .95; } }
 @keyframes tTwinkle { 0%, 100% { opacity: 0; transform: scale(.2) rotate(0); } 45% { opacity: 1; transform: scale(1) rotate(30deg); } 60% { opacity: .9; transform: scale(.85) rotate(40deg); } }
 @keyframes tDrift { from { translate: 0 0; } to { translate: calc(var(--s) * .4) calc(var(--s) * -1.6); } }
 
@@ -156,12 +179,23 @@ img { -webkit-user-drag: none; user-select: none; }
 .game-logo.pop { animation: logoPop .7s cubic-bezier(.2, 1.5, .4, 1) both; }
 @keyframes logoPop { 0% { transform: translateY(calc(-14 * var(--u))) scale(.5); opacity: 0; } 100% { transform: none; opacity: 1; } }
 .frame { position: absolute; left: calc(37 * var(--u)); top: calc(17 * var(--u)); width: calc(92 * var(--u)); height: calc(78.33 * var(--u)); border-radius: calc(5 * var(--u)); z-index: 3;
+  /* 3D (user: "보드판도 3d처럼 볼륨감 있게"): the frame is a thick rounded plastic rim — light on its top and left, shade at its
+     bottom and right, a solid side under it, a long gloss streak on the top bar — and the board sits sunk inside it */
   background: linear-gradient(var(--frame-hi), var(--frame) 45%, var(--frame-lo));
-  box-shadow: inset 0 calc(.7 * var(--u)) 0 var(--frame-gloss), inset 0 calc(-1 * var(--u)) 0 var(--frame-shade), 0 0 0 calc(.35 * var(--u)) var(--frame-edge), 0 calc(1.6 * var(--u)) calc(2.4 * var(--u)) var(--shadow); }
+  box-shadow: inset 0 calc(1 * var(--u)) calc(.6 * var(--u)) var(--frame-gloss), inset calc(.8 * var(--u)) 0 calc(.8 * var(--u)) var(--white-a40),
+    inset 0 calc(-1.3 * var(--u)) calc(.9 * var(--u)) var(--frame-shade), inset calc(-.8 * var(--u)) 0 calc(.9 * var(--u)) var(--frame-shade),
+    0 0 0 calc(.35 * var(--u)) var(--frame-edge), 0 calc(1.3 * var(--u)) 0 calc(.35 * var(--u)) var(--frame-side), 0 calc(1.6 * var(--u)) calc(2.4 * var(--u)) var(--shadow); }
 .frame.intro { animation: frameIn .75s cubic-bezier(.2, 1.3, .4, 1) both; }
+.frame::before { content: ''; position: absolute; left: calc(5 * var(--u)); right: calc(5 * var(--u)); top: calc(.7 * var(--u)); height: calc(1.5 * var(--u)); border-radius: 99px; pointer-events: none;
+  background: linear-gradient(90deg, var(--white-a0), var(--frame-gloss-2) 20%, var(--frame-gloss-2) 70%, var(--white-a0)); opacity: .55; filter: blur(calc(.25 * var(--u))); }
+.frame::after { content: ''; position: absolute; left: calc(.8 * var(--u)); top: calc(5 * var(--u)); bottom: calc(5 * var(--u)); width: calc(1.1 * var(--u)); border-radius: 99px; pointer-events: none;
+  background: linear-gradient(var(--white-a0), var(--frame-gloss-2) 25%, var(--white-a0)); opacity: .35; filter: blur(calc(.25 * var(--u))); }
 @keyframes frameIn { 0% { transform: scale(.82); opacity: 0; } 100% { transform: none; opacity: 1; } }
 .board { position: absolute; left: calc(5 * var(--u)); top: calc(5 * var(--u)); width: calc(82 * var(--u)); height: calc(68.33 * var(--u)); border-radius: calc(2.4 * var(--u)); overflow: hidden; background: var(--board);
-  box-shadow: inset 0 calc(.6 * var(--u)) calc(1 * var(--u)) var(--board-shade); }
+  /* sunk: a darker lip round the hole, a deep shadow from the top edge, a little light back from the bottom */
+  box-shadow: 0 0 0 calc(.45 * var(--u)) var(--frame-lip), 0 calc(-.3 * var(--u)) calc(.4 * var(--u)) calc(.45 * var(--u)) var(--frame-wall),
+    0 calc(.35 * var(--u)) calc(.3 * var(--u)) calc(.45 * var(--u)) var(--frame-gloss),
+    inset 0 calc(1.2 * var(--u)) calc(1.6 * var(--u)) var(--board-shade), inset 0 calc(-.3 * var(--u)) calc(.5 * var(--u)) var(--white-a40); }
 .board canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 #ghost { opacity: 1; transition: opacity .6s; }
 .board.blank #ghost { opacity: 0; }
@@ -185,7 +219,7 @@ img { -webkit-user-drag: none; user-select: none; }
 /* marquee lights round the frame (js: layoutLights), alternating bulbs and little stars like the mockup */
 .lights { position: absolute; inset: 0; pointer-events: none; }
 .lights i { position: absolute; width: calc(2.1 * var(--u)); height: calc(2.1 * var(--u)); margin: calc(-1.05 * var(--u)) 0 0 calc(-1.05 * var(--u)); border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, var(--white) 0 18%, var(--c) 45%); box-shadow: 0 0 calc(1 * var(--u)) var(--c), inset 0 calc(-.2 * var(--u)) 0 var(--frame-shade);
+  background: radial-gradient(circle at 35% 30%, var(--white) 0 18%, var(--c) 45%); box-shadow: 0 0 0 calc(.28 * var(--u)) var(--socket), 0 0 calc(1 * var(--u)) var(--c), inset 0 calc(-.2 * var(--u)) 0 var(--frame-shade);
   animation: bulb 1.6s ease-in-out infinite; animation-delay: var(--d); }
 .lights i.st { width: calc(2.9 * var(--u)); height: calc(2.9 * var(--u)); margin: calc(-1.45 * var(--u)) 0 0 calc(-1.45 * var(--u)); border-radius: 0; box-shadow: none; animation: none;
   background: url(../assets/img/ui/frame_star.svg) center / contain no-repeat; filter: drop-shadow(0 calc(.18 * var(--u)) calc(.15 * var(--u)) var(--frame-shade)); }
@@ -288,17 +322,23 @@ img { -webkit-user-drag: none; user-select: none; }
 .imgbtn.round { width: var(--hb); height: var(--hb); }
 .imgbtn.pill { height: var(--hb); aspect-ratio: 635 / 230; }
 .imgbtn.pill::after { border-radius: 999px; }
-/* icons the sheet has no button for (key, exit), drawn on its blank pink jelly in its icon style: light pink, deep pink edge */
-.imgbtn .ico { position: absolute; left: 24%; top: 21%; width: 52%; height: 52%; fill: none; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
-.imgbtn .ico .e { stroke: var(--icon-edge); stroke-width: 4.8; }
-.imgbtn .ico .c { stroke: var(--icon-fill); stroke-width: 2.6; }
-/* sound off: the same button gone grey, with a slash */
-/* sound on / off: the same jelly and icon style as exit (user: "음소거 버튼만 나가기 버튼과 달라보여"); off = grey jelly + X */
-.imgbtn .ico .body { fill: var(--icon-fill); stroke: var(--icon-edge); stroke-width: 3.6; stroke-linejoin: round; paint-order: stroke; }
-.imgbtn .ico .off { display: none; }
-#app.muted #btnSound .ico .on { display: none; }
-#app.muted #btnSound .ico .off { display: inline; }
-#app.muted #btnSound img, #app.muted #btnSound .ico { filter: grayscale(1) brightness(1.04); }
+/* key / sound / exit: the pink candy jellies from before the sheet (user: "버튼이 볼록해야지. 이미지로 붙이기 전 버튼으로 바꿔") —
+   raised: glossy cap, light from below, the side under it, a white spot; white icons */
+/* pink jellies (the mockup's round buttons), built like Toy Catch's: glossy cap, light from below, side thickness, white spot */
+.sysbtn {
+  --e: calc(.09 * var(--hb));
+  --jt: #ff9fca; --jm: #f45a9c; --jl: #df3f86; --jg: #ffc9e2; --jb: #c9357a; --js: #b02b6a; --jd: #8c2054;
+  position: relative; width: var(--hb); height: var(--hb); border-radius: 50%; display: grid; place-items: center; color: var(--white);
+  translate: 0 calc(-.5 * var(--e)); transition: translate .08s, box-shadow .08s;
+  background: radial-gradient(130% 80% at 50% -6%, rgba(255,255,255,.5) 0 40%, rgba(255,255,255,.28) 47%, rgba(255,255,255,0) 52%), radial-gradient(circle at 50% 118%, var(--jg) 0, rgba(255,255,255,0) 46%), linear-gradient(var(--jt), var(--jm) 50%, var(--jl));
+  box-shadow: inset 0 0 calc(.07 * var(--hb)) var(--jb), 0 var(--e) 0 0 var(--js), 0 calc(var(--e) + .06 * var(--hb)) calc(.15 * var(--hb)) rgba(120, 20, 70, .3); }
+.sysbtn::before { content: ''; position: absolute; left: 21%; top: 16%; width: 15%; height: 9%; border-radius: 50%; background: var(--white-a90); rotate: -32deg; pointer-events: none; }
+.sysbtn svg { width: 54%; height: 54%; filter: drop-shadow(0 calc(.03 * var(--hb)) 0 var(--jd)); }
+.sysbtn:active { translate: 0 calc(.2 * var(--e)); --e: calc(.03 * var(--hb)); }
+.sysbtn::after { content: ''; position: absolute; inset: calc(-.08 * var(--hb)); border-radius: 50%; }
+.sysbtn .off { display: none; }
+#app.muted #btnSound .on { display: none; } #app.muted #btnSound .off { display: inline; }
+#app.muted #btnSound { --jt: #c3cfe0; --jm: #98a9c2; --jl: #8193b0; --jg: #dde6f2; --jb: #73859f; --js: #64758f; --jd: #4d5c75; }
 /* voice language = the phonics games' toggle (Toy Catch's: plate + groove + white knob with the chosen flag, the other
    small and dim), in this game's pink (user: "인트로 국기는 토글형태로 통일하기로 했잖아. 색은 달라도") — title only */
 .lang-tog { --e: calc(.09 * var(--hb));
@@ -364,7 +404,7 @@ img { -webkit-user-drag: none; user-select: none; }
 
 /* ── phonics-api key (title, top left) ───────────────────────────────────────── */
 .sys.sys-left { right: auto; left: calc(3 * var(--u)); }
-#btnKey .dot { position: absolute; right: 4%; top: 4%; width: 26%; height: 26%; border-radius: 50%; background: var(--api-off); box-shadow: 0 0 0 calc(.04 * var(--hb)) var(--white); transition: background .2s; }
+#btnKey .dot { position: absolute; z-index: 2; right: 4%; top: 4%; width: 26%; height: 26%; border-radius: 50%; background: var(--api-off); box-shadow: 0 0 0 calc(.04 * var(--hb)) var(--white); transition: background .2s; }
 #btnKey[data-api="on"] .dot { background: var(--api-on); }
 
 /* ── the child says the word: a mic jelly in the word bar ─────────────────────── */

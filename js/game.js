@@ -24,7 +24,7 @@
     logoWrap: $('#logoWrap'), start: $('#btnStart'), titleHand: $('#titleHand'), gameLogo: $('#gameLogo'),
     frame: $('#frame'), lights: $('#lights'), board: $('#board'), ghost: $('#ghost'), placed: $('#placed'), full: $('#full'), hint: $('#hint'),
     tray: $('#tray'), list: $('#trayList'), view: $('#trayView'), dots: $('#trayDots'), up: $('#btnUp'), down: $('#btnDown'),
-    word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), stars: $('#titleStars'),
+    word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), stars: $('#titleStars'), bubbles: $('#bubbles'),
     score: $('#score'), level: $('#levelTxt'), hudL: $('.hud-left'), sys: $('.sys:not(.sys-left)'),
     clear: $('#clear'), clearTitle: $('#clearTitle'), clearPics: $('#clearPics'), clearScore: $('#clearScore'), go: $('#btnGo'), goTxt: $('#goTxt'),
   };
@@ -85,6 +85,18 @@
     }
     E.stars.innerHTML = html;
   })();
+  // soap bubbles rising over the title room (the reference video): seeded sizes / lanes / speeds, already on their way
+  (function bubbles() {
+    let s = 11;
+    const R = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+    let html = '';
+    for (let i = 0; i < 18; i++) {
+      const size = 2.6 + R() * 6, dur = 13 + R() * 11;
+      html += `<span class="bubble" style="--x:${(R() * 100).toFixed(1)}%;--s:calc(${size.toFixed(2)} * var(--u));--d:${dur.toFixed(1)}s;--dl:${(-R() * dur).toFixed(1)}s;`
+        + `--sw:${(2.6 + R() * 2.4).toFixed(2)}s;--a:calc(${(1.2 + R() * 3).toFixed(2)} * var(--u));--hue:${(R() * 360) | 0}deg"><i><b class="bd"></b><b class="hl"></b></i></span>`;
+    }
+    E.bubbles.innerHTML = html;
+  })();
   // pointer parallax on the title: the room and stars lean away, the logo toward the pointer (a touch screen just drifts)
   let pxRaf = 0;
   addEventListener('pointermove', (e) => {
@@ -108,7 +120,7 @@
     G.screen = 'title'; app.dataset.screen = 'title'; G.busy = true;
     E.clear.classList.remove('show'); E.word.classList.remove('show'); E.next.classList.remove('show'); hideHand();
     E.drag.innerHTML = ''; E.bursts.innerHTML = '';
-    E.logoWrap.classList.remove('float', 'leave'); E.stars.classList.remove('leave'); E.titleHand.classList.remove('leave');
+    E.logoWrap.classList.remove('float', 'leave'); E.stars.classList.remove('leave'); E.bubbles.classList.remove('leave'); E.titleHand.classList.remove('leave');
     restartAnim(E.logoWrap, 'drop');
     setTimeout(() => { if (G.screen === 'title') E.logoWrap.classList.add('float'); }, 1150);
     E.start.classList.remove('hit'); E.start.style.opacity = ''; restartAnim(E.start, 'in');
@@ -144,7 +156,7 @@
     FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 26, 170, u() / 9);
     restartAnim(E.start, 'hit');
     await wait(160);
-    E.logoWrap.classList.remove('float'); restartAnim(E.logoWrap, 'leave'); E.stars.classList.add('leave'); E.titleHand.classList.add('leave');
+    E.logoWrap.classList.remove('float'); restartAnim(E.logoWrap, 'leave'); E.stars.classList.add('leave'); E.bubbles.classList.add('leave'); E.titleHand.classList.add('leave');
     S.sfx('whoosh');
     await wait(560);
     starting = false;
