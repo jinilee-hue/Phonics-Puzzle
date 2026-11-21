@@ -38,13 +38,14 @@
   --orange-lo: #f27c12;
   --orange-ring: #ffeab0;
   --orange-ink: #b4520a;
+  --orange-glow: #ffe08a;
+  --orange-edge: #e0700f;
   --green-hi: #9af07e;
   --green: #4fcf5a;
   --green-lo: #2ba646;
   --green-ink: #1c7a33;
   --pink: #ff5fa2;
   --api-on: #6fdcb8;
-  --frame-side: #d9571f;     /* the board frame's thickness */
   --frame-wall: rgba(120, 40, 10, 0.45);
   --frame-gloss-2: rgba(255, 245, 225, 0.7);
   --socket: rgba(150, 55, 15, 0.35);
@@ -190,11 +191,11 @@ img { -webkit-user-drag: none; user-select: none; }
 @keyframes logoPop { 0% { transform: translateY(calc(-14 * var(--u))) scale(.5); opacity: 0; } 100% { transform: none; opacity: 1; } }
 .frame { position: absolute; left: calc(37 * var(--u)); top: calc(17 * var(--u)); width: calc(92 * var(--u)); height: calc(78.33 * var(--u)); border-radius: calc(5 * var(--u)); z-index: 3;
   /* 3D (user: "보드판도 3d처럼 볼륨감 있게"): the frame is a thick rounded plastic rim — light on its top and left, shade at its
-     bottom and right, a solid side under it, a long gloss streak on the top bar — and the board sits sunk inside it */
+     bottom and right, a long gloss streak on the top bar — and the board sits sunk inside it */
   background: linear-gradient(var(--frame-hi), var(--frame) 45%, var(--frame-lo));
   box-shadow: inset 0 calc(1 * var(--u)) calc(.6 * var(--u)) var(--frame-gloss), inset calc(.8 * var(--u)) 0 calc(.8 * var(--u)) var(--white-a40),
     inset 0 calc(-1.3 * var(--u)) calc(.9 * var(--u)) var(--frame-shade), inset calc(-.8 * var(--u)) 0 calc(.9 * var(--u)) var(--frame-shade),
-    0 0 0 calc(.35 * var(--u)) var(--frame-edge), 0 calc(1.3 * var(--u)) 0 calc(.35 * var(--u)) var(--frame-side), 0 calc(1.6 * var(--u)) calc(2.4 * var(--u)) var(--shadow); }
+    0 0 0 1px var(--frame-edge), 0 calc(1.6 * var(--u)) calc(2.4 * var(--u)) var(--shadow); }   /* edge 1 px, no dark side band (user) */
 .frame.intro { animation: frameIn .75s cubic-bezier(.2, 1.3, .4, 1) both; }
 .frame::before { content: ''; position: absolute; left: calc(5 * var(--u)); right: calc(5 * var(--u)); top: calc(.7 * var(--u)); height: calc(1.5 * var(--u)); border-radius: 99px; pointer-events: none;
   background: linear-gradient(90deg, var(--white-a0), var(--frame-gloss-2) 20%, var(--frame-gloss-2) 70%, var(--white-a0)); opacity: .55; filter: blur(calc(.25 * var(--u))); }
@@ -322,9 +323,13 @@ img { -webkit-user-drag: none; user-select: none; }
 /* Next sits in the middle of the PIECES tray, empty by then (user: "다음 넘어가는 버튼 위치가 애매하던데" — it hung half on the
    board's corner) */
 .next-btn { position: absolute; left: calc(143.5 * var(--u)); top: calc(50 * var(--u)); width: calc(17 * var(--u)); height: calc(17 * var(--u)); border-radius: 50%; z-index: 9; display: none; place-items: center;
-  background: radial-gradient(130% 80% at 50% -6%, var(--white-a70) 0 40%, var(--white-a0) 52%), linear-gradient(var(--green-hi), var(--green) 50%, var(--green-lo));
-  box-shadow: 0 0 0 calc(.7 * var(--u)) var(--white), 0 calc(1 * var(--u)) 0 calc(.7 * var(--u)) var(--green-ink), 0 calc(1.6 * var(--u)) calc(2 * var(--u)) var(--shadow); }
-.next-btn svg { width: 56%; height: 56%; fill: none; stroke: var(--white); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 calc(.3 * var(--u)) 0 var(--green-ink)); margin-left: 8%; }
+  /* the game's warm candy (tray buttons, trophy, frame) instead of green, and no white ring (user: "흰색 라인은 빼주고 저 초록색이
+     전체 게임화면에 안어울려") — glossy cap, light from below, a side under it, a white spot */
+  background: radial-gradient(130% 80% at 50% -6%, var(--white-a70) 0 40%, var(--white-a0) 52%), radial-gradient(circle at 50% 118%, var(--orange-glow) 0, var(--white-a0) 46%),
+    linear-gradient(var(--orange-hi), var(--orange) 50%, var(--orange-lo));
+  box-shadow: inset 0 0 calc(.4 * var(--u)) var(--orange-edge), 0 calc(1 * var(--u)) 0 var(--orange-ink), 0 calc(1.8 * var(--u)) calc(2 * var(--u)) var(--shadow); }
+.next-btn::before { content: ''; position: absolute; left: 22%; top: 15%; width: 14%; height: 8%; border-radius: 50%; background: var(--white-a90); rotate: -32deg; pointer-events: none; }
+.next-btn svg { width: 56%; height: 56%; fill: none; stroke: var(--white); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 calc(.3 * var(--u)) 0 var(--orange-ink)); margin-left: 8%; }
 .next-btn.show { display: grid; animation: startIn .5s cubic-bezier(.2, 1.5, .4, 1) both, breathe 1.6s ease-in-out .6s infinite; }
 .next-btn:active { transform: translateY(calc(.6 * var(--u))) scale(.96); animation: none; }
 .game-hand { display: none; z-index: 31; }
@@ -406,7 +411,7 @@ img { -webkit-user-drag: none; user-select: none; }
 .pill-btn span { padding-top: calc(.07 * var(--hb)); }
 .pill-btn svg { width: calc(.5 * var(--hb)); height: calc(.5 * var(--hb)); fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 calc(.03 * var(--hb)) 0 var(--pd)); }
 .pill-btn:active { translate: 0 calc(.2 * var(--e)); --e: calc(.03 * var(--hb)); }
-.pill-btn.go { --pt: var(--green-hi); --pm: var(--green); --pl: var(--green-lo); --pd: var(--green-ink); padding: 0 calc(.26 * var(--hb)) 0 calc(.4 * var(--hb)); }
+.pill-btn.go { padding: 0 calc(.26 * var(--hb)) 0 calc(.4 * var(--hb)); }
 
 #fx { position: absolute; inset: 0; z-index: 36; pointer-events: none; }
 

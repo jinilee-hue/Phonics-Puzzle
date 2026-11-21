@@ -56,18 +56,23 @@
       v[r] = [];
       for (let c = 0; c <= cols; c++) v[r][c] = edge(c * cw, r * ch, c * cw, (r + 1) * ch, c === 0 || c === cols ? 0 : sgn(), jit(), k);
     }
-    return { cols, rows, W, H, cw, ch, k, m: Math.ceil(k * 0.27), h, v };
+    // R = the board's corner radius in picture px (css .board: 2.4u round on an 82u-wide board): the four corner pieces
+    // get the same rounded outer corner, so a piece matches the board's shape (user: "보드판에 맞춰서 퍼즐 모양도 수정해")
+    return { cols, rows, W, H, cw, ch, k, m: Math.ceil(k * 0.27), h, v, R: W * 2.4 / 82 };
   }
 
   function trace(ctx, e) { e.ops.forEach(op => (op[0] === 'L' ? ctx.lineTo(op[1], op[2]) : ctx.bezierCurveTo(op[1], op[2], op[3], op[4], op[5], op[6]))); }
-  /** the piece outline in picture px (as a Path2D) */
+  /** the piece outline in picture px (as a Path2D); an outer corner of the picture is rounded by cu.R */
   function path(cu, r, c) {
-    const p = new Path2D();
-    p.moveTo(c * cu.cw, r * cu.ch);
-    trace(p, cu.h[r][c]);
-    trace(p, cu.v[r][c + 1]);
-    trace(p, reverse(cu.h[r + 1][c]));
-    trace(p, reverse(cu.v[r][c]));
+    const p = new Path2D(), R = cu.R || 0;
+    const x0 = c * cu.cw, y0 = r * cu.ch, x1 = x0 + cu.cw, y1 = y0 + cu.ch;
+    const top = r === 0, bot = r === cu.rows - 1, left = c === 0, right = c === cu.cols - 1;
+    const tl = top && left ? R : 0, tr = top && right ? R : 0, br = bot && right ? R : 0, bl = bot && left ? R : 0;
+    p.moveTo(x0 + tl, y0);
+    if (top) { p.lineTo(x1 - tr, y0); if (tr) p.arcTo(x1, y0, x1, y0 + tr, tr); } else trace(p, cu.h[r][c]);
+    if (right) { p.lineTo(x1, y1 - br); if (br) p.arcTo(x1, y1, x1 - br, y1, br); } else trace(p, cu.v[r][c + 1]);
+    if (bot) { p.lineTo(x0 + bl, y1); if (bl) p.arcTo(x0, y1, x0, y1 - bl, bl); } else trace(p, reverse(cu.h[r + 1][c]));
+    if (left) { p.lineTo(x0, y0 + tl); if (tl) p.arcTo(x0, y0, x0 + tl, y0, tl); } else trace(p, reverse(cu.v[r][c]));
     p.closePath();
     return p;
   }
