@@ -63,6 +63,10 @@
   --score-mid: #ffcb2f;
   --score-lo: #f59a14;
   --score-edge: #b4560f;
+  --title-hi: #fff3a0;       /* result title: the logo's yellow-orange letters */
+  --title-mid: #ffc23a;
+  --title-lo: #ff8a1f;
+  --title-edge: #c4501a;
   --score-line: #e3ae3c;       /* the sheet's score ribbon, sampled (user: "점수영역에 컬러톤은 맞춰야지") */
   --score-side: #af6712;
   --rib-gold-hi: #fdf0ac;
@@ -323,11 +327,11 @@ img { -webkit-user-drag: none; user-select: none; }
 .next-btn { position: absolute; left: calc(143.5 * var(--u)); top: calc(50 * var(--u)); width: calc(17 * var(--u)); height: calc(17 * var(--u)); border-radius: 50%; z-index: 9; display: none; place-items: center;
   /* the game's warm candy (tray buttons, trophy, frame) instead of green, and no white ring (user: "흰색 라인은 빼주고 저 초록색이
      전체 게임화면에 안어울려") — glossy cap, light from below, a side under it, a white spot */
-  background: radial-gradient(130% 80% at 50% -6%, var(--white-a70) 0 40%, var(--white-a0) 52%), radial-gradient(circle at 50% 118%, var(--orange-glow) 0, var(--white-a0) 46%),
-    linear-gradient(var(--orange-hi), var(--orange) 50%, var(--orange-lo));
-  box-shadow: inset 0 0 calc(.4 * var(--u)) var(--orange-edge), 0 calc(1 * var(--u)) 0 var(--orange-ink), 0 calc(1.8 * var(--u)) calc(2 * var(--u)) var(--shadow); }
+  background: radial-gradient(130% 80% at 50% -6%, var(--white-a70) 0 40%, var(--white-a0) 52%), radial-gradient(circle at 50% 118%, var(--gold-hi) 0, var(--white-a0) 46%),
+    linear-gradient(var(--gold-hi), var(--gold) 50%, var(--star-deep));   /* yellow, the trophy's gold (user: "다음 버튼에는 노란색") */
+  box-shadow: inset 0 0 calc(.4 * var(--u)) var(--star-deep), 0 calc(1 * var(--u)) 0 var(--gold-ink), 0 calc(1.8 * var(--u)) calc(2 * var(--u)) var(--shadow); }
 .next-btn::before { content: ''; position: absolute; left: 22%; top: 15%; width: 14%; height: 8%; border-radius: 50%; background: var(--white-a90); rotate: -32deg; pointer-events: none; }
-.next-btn svg { width: 56%; height: 56%; fill: none; stroke: var(--white); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 calc(.3 * var(--u)) 0 var(--orange-ink)); margin-left: 8%; }
+.next-btn svg { width: 56%; height: 56%; fill: none; stroke: var(--white); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 calc(.3 * var(--u)) 0 var(--gold-ink)); margin-left: 8%; }
 .next-btn.show { display: grid; animation: startIn .5s cubic-bezier(.2, 1.5, .4, 1) both, breathe 1.6s ease-in-out .6s infinite; }
 .next-btn:active { transform: translateY(calc(.6 * var(--u))) scale(.96); animation: none; }
 .game-hand { display: none; z-index: 31; }
@@ -337,7 +341,7 @@ img { -webkit-user-drag: none; user-select: none; }
 
 /* ── HUD: the user's button sheet (design/puzzle_assets.png → assets/img/ui, tools/cut_buttons.py), used as it is.
    Score and level are written live on the blank ribbons in the sheet's lettering (gold / cream, brown outline). ── */
-.hud-left { position: absolute; z-index: 40; left: calc(3 * var(--u)); top: calc(3 * var(--u)); display: flex; align-items: flex-start; gap: calc(.17 * var(--hb)); }
+.hud-left { position: absolute; z-index: 40; left: calc(3 * var(--u)); top: calc(3 * var(--u)); display: flex; flex-direction: column; align-items: flex-start; gap: calc(.3 * var(--hb)); }   /* score on top, level under it (user) */
 .sys { position: absolute; z-index: 40; right: calc(3 * var(--u)); top: calc(3 * var(--u)); display: flex; align-items: flex-start; gap: calc(.17 * var(--hb)); }
 .hud-left.pop > *, .sys.pop > * { animation: popIn .5s cubic-bezier(.2, 1.6, .4, 1) both; }
 .hud-left.pop > *:nth-child(2), .sys.pop > *:nth-child(2) { animation-delay: .07s; }
@@ -383,14 +387,20 @@ img { -webkit-user-drag: none; user-select: none; }
 .lang-tog:active { transform: scale(.96); }
 /* score ribbon + level badge */
 .level-rib { position: relative; flex: none; filter: drop-shadow(0 calc(.06 * var(--hb)) calc(.08 * var(--hb)) var(--shadow)); }
-.level-rib { height: calc(1.72 * var(--hb)); aspect-ratio: 372 / 275; margin-top: calc(-.22 * var(--hb)); }
+.level-rib { height: calc(1.72 * var(--hb)); aspect-ratio: 372 / 275; margin-left: calc(-.05 * var(--hb)); }
 .level-rib img { display: block; width: 100%; height: 100%; }
 /* score = the sheet's trophy + a plain rounded box (user: "리본이 너무 많으니까 트로피만 … 점수판은 라운드 박스 형태로 심플하게") */
 .score-box { position: relative; flex: none; display: flex; align-items: center; justify-content: center; height: calc(.86 * var(--hb)); min-width: calc(2.5 * var(--hb));
-  margin: calc(.07 * var(--hb)) 0 0 calc(.5 * var(--hb)); padding: 0 calc(.34 * var(--hb)) 0 calc(.78 * var(--hb)); border-radius: calc(.3 * var(--hb));
-  background: linear-gradient(var(--rib-gold-hi) 0%, var(--rib-gold-1) 18%, var(--rib-gold-2) 46%, var(--rib-gold-3) 82%, var(--rib-gold-lo) 100%);
-  box-shadow: inset 0 calc(.05 * var(--hb)) 0 var(--white-a70), inset 0 0 0 calc(.04 * var(--hb)) var(--score-line), 0 calc(.07 * var(--hb)) 0 var(--score-side), 0 calc(.11 * var(--hb)) calc(.16 * var(--hb)) var(--shadow); }
-.score-box .trophy-img { position: absolute; left: calc(-.5 * var(--hb)); top: 50%; height: calc(1.22 * var(--hb)); transform: translateY(-54%) rotate(-6deg); filter: drop-shadow(0 calc(.05 * var(--hb)) calc(.06 * var(--hb)) var(--shadow)); pointer-events: none; }
+  /* a gold candy pill like the jelly buttons (user: "끝에가 둥글게 … 스타일도 버튼과 비슷했으면"): fully round ends, a glossy cap,
+     light from below, the side under it, a white spot */
+  --e: calc(.09 * var(--hb));
+  height: var(--hb); min-width: calc(2.6 * var(--hb)); margin: 0 0 0 calc(.5 * var(--hb)); padding: 0 calc(.42 * var(--hb)) 0 calc(.86 * var(--hb)); border-radius: 999px;
+  translate: 0 calc(-.5 * var(--e));
+  background: radial-gradient(130% 80% at 50% -6%, rgba(255,255,255,.5) 0 40%, rgba(255,255,255,.28) 47%, rgba(255,255,255,0) 52%), radial-gradient(circle at 50% 118%, var(--gold-hi) 0, rgba(255,255,255,0) 46%),
+    linear-gradient(var(--rib-gold-1), var(--rib-gold-2) 50%, var(--rib-gold-lo));
+  box-shadow: inset 0 0 calc(.07 * var(--hb)) var(--score-line), 0 var(--e) 0 0 var(--score-side), 0 calc(var(--e) + .06 * var(--hb)) calc(.15 * var(--hb)) var(--shadow); }
+.score-box::before { content: ''; position: absolute; right: calc(.36 * var(--hb)); top: 16%; width: calc(.2 * var(--hb)); height: calc(.11 * var(--hb)); border-radius: 50%; background: var(--white-a90); rotate: -32deg; pointer-events: none; }
+.score-box .trophy-img { position: absolute; z-index: 1; left: calc(-.5 * var(--hb)); top: 50%; height: calc(1.3 * var(--hb)); transform: translateY(-54%) rotate(-6deg); filter: drop-shadow(0 calc(.05 * var(--hb)) calc(.06 * var(--hb)) var(--shadow)); pointer-events: none; }
 .rib-txt { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-weight: 800; line-height: 1; letter-spacing: .01em; padding-top: .12em; }
 .rib-txt .o { position: absolute; left: 0; top: 0; padding-top: inherit; color: var(--edge); -webkit-text-stroke: var(--sw) var(--edge); text-shadow: 0 calc(var(--sw) * .7) calc(var(--sw) * .6) var(--rib-shadow); }
 .rib-txt .f { position: relative; background: var(--fill); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -401,15 +411,19 @@ img { -webkit-user-drag: none; user-select: none; }
 @keyframes ribBumpS { 35% { transform: scale(1.3) rotate(-4deg); } }
 @keyframes ribBump { 35% { transform: translate(-50%, -50%) scale(1.3) rotate(-4deg); } }
 /* candy pills still drawn in CSS (the clear card's Next — the sheet has no such button) */
-.pill-btn { --e: calc(.09 * var(--hb)); --pt: var(--orange-hi); --pm: var(--orange); --pl: var(--orange-lo); --pd: var(--orange-ink);
-  height: var(--hb); border-radius: 999px; display: inline-flex; align-items: center; gap: calc(.12 * var(--hb)); padding: 0 calc(.36 * var(--hb)) 0 calc(.26 * var(--hb)); color: var(--white);
-  translate: 0 calc(-.5 * var(--e)); font-weight: 800; font-size: calc(.42 * var(--hb)); line-height: 1;
-  background: radial-gradient(130% 80% at 50% -6%, var(--white-a70) 0 40%, var(--white-a0) 52%), linear-gradient(var(--pt), var(--pm) 50%, var(--pl));
-  box-shadow: 0 var(--e) 0 0 var(--pd), 0 calc(var(--e) + .06 * var(--hb)) calc(.15 * var(--hb)) var(--shadow); text-shadow: 0 calc(.04 * var(--hb)) 0 var(--pd); }
-.pill-btn span { padding-top: calc(.07 * var(--hb)); }
-.pill-btn svg { width: calc(.5 * var(--hb)); height: calc(.5 * var(--hb)); fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 calc(.03 * var(--hb)) 0 var(--pd)); }
+/* candy jelly pills (the result card's Home / Next): the round jelly buttons' look — glossy cap, light from below, the side
+   under it, a white spot; Home in the sound / exit pink, Next in the Next button's gold */
+.pill-btn { --e: calc(.09 * var(--hb)); --pt: #ff9fca; --pm: #f45a9c; --pl: #df3f86; --pg: #ffc9e2; --pb: #c9357a; --pd: #b02b6a; --pi: #8c2054;
+  position: relative; height: var(--hb); border-radius: 999px; display: inline-flex; align-items: center; gap: calc(.14 * var(--hb)); padding: 0 calc(.48 * var(--hb)) 0 calc(.38 * var(--hb)); color: var(--white);
+  translate: 0 calc(-.5 * var(--e)); font-weight: 800; font-size: calc(.44 * var(--hb)); line-height: 1; transition: translate .08s, box-shadow .08s;
+  background: radial-gradient(130% 80% at 50% -6%, rgba(255,255,255,.5) 0 40%, rgba(255,255,255,.28) 47%, rgba(255,255,255,0) 52%), radial-gradient(70% 60% at 50% 118%, var(--pg) 0, rgba(255,255,255,0) 60%),
+    linear-gradient(var(--pt), var(--pm) 50%, var(--pl));
+  box-shadow: inset 0 0 calc(.07 * var(--hb)) var(--pb), 0 var(--e) 0 0 var(--pd), 0 calc(var(--e) + .06 * var(--hb)) calc(.15 * var(--hb)) var(--shadow); text-shadow: 0 calc(.04 * var(--hb)) 0 var(--pi); }
+.pill-btn::before { content: ''; position: absolute; left: calc(.3 * var(--hb)); top: 15%; width: calc(.22 * var(--hb)); height: calc(.12 * var(--hb)); border-radius: 50%; background: var(--white-a90); rotate: -32deg; pointer-events: none; }
+.pill-btn span { padding-top: calc(.08 * var(--hb)); }
+.pill-btn svg { width: calc(.52 * var(--hb)); height: calc(.52 * var(--hb)); fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 calc(.03 * var(--hb)) 0 var(--pi)); }
 .pill-btn:active { translate: 0 calc(.2 * var(--e)); --e: calc(.03 * var(--hb)); }
-.pill-btn.go { padding: 0 calc(.26 * var(--hb)) 0 calc(.4 * var(--hb)); }
+.pill-btn.go { --pt: var(--gold-hi); --pm: var(--gold); --pl: var(--star-deep); --pg: var(--gold-hi); --pb: var(--star-deep); --pd: var(--gold-ink); --pi: var(--gold-ink); padding: 0 calc(.38 * var(--hb)) 0 calc(.5 * var(--hb)); }
 
 #fx { position: absolute; inset: 0; z-index: 36; pointer-events: none; }
 #candyfx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 35; pointer-events: none; }   /* Toy Catch's candy bursts */
@@ -418,22 +432,42 @@ img { -webkit-user-drag: none; user-select: none; }
 .overlay { position: absolute; inset: 0; z-index: 45; display: none; place-items: center; background: var(--dim); }
 .overlay.show { display: grid; animation: fadeIn .35s ease both; }
 @keyframes fadeIn { from { opacity: 0; } }
-.clear-card { position: relative; width: calc(92 * var(--u)); padding: calc(10 * var(--u)) calc(5 * var(--u)) calc(5 * var(--u)); border-radius: calc(5 * var(--u)); text-align: center;
-  background: linear-gradient(var(--cream), var(--board)); box-shadow: 0 0 0 calc(1.2 * var(--u)) var(--white), 0 0 0 calc(2.6 * var(--u)) var(--frame), 0 calc(2 * var(--u)) calc(4 * var(--u)) var(--shadow);
+/* the result card in the game screen's style (user: "결과화면도 전체적으로 게임화면 디자인 스타일에 맞게"): the board's glossy
+   orange frame with its bulbs and candy stars, the sunk cream panel, the jelly buttons, the gold score pill, and 3D candy
+   stars on top (user: "결과 페이지의 별도 3d 별로") */
+.clear-card { position: relative; width: calc(104 * var(--u)); height: calc(68 * var(--u)); border-radius: calc(5 * var(--u));
+  background: linear-gradient(var(--frame-hi), var(--frame) 45%, var(--frame-lo));
+  box-shadow: inset 0 calc(1 * var(--u)) calc(.6 * var(--u)) var(--frame-gloss), inset calc(.8 * var(--u)) 0 calc(.8 * var(--u)) var(--white-a40),
+    inset 0 calc(-1.3 * var(--u)) calc(.9 * var(--u)) var(--frame-shade), inset calc(-.8 * var(--u)) 0 calc(.9 * var(--u)) var(--frame-shade),
+    0 0 0 1px var(--frame-edge), 0 calc(2 * var(--u)) calc(4 * var(--u)) var(--shadow);
   animation: cardIn .6s cubic-bezier(.2, 1.4, .4, 1) both; }
 @keyframes cardIn { 0% { transform: scale(.5) translateY(calc(10 * var(--u))); opacity: 0; } 100% { transform: none; opacity: 1; } }
-.clear-stars { position: absolute; left: 50%; top: calc(-9 * var(--u)); transform: translateX(-50%); display: flex; align-items: flex-end; gap: calc(1 * var(--u)); }
-.clear-stars i { width: calc(13 * var(--u)); height: calc(13 * var(--u)); background: var(--star); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  filter: drop-shadow(0 calc(.5 * var(--u)) 0 var(--star-deep)); animation: starPop .5s cubic-bezier(.2, 1.8, .4, 1) both; }
-.clear-stars i:nth-child(2) { width: calc(17 * var(--u)); height: calc(17 * var(--u)); animation-delay: .15s; }
-.clear-stars i:nth-child(3) { animation-delay: .3s; }
-@keyframes starPop { 0% { transform: scale(0) rotate(-40deg); } 100% { transform: none; } }
-.clear-title { font-weight: 800; font-size: calc(7.6 * var(--u)); line-height: 1; padding-top: calc(1 * var(--u)); color: var(--frame-lo); -webkit-text-stroke: calc(.5 * var(--u)) var(--white); paint-order: stroke fill; text-shadow: 0 calc(.6 * var(--u)) 0 var(--frame-shade); }
-.clear-pics { display: flex; justify-content: center; gap: calc(1.4 * var(--u)); margin: calc(3.4 * var(--u)) 0 calc(2.4 * var(--u)); }
-.clear-pics img { width: calc(12 * var(--u)); height: calc(10 * var(--u)); object-fit: cover; border-radius: calc(1.6 * var(--u)); box-shadow: 0 0 0 calc(.5 * var(--u)) var(--white), 0 calc(.6 * var(--u)) calc(1 * var(--u)) var(--shadow); animation: popIn .45s cubic-bezier(.2, 1.6, .4, 1) both; animation-delay: var(--d); }
-.clear-score .trophy-img { height: calc(9 * var(--u)); filter: drop-shadow(0 calc(.4 * var(--u)) calc(.5 * var(--u)) var(--shadow)); }
-.clear-score { display: inline-flex; align-items: center; gap: calc(1 * var(--u)); --hb: calc(8 * var(--u)); margin-bottom: calc(3 * var(--u)); }
-.clear-score b { font-weight: 800; font-size: calc(6 * var(--u)); line-height: 1; padding-top: calc(.8 * var(--u)); color: var(--gold); -webkit-text-stroke: calc(.5 * var(--u)) var(--gold-ink); paint-order: stroke fill; }
+.clear-panel { position: absolute; inset: calc(5 * var(--u)); border-radius: calc(2.4 * var(--u)); background: linear-gradient(var(--cream), var(--board));
+  box-shadow: 0 calc(-.15 * var(--u)) calc(.3 * var(--u)) 0 var(--frame-wall), 0 calc(.2 * var(--u)) calc(.25 * var(--u)) 0 var(--frame-gloss),
+    inset 0 calc(1.2 * var(--u)) calc(1.6 * var(--u)) var(--board-shade), inset 0 calc(-.3 * var(--u)) calc(.5 * var(--u)) var(--white-a40);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(2.8 * var(--u)); padding: calc(7.5 * var(--u)) calc(3 * var(--u)) calc(2 * var(--u)); text-align: center; }
+.clear-stars { position: absolute; left: 50%; top: calc(-10.5 * var(--u)); transform: translateX(-50%); display: flex; align-items: flex-end; gap: calc(.4 * var(--u)); pointer-events: none; }
+.clear-stars i { width: calc(15 * var(--u)); height: calc(15 * var(--u)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat;
+  filter: drop-shadow(0 calc(.8 * var(--u)) calc(.8 * var(--u)) var(--frame-wall)); transform-origin: 50% 70%;
+  animation: starPop .55s cubic-bezier(.2, 1.8, .4, 1) both, starFloat 2.6s ease-in-out 1.2s infinite; }
+.clear-stars i:nth-child(1) { rotate: -14deg; translate: 0 calc(2.2 * var(--u)); animation-delay: .25s, 1.2s; }
+.clear-stars i:nth-child(2) { width: calc(20 * var(--u)); height: calc(20 * var(--u)); animation-delay: .45s, 1.5s; }
+.clear-stars i:nth-child(3) { rotate: 14deg; translate: 0 calc(2.2 * var(--u)); animation-delay: .65s, 1.8s; }
+@keyframes starPop { 0% { transform: scale(0) rotate(-60deg); } 100% { transform: none; } }
+@keyframes starFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(calc(-.8 * var(--u))) scale(1.04); } }
+/* the title in candy letters: a gradient fill, a dark orange edge and a white outer line (the logo's lettering) */
+.candy-txt { position: relative; display: inline-block; font-weight: 800; line-height: 1; white-space: nowrap; padding-top: .12em; }
+.candy-txt span { display: block; }
+.candy-txt .w, .candy-txt .o { position: absolute; left: 0; top: 0; padding-top: inherit; }
+.candy-txt .w { color: var(--white); -webkit-text-stroke: .3em var(--white); filter: drop-shadow(0 .08em .08em var(--frame-wall)); }
+.candy-txt .o { color: var(--title-edge); -webkit-text-stroke: .14em var(--title-edge); }
+.candy-txt .f { position: relative; background: linear-gradient(var(--title-hi) 15%, var(--title-mid) 55%, var(--title-lo) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.clear-title { font-size: calc(7.4 * var(--u)); letter-spacing: .02em; }
+.clear-pics { display: flex; justify-content: center; gap: calc(1.4 * var(--u)); }
+.clear-pics img { width: calc(12.2 * var(--u)); height: calc(10.2 * var(--u)); object-fit: cover; border-radius: calc(1.4 * var(--u)); rotate: var(--r, 0deg);
+  box-shadow: 0 0 0 calc(.4 * var(--u)) var(--white), 0 calc(.6 * var(--u)) calc(.9 * var(--u)) var(--board-shade); animation: popIn .45s cubic-bezier(.2, 1.6, .4, 1) both; animation-delay: var(--d); }
+.clear-score { --hb: calc(8.6 * var(--u)); display: flex; justify-content: center; }
+.clear-score .score-box { margin-left: calc(.5 * var(--hb)); }
 .clear-btns { display: flex; justify-content: center; gap: calc(3 * var(--u)); --hb: calc(9 * var(--u)); }
 
 /* ── phonics-api key (title, top left) ───────────────────────────────────────── */

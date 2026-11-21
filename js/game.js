@@ -61,8 +61,9 @@
   }
 
   // ── frame lights: bulbs (pink / blue / yellow) with a star at each corner and every few bulbs ─────────────
-  (function layoutLights() {
-    const FW = 92, FH = 78.33, IN = 2.5, cols = ['--bulb-pink', '--bulb-blue', '--bulb-yellow'];
+  // (the board's frame, and the result card's frame in the same style)
+  function layoutLights(el, FW, FH, across, down) {
+    const IN = 2.5, cols = ['--bulb-pink', '--bulb-blue', '--bulb-yellow'];
     let html = '', n = 0;
     const put = (x, y, star) => {
       const l = (x / FW * 100).toFixed(2), t = (y / FH * 100).toFixed(2);
@@ -70,21 +71,25 @@
         : `<i style="left:${l}%;top:${t}%;--c:var(${cols[n % 3]});--d:${(n % 6) * -.27}s"></i>`;
       if (!star) n++;
     };
-    const across = 15, down = 12, CI = 3.1;   // corner stars sit further in, inside the frame's round corners (user: "테두리 벗어나지 않았으면")
+    const CI = 3.1;   // corner stars sit further in, inside the frame's round corners (user: "테두리 벗어나지 않았으면")
     const corner = (x, y) => put(x < FW / 2 ? CI : FW - CI, y < FH / 2 ? CI : FH - CI, true);
     for (let i = 0; i <= across; i++) { const x = IN + (FW - 2 * IN) * i / across; if (i === 0 || i === across) corner(x, IN); else put(x, IN, i % 5 === 0); }
     for (let i = 1; i < down; i++) put(FW - IN, IN + (FH - 2 * IN) * i / down, i % 4 === 0);
     for (let i = across; i >= 0; i--) { const x = IN + (FW - 2 * IN) * i / across; if (i === 0 || i === across) corner(x, FH - IN); else put(x, FH - IN, i % 3 === 0); }
     for (let i = down - 1; i >= 1; i--) put(IN, IN + (FH - 2 * IN) * i / down, i % 4 === 0);
-    E.lights.innerHTML = html;
-  })();
+    el.innerHTML = html;
+  }
+  layoutLights(E.lights, 92, 78.33, 15, 12);
+  layoutLights($('#clearLights'), 104, 68, 17, 10);
+  /** big candy letters: a white outer line, a dark edge and a gradient fill, stacked */
+  function candyText(el, t) { el.innerHTML = `<span class="w">${t}</span><span class="o">${t}</span><span class="f">${t}</span>`; }
   // score / level written on the sheet's blank ribbons: an outline layer under a gradient-filled one
   function setRib(el, t, bump) {
     t = String(t);
     if (el.dataset.t !== t || !el.firstChild || el.firstChild.nodeType === 3) { el.dataset.t = t; el.innerHTML = `<span class="o">${t}</span><span class="f">${t}</span>`; }
     if (bump) restartAnim(el, 'bump');
   }
-  [E.score, E.level].forEach(el => { el.classList.add('rib-txt'); setRib(el, el.textContent); });
+  [E.score, E.level, E.clearScore].forEach(el => { el.classList.add('rib-txt'); setRib(el, el.textContent); });
   // twinkling stars over the title room (user: "배경에 별 반짝이 좀 더"): sparkles and little candy stars, seeded positions,
   // each on its own beat; some drift up slowly. They sit behind the logo and START.
   (function titleStars() {
@@ -638,13 +643,19 @@
   function levelClear() {
     G.tok++; G.busy = true; clearTimers();
     const last = G.level >= LEVELS.length - 1;
-    E.clearTitle.textContent = last ? 'ALL CLEAR!' : `LEVEL ${G.level + 1} CLEAR!`;
-    E.clearPics.innerHTML = G.order.slice(G.level * PER, G.level * PER + PER).map((w, i) => `<img src="${w.img}" alt="${w.w}" style="--d:${(0.35 + i * 0.08).toFixed(2)}s">`).join('');
-    E.clearScore.textContent = G.score;
+    candyText(E.clearTitle, last ? 'ALL CLEAR!' : `LEVEL ${G.level + 1} CLEAR!`);
+    const tilt = [-3, 2, -2, 3, -2, 2];
+    E.clearPics.innerHTML = G.order.slice(G.level * PER, G.level * PER + PER).map((w, i) => `<img src="${w.img}" alt="${w.w}" style="--d:${(0.35 + i * 0.08).toFixed(2)}s;--r:${tilt[i % 6]}deg">`).join('');
+    setRib(E.clearScore, G.score);
     E.goTxt.textContent = last ? 'Play again' : 'Next';
     E.go.setAttribute('aria-label', last ? 'Play again' : 'Next level');
     restartAnim(E.clear, 'show');
     S.sfx('fanfare'); FX.confetti(160);
+    // each star lands with a sparkle
+    [.25, .45, .65].forEach((d, i) => setTimeout(() => {
+      const st = document.querySelectorAll('.clear-stars i')[i]; if (!st || !E.clear.classList.contains('show')) return;
+      const r = st.getBoundingClientRect(); FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 12, 120, u() / 9); S.sfx('sparkle');
+    }, (d + .3) * 1000));
     setTimeout(() => S.say(last ? 't:allclear' : 't:level'), 700);
   }
   E.go.addEventListener('click', () => {

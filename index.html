@@ -6,7 +6,7 @@
 <title>Phonics Puzzle</title>
 <link rel="stylesheet" href="css/font.css?v=54832f73">
 <link rel="stylesheet" href="css/font-ko.css?v=fa5b8de1">
-<link rel="stylesheet" href="css/style.css?v=86b6bbfb">
+<link rel="stylesheet" href="css/style.css?v=038eef60">
 </head>
 <body>
 <div id="app" data-screen="title">
@@ -47,8 +47,8 @@
   <!-- screen-edge HUD (Toy Catch's top bar: --hb high, 3 u from the edges) — the art is the user's sheet
        design/puzzle_assets.png, cut by tools/cut_buttons.py; score and level are written live on the blank ribbons -->
   <div class="hud-left game-el">
-    <div class="level-rib" id="levelBadge"><img src="assets/img/ui/level.webp" alt="" draggable="false"><b id="levelTxt" data-t="1-1">1-1</b></div>
     <div class="score-box" id="scorePill"><img class="trophy-img" src="assets/img/ui/trophy.webp" alt="" draggable="false"><b id="score" data-t="0">0</b></div>
+    <div class="level-rib" id="levelBadge"><img src="assets/img/ui/level.webp" alt="" draggable="false"><b id="levelTxt" data-t="1-1">1-1</b></div>
   </div>
   <!-- phonics-api key (title only): a teacher enters it once per device; dot mint = the company server judges, sand = on-device -->
   <div class="sys sys-left title-el">
@@ -66,16 +66,20 @@
   <canvas id="fx" aria-hidden="true"></canvas>
 
   <!-- level clear / all clear -->
+  <!-- level clear / all clear: the game's board frame (bulbs + candy stars) round a cream panel, 3D candy stars on top -->
   <div class="overlay" id="clear" aria-live="polite">
     <div class="clear-card">
-      <div class="clear-stars"><i></i><i></i><i></i></div>
-      <div class="clear-title" id="clearTitle">LEVEL 1 CLEAR!</div>
-      <div class="clear-pics" id="clearPics"></div>
-      <div class="clear-score"><img class="trophy-img" src="assets/img/ui/trophy.webp" alt="" draggable="false"><b id="clearScore">0</b></div>
-      <div class="clear-btns">
-        <button class="imgbtn pill" id="btnHome" aria-label="Home"><img src="assets/img/ui/home.webp" alt="" draggable="false"></button>
-        <button class="pill-btn go" id="btnGo" aria-label="Next level"><span id="goTxt">Next</span><svg viewBox="0 0 24 24"><path d="M9 5.5 16.5 12 9 18.5"/></svg></button>
+      <div class="lights" id="clearLights" aria-hidden="true"></div>
+      <div class="clear-panel">
+        <div class="clear-title candy-txt" id="clearTitle">LEVEL 1 CLEAR!</div>
+        <div class="clear-pics" id="clearPics"></div>
+        <div class="clear-score"><div class="score-box"><img class="trophy-img" src="assets/img/ui/trophy.webp" alt="" draggable="false"><b id="clearScore" data-t="0">0</b></div></div>
+        <div class="clear-btns">
+          <button class="pill-btn home" id="btnHome" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M3.8 11.3 12 4.6l8.2 6.7"/><path d="M6.3 9.6v8.6c0 1 .8 1.8 1.8 1.8h7.8c1 0 1.8-.8 1.8-1.8V9.6"/><path d="M10.1 20v-4a1.9 1.9 0 0 1 3.8 0v4"/></svg><span>Home</span></button>
+          <button class="pill-btn go" id="btnGo" aria-label="Next level"><span id="goTxt">Next</span><svg viewBox="0 0 24 24"><path d="M9 5.5 16.5 12 9 18.5"/></svg></button>
+        </div>
       </div>
+      <div class="clear-stars" aria-hidden="true"><i></i><i></i><i></i></div>
     </div>
   </div>
 </div>
@@ -92,6 +96,6 @@
 <script src="js/candyfx.js?v=862b486b"></script>
 <script src="js/jigsaw.js?v=9c864933"></script>
 <script src="js/fx.js?v=78baa07e"></script>
-<script src="js/game.js?v=ae803491"></script>
+<script src="js/game.js?v=a2c45244"></script>
 </body>
 </html>
