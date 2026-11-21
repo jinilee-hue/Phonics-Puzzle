@@ -98,6 +98,9 @@
   --fx-purple: #b57bff;
   --fx-gold: #ffe27a;
   --fx-white: #fffbe8;
+  --spark-core: #fffbe0;     /* the START button's sparkles, sampled: a cream middle in a warm yellow glow */
+  --spark-soft: #ffe58a;
+  --spark-amber: #ffbe2e;
   --swirl-pink: rgba(255, 120, 200, 0.85);
   --swirl-cyan: rgba(110, 220, 255, 0.8);
   --swirl-gold: rgba(255, 226, 120, 0.85);
@@ -143,10 +146,10 @@ img { -webkit-user-drag: none; user-select: none; }
   translate: calc(var(--px, 0) * -.5 * var(--u)) calc(var(--py, 0) * -.4 * var(--u)); transition: translate 1s cubic-bezier(.2, .7, .3, 1), opacity .5s; }
 .title-stars.leave { opacity: 0; }
 .tstar { position: absolute; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); filter: drop-shadow(0 0 calc(var(--s) * .35) var(--c)); animation: tTwinkle var(--t) ease-in-out var(--d) infinite both; }
-.tstar b { position: absolute; inset: 0; background: radial-gradient(circle, var(--white) 0 30%, var(--c) 75%); -webkit-mask: var(--shape) center / contain no-repeat; mask: var(--shape) center / contain no-repeat; }
+.tstar b { position: absolute; inset: 0; background: radial-gradient(circle, var(--spark-core) 0 14%, var(--c) 52%); -webkit-mask: var(--shape) center / contain no-repeat; mask: var(--shape) center / contain no-repeat; }
 .tstar.sp { --shape: url(../assets/img/ui/sparkle.svg); }   /* (user: "반짝이는 별들의 모양도 다시 봐바") */
 .tstar.st { --shape: url(../assets/img/ui/star_round.svg); }
-.tstar.st b { background: radial-gradient(circle at 40% 35%, var(--white) 0 14%, var(--c) 60%); }
+.tstar.st b { background: radial-gradient(circle at 40% 35%, var(--spark-core) 0 10%, var(--c) 50%); }
 .tstar.drift { animation: tTwinkle var(--t) ease-in-out var(--d) infinite both, tDrift calc(var(--t) * 4) ease-in-out var(--d) infinite alternate; }
 /* soap bubbles (user: "인트로에 비눗방울 효과 영상참고해서"): clear, a thin rainbow rim, two light spots; each rises on its own,
    swaying and wobbling a little; behind the logo and START, never in the way of a tap */
@@ -165,11 +168,12 @@ img { -webkit-user-drag: none; user-select: none; }
 @keyframes tDrift { from { translate: 0 0; } to { translate: calc(var(--s) * .4) calc(var(--s) * -1.6); } }
 
 .logo-wrap .twinkle { position: absolute; width: calc(3.2 * var(--u)); height: calc(3.2 * var(--u)); margin: calc(-1.6 * var(--u)) 0 0 calc(-1.6 * var(--u)); pointer-events: none;
-  background: radial-gradient(circle, var(--white) 0 12%, var(--white-a0) 13%), conic-gradient(from 45deg, var(--white-a0) 0 20%, var(--white) 25%, var(--white-a0) 30% 45%, var(--white) 50%, var(--white-a0) 55% 70%, var(--white) 75%, var(--white-a0) 80% 95%, var(--white) 100%);
-  -webkit-mask: radial-gradient(circle, #000 20%, transparent 70%); mask: radial-gradient(circle, #000 20%, transparent 70%);
+  background: radial-gradient(circle, var(--spark-core) 0 12%, var(--fx-yellow) 45%, var(--spark-amber) 90%);
+  -webkit-mask: url(../assets/img/ui/sparkle.svg) center / contain no-repeat; mask: url(../assets/img/ui/sparkle.svg) center / contain no-repeat;
+  filter: drop-shadow(0 0 calc(.9 * var(--u)) var(--fx-yellow));
   animation: twinkle 1.8s ease-in-out infinite; animation-delay: var(--d); opacity: 0; }
 @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 50% { opacity: 1; transform: scale(1) rotate(45deg); } }
-.start { position: absolute; left: calc(61.1 * var(--u)); top: calc(66.5 * var(--u)); width: calc(55.5 * var(--u)); aspect-ratio: 1080 / 396; border-radius: calc(10.3 * var(--u)); transform-origin: 50% 60%; }
+.start { position: absolute; left: calc(61.1 * var(--u)); top: calc(66.5 * var(--u)); width: calc(55.5 * var(--u)); aspect-ratio: 1080 / 395; border-radius: calc(10.3 * var(--u)); transform-origin: 50% 60%; }
 .start img { width: 100%; height: 100%; display: block; filter: drop-shadow(0 calc(.8 * var(--u)) calc(1 * var(--u)) var(--shadow)); }
 .start .shine { position: absolute; inset: 9% 7%; border-radius: calc(8 * var(--u)); overflow: hidden; pointer-events: none; }
 .start .shine::before { content: ''; position: absolute; top: 0; bottom: 0; width: 22%; left: -30%; background: linear-gradient(100deg, var(--white-a0), var(--white-a70), var(--white-a0)); transform: skewX(-18deg); animation: shine 3.2s ease-in-out 1.4s infinite; }
@@ -290,14 +294,8 @@ img { -webkit-user-drag: none; user-select: none; }
 .dpiece.back { transition: left .36s cubic-bezier(.4, .1, .3, 1), top .36s cubic-bezier(.4, .1, .3, 1), transform .36s ease; }
 .dpiece.fly { transition: left .62s cubic-bezier(.45, 0, .25, 1), top .62s cubic-bezier(.45, -0.3, .25, 1), transform .62s ease; }
 
-/* snap burst: rainbow rays (the mockup's colour burst) */
-.burst-layer { position: absolute; inset: 0; pointer-events: none; z-index: 28; }
-.burst { position: absolute; width: var(--r); height: var(--r); margin: calc(var(--r) / -2) 0 0 calc(var(--r) / -2); border-radius: 50%;
-  background: radial-gradient(circle closest-side, var(--white-a90) 0 12%, var(--white-a0) 40%),
-    repeating-conic-gradient(from 0deg, var(--fx-pink) 0 5deg, var(--white-a0) 5deg 15deg, var(--fx-yellow) 15deg 20deg, var(--white-a0) 20deg 30deg, var(--fx-cyan) 30deg 35deg, var(--white-a0) 35deg 45deg, var(--fx-green) 45deg 50deg, var(--white-a0) 50deg 60deg, var(--fx-orange) 60deg 65deg, var(--white-a0) 65deg 75deg, var(--fx-purple) 75deg 80deg, var(--white-a0) 80deg 90deg);
-  -webkit-mask: radial-gradient(circle closest-side, transparent 8%, #000 22%, #000 55%, transparent 100%); mask: radial-gradient(circle closest-side, transparent 8%, #000 22%, #000 55%, transparent 100%);
-  animation: burst .8s ease-out both; }
-@keyframes burst { 0% { transform: scale(.15) rotate(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: scale(1.2) rotate(25deg); opacity: 0; } }
+/* the +100 text layer (the snap burst itself = Toy Catch's candy burst, js/candyfx.js) */
+.burst-layer { position: absolute; inset: 0; pointer-events: none; z-index: 37; }   /* (+100 stays above the candy burst) */
 .plus { position: absolute; transform: translate(-50%, -50%); font-weight: 800; font-size: calc(4.4 * var(--u)); color: var(--gold); line-height: 1;
   -webkit-text-stroke: calc(.35 * var(--u)) var(--gold-ink); paint-order: stroke fill; text-shadow: 0 calc(.4 * var(--u)) calc(.5 * var(--u)) var(--shadow); animation: plus 1s ease-out both; }
 @keyframes plus { 0% { transform: translate(-50%, -20%) scale(.4); opacity: 0; } 25% { transform: translate(-50%, -60%) scale(1.15); opacity: 1; } 100% { transform: translate(-50%, -160%) scale(1); opacity: 0; } }
@@ -414,6 +412,7 @@ img { -webkit-user-drag: none; user-select: none; }
 .pill-btn.go { padding: 0 calc(.26 * var(--hb)) 0 calc(.4 * var(--hb)); }
 
 #fx { position: absolute; inset: 0; z-index: 36; pointer-events: none; }
+#candyfx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 35; pointer-events: none; }   /* Toy Catch's candy bursts */
 
 /* ── level clear / all clear ─────────────────────────────────────────────────── */
 .overlay { position: absolute; inset: 0; z-index: 45; display: none; place-items: center; background: var(--dim); }

@@ -45,6 +45,21 @@
     return IMG[w.w];
   }
 
+  // ── Toy Catch's candy bursts (js/candyfx.js): baked once at load, ticked on the frame clock while anything flies ──
+  CandyFX.init($('#candyfx'));
+  let candyLast = 0, candyRaf = 0;
+  function candyLoop(now) {
+    const dt = Math.min(0.05, (now - (candyLast || now)) / 1000); candyLast = now;
+    CandyFX.tick(dt);
+    candyRaf = CandyFX.parts.length ? requestAnimationFrame(candyLoop) : (CandyFX.tick(0), 0);
+  }
+  /** the burst when a friend is caught in Toy Catch, sized to the moment (power 1 = Toy Catch's own catch) */
+  function candyBurst(x, y, power) {
+    CandyFX.confetti(x, y, Math.round(130 * power), power);
+    CandyFX.stars(x, y, Math.max(4, Math.round(16 * power)), Math.min(1, 0.45 + power * 0.55));
+    if (!candyRaf) { candyLast = 0; candyRaf = requestAnimationFrame(candyLoop); }
+  }
+
   // ── frame lights: bulbs (pink / blue / yellow) with a star at each corner and every few bulbs ─────────────
   (function layoutLights() {
     const FW = 92, FH = 78.33, IN = 2.5, cols = ['--bulb-pink', '--bulb-blue', '--bulb-yellow'];
@@ -75,17 +90,18 @@
   (function titleStars() {
     let s = 7;
     const R = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
-    const cols = ['--fx-white', '--fx-gold', '--fx-yellow', '--fx-pink', '--fx-cyan', '--fx-purple'];
+    // all in the START button's warm yellow (user: "흰색말고 노란색이어야하지 않아? 스타트버튼에 있는 별 참고해")
+    const cols = ['--fx-yellow', '--fx-yellow', '--spark-amber', '--fx-orange'];   // clear yellows, no near-white
     let html = '';
     for (let i = 0; i < 58; i++) {
       const star = R() < 0.3, x = R() * 100, y = R() * 100;
       const size = star ? 1.6 + R() * 1.8 : 1.4 + R() * 3.2;
-      const c = star ? cols[2 + ((R() * 4) | 0)] : cols[(R() * 3) | 0];
+      const c = cols[(R() * 4) | 0];
       html += `<i class="tstar ${star ? 'st' : 'sp'}${R() < 0.35 ? ' drift' : ''}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;--s:calc(${size.toFixed(2)} * var(--u));--c:var(${c});--t:${(2.2 + R() * 3).toFixed(2)}s;--d:${(-R() * 5).toFixed(2)}s"><b></b></i>`;
     }
     E.stars.innerHTML = html;
   })();
-  // soap bubbles rising over the title room (the reference video): seeded sizes / lanes / speeds, already on their way
+  // soap bubbles rising over the room, on the title and behind the board in the game (user: "게임화면에도 인트로처럼"): seeded sizes / lanes / speeds, already on their way
   (function bubbles() {
     let s = 11;
     const R = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
@@ -156,7 +172,7 @@
     FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 26, 170, u() / 9);
     restartAnim(E.start, 'hit');
     await wait(160);
-    E.logoWrap.classList.remove('float'); restartAnim(E.logoWrap, 'leave'); E.stars.classList.add('leave'); E.bubbles.classList.add('leave'); E.titleHand.classList.add('leave');
+    E.logoWrap.classList.remove('float'); restartAnim(E.logoWrap, 'leave'); E.stars.classList.add('leave'); E.titleHand.classList.add('leave');   // (the bubbles keep floating into the game — user)
     S.sfx('whoosh');
     await wait(560);
     starting = false;
@@ -428,8 +444,7 @@
       // the burst: rainbow rays + stars, notes and confetti from the piece's middle
       const cx = br.left + (tl + cu.cw / 2 + cu.m) * bs, cy = br.top + (tt + cu.ch / 2 + cu.m) * bs;
       S.sfx('snap');
-      burstAt(cx, cy, Math.max(cu.cw, cu.ch) * bs * 1.9);
-      FX.burst(cx, cy, u() / 9);
+      candyBurst(cx, cy, 0.55);                       // Toy Catch's catch burst, a little smaller for one piece
       addScore(100, cx, cy);
       if (G.left === 0) complete(tok); else armHint();
     }, 210);
@@ -439,12 +454,6 @@
     const n = liveSlots().length, max = Math.max(0, n - 3);
     if (G.top > max) G.top = max;
     updateTray();
-  }
-  function burstAt(x, y, r) {
-    const b = document.createElement('i');
-    b.className = 'burst'; b.style.cssText = `left:${x}px;top:${y}px;--r:${r}px`;
-    E.bursts.appendChild(b);
-    setTimeout(() => b.remove(), 900);
   }
   function addScore(n, x, y) {
     G.score += n;
@@ -547,8 +556,7 @@
           mic.className = 'mic ok';
           S.sfx('win');
           const r = mic.getBoundingClientRect();
-          FX.burst(r.left + r.width / 2, r.top + r.height / 2, u() / 9);
-          burstAt(r.left + r.width / 2, r.top + r.height / 2, 30 * u());
+          candyBurst(r.left + r.width / 2, r.top + r.height / 2, 0.7);
           addScore(300, r.left + r.width / 2, r.top - 2 * u());
           await S.say('t:great' + (1 + ((Math.random() * 3) | 0)));
           return;

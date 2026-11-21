@@ -77,8 +77,22 @@
     return p;
   }
 
-  /** one piece -> canvas of (cw + 2m) x (ch + 2m) picture px times rs: the picture inside the outline, a soft bevel
-   *  (light on the top-left inner edge, shade on the bottom-right) and a thin line, like a printed cardboard piece */
+  /** an inner shadow inside path p (already clipped to it): everything OUTSIDE the piece casts a blurred shadow inward,
+   *  offset by (o, o) picture px — o > 0 lights the top / left edges, o < 0 shades the bottom / right ones.
+   *  (canvas shadows ignore the transform, so offset and blur are scaled by rs here) */
+  function innerGlow(g, p, cu, rs, o, blur, color) {
+    const ring = new Path2D();
+    ring.rect(-cu.W, -cu.H, cu.W * 3, cu.H * 3);
+    ring.addPath(p);
+    g.save();
+    g.shadowColor = color; g.shadowBlur = blur * rs; g.shadowOffsetX = o * rs; g.shadowOffsetY = o * rs;
+    g.fillStyle = '#000';
+    g.fill(ring, 'evenodd');
+    g.restore();
+  }
+
+  /** one piece -> canvas of (cw + 2m) x (ch + 2m) picture px times rs: the picture inside the outline, soft inner light
+   *  (top-left) and shade (bottom-right) and a faint line, like a printed cardboard piece */
   function renderPiece(img, cu, r, c, rs) {
     const { cw, ch, m, k } = cu;
     const cv = document.createElement('canvas');
@@ -90,12 +104,13 @@
     g.save();
     g.clip(p);
     g.drawImage(img, 0, 0, cu.W, cu.H);
-    const d = k * 0.014;
-    g.lineWidth = d * 2; g.lineJoin = 'round';
-    g.save(); g.translate(d, d); g.strokeStyle = 'rgba(255,255,255,0.75)'; g.stroke(p); g.restore();
-    g.save(); g.translate(-d, -d); g.strokeStyle = 'rgba(70,40,20,0.32)'; g.stroke(p); g.restore();
+    // volume like a rounded cardboard edge (user: "흰색 면과 검은색 면에 투명도 줘서 볼륨감 준게 어색해 자연스럽게"): soft light
+    // falling in from the top-left edges and soft shade from the bottom-right ones, both blurred so they fade inward —
+    // no hard white / dark bands
+    innerGlow(g, p, cu, rs, k * 0.016, k * 0.05, 'rgba(255,255,255,0.5)');
+    innerGlow(g, p, cu, rs, -k * 0.018, k * 0.06, 'rgba(70,40,25,0.22)');
     g.restore();
-    g.lineWidth = Math.max(1, 1.6 / rs); g.strokeStyle = 'rgba(90,60,40,0.35)'; g.stroke(p);
+    g.lineWidth = Math.max(1, 1.2 / rs); g.strokeStyle = 'rgba(110,75,50,0.22)'; g.stroke(p);
     return cv;
   }
 

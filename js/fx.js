@@ -10,7 +10,8 @@
   const css = getComputedStyle(document.documentElement);
   const tok = n => css.getPropertyValue(n).trim();
   const COLORS = ['--fx-pink', '--fx-yellow', '--fx-cyan', '--fx-green', '--fx-orange', '--fx-purple'].map(tok);
-  const WARM = [tok('--fx-gold'), tok('--fx-white'), tok('--fx-yellow')];
+  const WARM = [tok('--fx-yellow'), tok('--spark-amber'), tok('--fx-yellow')];   // START's sparkle yellows (no white)
+  const CORE = tok('--spark-core');
   let W = 0, H = 0, dpr = 1;
   const parts = [];
   const sprites = {};
@@ -36,7 +37,7 @@
     const rg = c.createRadialGradient(m, m, 0, m, m, m);
     rg.addColorStop(0, col); rg.addColorStop(0.25, col + '88'); rg.addColorStop(1, col + '00');
     c.fillStyle = rg; c.globalAlpha = 0.55; c.beginPath(); c.arc(m, m, m, 0, 7); c.fill(); c.globalAlpha = 1;
-    c.fillStyle = '#ffffff';
+    c.fillStyle = CORE;
     c.beginPath();
     c.moveTo(m, 4); c.quadraticCurveTo(m + 3, m - 3, n - 4, m); c.quadraticCurveTo(m + 3, m + 3, m, n - 4);
     c.quadraticCurveTo(m - 3, m + 3, 4, m); c.quadraticCurveTo(m - 3, m - 3, m, 4); c.fill();
@@ -109,19 +110,6 @@
       for (let i = 0; i < n; i++) {
         const a = rnd(0, Math.PI * 2), sp = rnd(r * 0.8, r * 2);
         add({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, drag: 0.92, life: rnd(0.6, 1.1), size: rnd(14, 30) * scale, img: spark(pick(WARM)), twinkle: true, ph: rnd(0, 6) });
-      }
-    },
-    /** the snap burst: candy stars, music notes, sparkles and confetti flying out (mockup frame "snap") */
-    burst(x, y, scale = 1) {
-      const n = 26;
-      for (let i = 0; i < n; i++) {
-        const a = (i / n) * Math.PI * 2 + rnd(-0.12, 0.12), sp = rnd(260, 620) * scale, ty = Math.random();
-        const img = ty < 0.38 ? star(pick(COLORS)) : ty < 0.6 ? note(pick(COLORS), pick(['♪', '♫'])) : spark(pick(WARM));
-        add({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, drag: 0.9, g: 260, life: rnd(0.7, 1.2), size: rnd(26, 46) * scale, img, rot: rnd(-0.6, 0.6), vr: rnd(-4, 4) });
-      }
-      for (let i = 0; i < 18; i++) {
-        const a = rnd(0, Math.PI * 2), sp = rnd(200, 480) * scale;
-        add({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, drag: 0.92, g: 520, life: rnd(0.9, 1.5), size: rnd(12, 20) * scale, conf: true, col: pick(COLORS), rot: rnd(0, 6), vr: rnd(-8, 8), spin: rnd(6, 14) });
       }
     },
     /** confetti rain from the top of the window (puzzle done) */
