@@ -25,7 +25,7 @@
     frame: $('#frame'), lights: $('#lights'), board: $('#board'), ghost: $('#ghost'), placed: $('#placed'), full: $('#full'), hint: $('#hint'),
     tray: $('#tray'), list: $('#trayList'), view: $('#trayView'), dots: $('#trayDots'), up: $('#btnUp'), down: $('#btnDown'),
     word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), stars: $('#titleStars'),
-    score: $('#score'), level: $('#levelTxt'), hudL: $('.hud-left'), sys: $('.sys'),
+    score: $('#score'), level: $('#levelTxt'), hudL: $('.hud-left'), sys: $('.sys:not(.sys-left)'),
     clear: $('#clear'), clearTitle: $('#clearTitle'), clearPics: $('#clearPics'), clearScore: $('#clearScore'), go: $('#btnGo'), goTxt: $('#goTxt'),
   };
   const G = { screen: 'title', tok: 0, order: [], level: 0, idx: 0, score: 0, cut: null, img: null, word: null, pieces: [], left: 0,
@@ -55,10 +55,11 @@
         : `<i style="left:${l}%;top:${t}%;--c:var(${cols[n % 3]});--d:${(n % 6) * -.27}s"></i>`;
       if (!star) n++;
     };
-    const across = 15, down = 12;
-    for (let i = 0; i <= across; i++) { const x = IN + (FW - 2 * IN) * i / across; put(x, IN, i === 0 || i === across || i % 5 === 0); }
+    const across = 15, down = 12, CI = 3.1;   // corner stars sit further in, inside the frame's round corners (user: "테두리 벗어나지 않았으면")
+    const corner = (x, y) => put(x < FW / 2 ? CI : FW - CI, y < FH / 2 ? CI : FH - CI, true);
+    for (let i = 0; i <= across; i++) { const x = IN + (FW - 2 * IN) * i / across; if (i === 0 || i === across) corner(x, IN); else put(x, IN, i % 5 === 0); }
     for (let i = 1; i < down; i++) put(FW - IN, IN + (FH - 2 * IN) * i / down, i % 4 === 0);
-    for (let i = across; i >= 0; i--) { const x = IN + (FW - 2 * IN) * i / across; put(x, FH - IN, i === 0 || i === across || i % 3 === 0); }
+    for (let i = across; i >= 0; i--) { const x = IN + (FW - 2 * IN) * i / across; if (i === 0 || i === across) corner(x, FH - IN); else put(x, FH - IN, i % 3 === 0); }
     for (let i = down - 1; i >= 1; i--) put(IN, IN + (FH - 2 * IN) * i / down, i % 4 === 0);
     E.lights.innerHTML = html;
   })();
@@ -460,7 +461,7 @@
     const sr = stage.getBoundingClientRect(), k = u(), cr = p.cv.getBoundingClientRect(), br = E.board.getBoundingClientRect(), bs = br.width / IW, cu = G.cut;
     const a = [cr.left + cr.width * .5 - sr.left, cr.top + cr.height * .5 - sr.top];
     const b = [br.left + (p.c * cu.cw + cu.cw / 2) * bs - sr.left, br.top + (p.r * cu.ch + cu.ch / 2) * bs - sr.top];
-    const off = [-2.3 * k, -1.7 * k];      // the fingertip sits near the image's top-left
+    const off = [-3.42 * k, -0.24 * k];    // the common white hand's fingertip: 38 % across, 2 % down of its 9 x 12 u
     E.hand.classList.add('show'); E.hand.classList.remove('press');
     E.hand.getAnimations().forEach(x => x.cancel());
     E.hand.animate([
@@ -600,7 +601,8 @@
   function pointAt(el) {
     const sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
     E.hand.getAnimations().forEach(x => x.cancel());
-    E.hand.style.left = r.left + r.width * .55 - sr.left + 'px'; E.hand.style.top = r.top + r.height * .55 - sr.top + 'px';
+    const k = u();
+    E.hand.style.left = r.left + r.width * .55 - sr.left - 3.42 * k + 'px'; E.hand.style.top = r.top + r.height * .55 - sr.top - 0.24 * k + 'px';
     E.hand.classList.add('show', 'press');
   }
   E.next.addEventListener('click', () => {
@@ -633,17 +635,15 @@
     startPuzzle();
   });
   $('#btnHome').addEventListener('click', () => { S.sfx('tap'); showTitle(); });
-  $('#btnHomeTop').addEventListener('click', () => { if (G.screen !== 'game') return; S.sfx('tap'); showTitle(); });
 
   // ── HUD ─────────────────────────────────────────────────────────────────────────────────────────────────
-  $('#btnRestart').addEventListener('click', () => { if (G.screen !== 'game' || E.clear.classList.contains('show')) return; S.sfx('tap'); startPuzzle(); });
   const btnSound = $('#btnSound');
   function paintSound() { app.classList.toggle('muted', S.muted); btnSound.setAttribute('aria-pressed', String(!S.muted)); }
   btnSound.addEventListener('click', () => { S.unlock(); S.setMuted(!S.muted); paintSound(); if (!S.muted) S.sfx('tap'); });
   paintSound();
   const btnLang = $('#btnLang');
-  function paintLang() { btnLang.querySelectorAll('.flagbtn').forEach(f => { const on = f.dataset.l === S.lang; f.classList.toggle('on', on); f.setAttribute('aria-pressed', String(on)); }); }
-  btnLang.querySelectorAll('.flagbtn').forEach(f => f.addEventListener('click', () => { S.unlock(); S.setLang(f.dataset.l); paintLang(); S.sfx('tap'); }));
+  function paintLang() { btnLang.dataset.l = S.lang; btnLang.querySelectorAll('.flag').forEach(f => f.classList.toggle('on', f.dataset.l === S.lang)); btnLang.setAttribute('aria-pressed', String(S.lang === 'ko')); }
+  btnLang.addEventListener('click', () => { S.unlock(); S.setLang(S.lang === 'ko' ? 'en' : 'ko'); paintLang(); S.sfx('tap'); });
   paintLang();
   $('#btnExit').addEventListener('click', () => {
     S.sfx('tap');

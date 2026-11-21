@@ -73,6 +73,27 @@ def blend_fill_h(im, y0, y1, x0, x1):
     return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
 
 
+def band_fill(im, x0, x1, top, bot, bend):
+    """a curved ribbon: rows top..bot-1 at the ribbon's middle (x = 185) shift down by bend * (x - 185)^2 toward the ends
+    (the LEVEL band arcs up ~10 px in the middle). Each hole pixel = a straight blend, along the band, of the clean
+    columns just left of x0 and right of x1 at the same height IN THE BAND — the gold stripes above and below stay as
+    they are (the first flat fill smeared them: user "버튼에 얼룩이 다 안 지워진게 있는데")"""
+    a = np.asarray(im).astype(np.float32).copy()
+    src = a.copy()
+    sh = lambda x: bend * (x - 185) ** 2
+
+    def ref(xc, y):                      # 3 columns round xc at a fractional height (no stair steps on the stripes)
+        y0 = int(np.floor(y)); f = y - y0
+        return ((1 - f) * src[y0, xc - 1:xc + 2, :3] + f * src[y0 + 1, xc - 1:xc + 2, :3]).mean(0)
+    xl, xr = x0 - 3, x1 + 2
+    for x in range(x0, x1):
+        t = (x - x0 + 0.5) / (x1 - x0)
+        for y in range(int(round(top + sh(x))), int(round(bot + sh(x)))):
+            yb = y - sh(x)
+            a[y, x, :3] = (1 - t) * ref(xl, yb + sh(xl)) + t * ref(xr, yb + sh(xr))
+    return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
+
+
 def harmonic_fill(im, hole, iters=2500):
     """a hole on a curved jelly: every hole pixel becomes the mean of its 4 neighbours, repeated (smooth from all sides)"""
     a = np.asarray(im).astype(np.float32).copy()
@@ -92,10 +113,12 @@ meta = {}
 for n in BOX:
     im = cut(n)
     if n == 'level':                     # "Stage" on the ribbon: the cream / brown letter pixels between the two stripes
-        im = blend_fill_h(im, 134, 216, 80, 298)
+        im = band_fill(im, 80, 291, 132, 216, 9.5 / 115 ** 2)   # band body + the bottom stripe the g reached into (middle: rows 131-215)
         meta[n] = {'text': [0.5, 0.637], 'h': 0.21}      # where the live text goes (share of width / height), cap height
     elif n == 'score':                   # "1200": a box over the digits, left of the trophy
-        im = blend_fill(im, 34, 148, 108, 394)
+        # along the ribbon between its clean body left of the digits and right of them (a top-to-bottom blend made the
+        # middle pale: the rows above and below the digits are the light stripes)
+        im = blend_fill_h(im, 32, 150, 106, 391)
         meta[n] = {'text': [252 / im.width, 88 / im.height], 'h': 0.44}
     elif n == 'sound':                   # the round pink base without its speaker -> 'round'
         a = np.asarray(im).astype(int); r, g, b = a[..., 0], a[..., 1], a[..., 2]

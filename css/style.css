@@ -6,6 +6,7 @@
 :root {
   --u: min(1vh, calc(100vw / 177.78));
   --hb: calc(7.6 * var(--u));
+  --slot: calc(46 / 3 * var(--u));   /* one tray slot (3 show) */
   --font: 'Baloo 2', 'Jua', 'Arial Rounded MT Bold', system-ui, sans-serif;
   --sky: #9fd8f0;
   --ink: #3d2a5c;
@@ -145,13 +146,13 @@ img { -webkit-user-drag: none; user-select: none; }
 @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 @keyframes shine { 0%, 55% { left: -30%; } 85%, 100% { left: 120%; } }
 @keyframes startHit { 0% { transform: scale(.94); } 60% { transform: scale(1.1); filter: brightness(1.4); } 100% { transform: scale(1.06); filter: brightness(1.6); opacity: .0; } }
-.hand-cue { position: absolute; width: calc(11.3 * var(--u)); pointer-events: none; transform-origin: 20% 10%; filter: drop-shadow(0 calc(.6 * var(--u)) calc(.6 * var(--u)) var(--shadow)); }
-#titleHand { left: calc(106.5 * var(--u)); top: calc(79 * var(--u)); animation: handTap 1.4s ease-in-out 1.6s infinite both; transition: opacity .25s; }
+.hand-cue { position: absolute; width: calc(9 * var(--u)); pointer-events: none; transform-origin: 38% 2%; filter: drop-shadow(0 calc(.6 * var(--u)) calc(.6 * var(--u)) var(--shadow)); }
+#titleHand { left: calc(105.4 * var(--u)); top: calc(79.9 * var(--u)); animation: handTap 1.4s ease-in-out 1.6s infinite both; transition: opacity .25s; }
 #titleHand.leave { opacity: 0; }
 @keyframes handTap { 0%, 100% { transform: translate(0, 0) scale(1); } 40% { transform: translate(calc(-1.2 * var(--u)), calc(-1.6 * var(--u))) scale(1); } 55% { transform: translate(calc(-1.2 * var(--u)), calc(-1.6 * var(--u))) scale(.9); } 70% { transform: translate(calc(-1.2 * var(--u)), calc(-1.6 * var(--u))) scale(1); } }
 
 /* ── game: logo, frame, board ────────────────────────────────────────────────── */
-.game-logo { position: absolute; left: calc(66 * var(--u)); top: calc(.4 * var(--u)); width: calc(34 * var(--u)); z-index: 6; pointer-events: none; filter: drop-shadow(0 calc(.6 * var(--u)) calc(.6 * var(--u)) var(--shadow)); }
+.game-logo { position: absolute; left: calc(66 * var(--u)); top: calc(4.2 * var(--u)); width: calc(34 * var(--u)); z-index: 6; pointer-events: none; filter: drop-shadow(0 calc(.6 * var(--u)) calc(.6 * var(--u)) var(--shadow)); }
 .game-logo.pop { animation: logoPop .7s cubic-bezier(.2, 1.5, .4, 1) both; }
 @keyframes logoPop { 0% { transform: translateY(calc(-14 * var(--u))) scale(.5); opacity: 0; } 100% { transform: none; opacity: 1; } }
 .frame { position: absolute; left: calc(37 * var(--u)); top: calc(17 * var(--u)); width: calc(92 * var(--u)); height: calc(78.33 * var(--u)); border-radius: calc(5 * var(--u)); z-index: 3;
@@ -186,8 +187,8 @@ img { -webkit-user-drag: none; user-select: none; }
 .lights i { position: absolute; width: calc(2.1 * var(--u)); height: calc(2.1 * var(--u)); margin: calc(-1.05 * var(--u)) 0 0 calc(-1.05 * var(--u)); border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, var(--white) 0 18%, var(--c) 45%); box-shadow: 0 0 calc(1 * var(--u)) var(--c), inset 0 calc(-.2 * var(--u)) 0 var(--frame-shade);
   animation: bulb 1.6s ease-in-out infinite; animation-delay: var(--d); }
-.lights i.st { width: calc(2.6 * var(--u)); height: calc(2.6 * var(--u)); margin: calc(-1.3 * var(--u)) 0 0 calc(-1.3 * var(--u)); border-radius: 0; box-shadow: none; animation: none;
-  background: var(--star); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); filter: drop-shadow(0 calc(.15 * var(--u)) 0 var(--star-deep)); }
+.lights i.st { width: calc(2.9 * var(--u)); height: calc(2.9 * var(--u)); margin: calc(-1.45 * var(--u)) 0 0 calc(-1.45 * var(--u)); border-radius: 0; box-shadow: none; animation: none;
+  background: url(../assets/img/ui/frame_star.svg) center / contain no-repeat; filter: drop-shadow(0 calc(.18 * var(--u)) calc(.15 * var(--u)) var(--frame-shade)); }
 @keyframes bulb { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35) saturate(1.2); } }
 .frame.party .lights i:not(.st) { animation: party .25s steps(2) infinite; animation-delay: var(--d); }
 @keyframes party { 50% { filter: brightness(1.8); transform: scale(1.25); } }
@@ -207,18 +208,17 @@ img { -webkit-user-drag: none; user-select: none; }
 .tray-btn:active { transform: translateY(calc(.5 * var(--u))) scale(.96); }
 .tray-btn:disabled { filter: grayscale(.7) brightness(1.05); opacity: .55; cursor: default; }
 .tray-btn.up { top: calc(2.4 * var(--u)); }
-.tray-btn.down { top: calc(59.6 * var(--u)); }
-.tray-label { position: absolute; left: 0; right: 0; top: calc(71.9 * var(--u)); text-align: center; font-weight: 800; font-size: calc(2.7 * var(--u)); line-height: 1; color: var(--tray-ink); text-shadow: 0 calc(.25 * var(--u)) 0 var(--tray-ink-shadow); }
-.tray-view { position: absolute; left: calc(2.4 * var(--u)); right: calc(3.6 * var(--u)); top: calc(14 * var(--u)); height: calc(45 * var(--u)); overflow: hidden; border-radius: calc(2.2 * var(--u));
+.tray-btn.down { top: calc(62 * var(--u)); }   /* (the DOWN label under it is gone — user) */
+.tray-view { position: absolute; left: calc(2.4 * var(--u)); right: calc(3.6 * var(--u)); top: calc(14.5 * var(--u)); height: calc(3 * var(--slot)); overflow: hidden; border-radius: calc(2.2 * var(--u));
   background: linear-gradient(var(--tray-in-lo), var(--tray-in)); box-shadow: inset 0 calc(.6 * var(--u)) calc(1 * var(--u)) var(--tray-shade); }
-.tray-list { position: absolute; left: 0; right: 0; top: 0; transform: translateY(calc(var(--top, 0) * -15 * var(--u))); transition: transform .35s cubic-bezier(.3, 1.2, .5, 1); }
-.slot { height: calc(15 * var(--u)); display: grid; place-items: center; transition: height .32s ease, opacity .32s ease; }
+.tray-list { position: absolute; left: 0; right: 0; top: 0; transform: translateY(calc(var(--top, 0) * -1 * var(--slot))); transition: transform .35s cubic-bezier(.3, 1.2, .5, 1); }
+.slot { height: var(--slot); display: grid; place-items: center; transition: height .32s ease, opacity .32s ease; }
 .slot.gone { height: 0; opacity: 0; }
 .slot canvas { max-width: 86%; max-height: 84%; width: auto; height: auto; cursor: grab; touch-action: none; filter: drop-shadow(0 calc(.45 * var(--u)) calc(.4 * var(--u)) var(--tray-shade)); transition: transform .15s; }
 .slot canvas:hover { transform: scale(1.05); }
 .slot canvas.arrive { animation: arrive .45s cubic-bezier(.2, 1.6, .4, 1); }
 @keyframes arrive { 0% { transform: scale(.4); opacity: 0; } 100% { transform: none; opacity: 1; } }
-.tray-dots { position: absolute; right: calc(.9 * var(--u)); top: calc(14 * var(--u)); height: calc(45 * var(--u)); width: calc(1.6 * var(--u)); display: flex; flex-direction: column; justify-content: center; gap: calc(.9 * var(--u)); }
+.tray-dots { position: absolute; right: calc(.9 * var(--u)); top: calc(14.5 * var(--u)); height: calc(3 * var(--slot)); width: calc(1.6 * var(--u)); display: flex; flex-direction: column; justify-content: center; gap: calc(.9 * var(--u)); }
 .tray-dots i { width: calc(1.2 * var(--u)); height: calc(1.2 * var(--u)); border-radius: 50%; background: var(--tray-lo); box-shadow: inset 0 calc(.15 * var(--u)) calc(.2 * var(--u)) var(--tray-shade); transition: background .2s, transform .2s; }
 .tray-dots i.on { background: var(--orange); transform: scale(1.2); box-shadow: 0 0 calc(.5 * var(--u)) var(--orange-ring); }
 
@@ -293,13 +293,25 @@ img { -webkit-user-drag: none; user-select: none; }
 .imgbtn .ico .e { stroke: var(--icon-edge); stroke-width: 4.8; }
 .imgbtn .ico .c { stroke: var(--icon-fill); stroke-width: 2.6; }
 /* sound off: the same button gone grey, with a slash */
-#app.muted #btnSound img { filter: grayscale(1) brightness(1.06); }
-#app.muted #btnSound::before { content: ''; position: absolute; z-index: 1; left: 20%; right: 20%; top: 45.5%; height: 9%; border-radius: 99px; background: var(--icon-edge); transform: rotate(-42deg); box-shadow: 0 0 0 calc(.025 * var(--hb)) var(--white); }
-/* voice language: the sheet's round flags; the chosen one bright, the other smaller and dim (title only) */
-.flags { display: flex; align-items: center; gap: calc(.06 * var(--hb)); height: var(--hb); }
-.flagbtn { transition: transform .25s cubic-bezier(.3, 1.4, .5, 1), opacity .25s, filter .25s; }
-.flagbtn:not(.on) { transform: scale(.76); opacity: .62; filter: grayscale(.35) drop-shadow(0 calc(.04 * var(--hb)) calc(.06 * var(--hb)) var(--shadow)); }
-.flagbtn.on { filter: drop-shadow(0 0 calc(.1 * var(--hb)) var(--white)) drop-shadow(0 calc(.06 * var(--hb)) calc(.08 * var(--hb)) var(--shadow)); }
+/* sound on / off: the same jelly and icon style as exit (user: "음소거 버튼만 나가기 버튼과 달라보여"); off = grey jelly + X */
+.imgbtn .ico .body { fill: var(--icon-fill); stroke: var(--icon-edge); stroke-width: 3.6; stroke-linejoin: round; paint-order: stroke; }
+.imgbtn .ico .off { display: none; }
+#app.muted #btnSound .ico .on { display: none; }
+#app.muted #btnSound .ico .off { display: inline; }
+#app.muted #btnSound img, #app.muted #btnSound .ico { filter: grayscale(1) brightness(1.04); }
+/* voice language = the phonics games' toggle (Toy Catch's: plate + groove + white knob with the chosen flag, the other
+   small and dim), in this game's pink (user: "인트로 국기는 토글형태로 통일하기로 했잖아. 색은 달라도") — title only */
+.lang-tog { --e: calc(.09 * var(--hb));
+  position: relative; display: flex; align-items: center; gap: calc(.03 * var(--hb)); height: var(--hb); padding: 0 calc(.08 * var(--hb)); border-radius: 999px; translate: 0 calc(-.5 * var(--e));
+  background: radial-gradient(130% 80% at 50% -6%, rgba(255,255,255,.9) 0 40%, rgba(255,255,255,0) 52%), linear-gradient(#ffffff, #fbe6f0);
+  box-shadow: inset 0 0 calc(.05 * var(--hb)) #f0c9dc, 0 var(--e) 0 0 #e9b9d0, 0 calc(var(--e) + .06 * var(--hb)) calc(.15 * var(--hb)) rgba(120, 20, 70, .25); }
+.lang-tog::before { content: ''; position: absolute; inset: calc(.07 * var(--hb)); border-radius: 999px; pointer-events: none; background: linear-gradient(#f6d3e3, #fbe8f1); box-shadow: inset 0 calc(.05 * var(--hb)) calc(.08 * var(--hb)) rgba(150, 30, 90, .25); }
+.lang-tog .knob { position: absolute; top: calc(.1 * var(--hb)); left: calc(.1 * var(--hb)); width: calc(.8 * var(--hb)); height: calc(.8 * var(--hb)); border-radius: 50%; background: var(--white); box-shadow: 0 calc(.03 * var(--hb)) calc(.07 * var(--hb)) rgba(120, 20, 70, .3); transition: transform .25s cubic-bezier(.3, 1.4, .5, 1); }
+.lang-tog[data-l="ko"] .knob { transform: translateX(calc(.87 * var(--hb))); }
+.lang-tog .flag { position: relative; z-index: 1; display: grid; place-items: center; width: calc(.84 * var(--hb)); height: calc(.84 * var(--hb)); }
+.lang-tog .flag svg { width: 86%; height: 86%; border-radius: 50%; transition: transform .25s ease, opacity .25s ease, filter .25s ease; }
+.lang-tog .flag:not(.on) svg { transform: scale(.68); opacity: .6; filter: grayscale(.3); }
+.lang-tog:active { transform: scale(.96); }
 /* score ribbon + level badge */
 .score-rib, .level-rib { position: relative; flex: none; filter: drop-shadow(0 calc(.06 * var(--hb)) calc(.08 * var(--hb)) var(--shadow)); }
 .score-rib { height: calc(1.3 * var(--hb)); aspect-ratio: 600 / 219; margin-top: calc(-.14 * var(--hb)); }
