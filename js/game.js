@@ -40,8 +40,18 @@
 
   // ── pictures ────────────────────────────────────────────────────────────────────────────────────────────
   const IMG = {};
+  /** a picture, loaded once. An error or no answer in 10 s rejects, and a failure is not kept (the next ask tries again) */
   function loadImg(w) {
-    if (!IMG[w.w]) IMG[w.w] = new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = w.img; });
+    if (!IMG[w.w]) {
+      const p = IMG[w.w] = new Promise((res, rej) => {
+        const im = new Image();
+        const t = setTimeout(() => { im.onload = im.onerror = null; im.src = ''; rej(new Error('timeout ' + w.img)); }, 10000);
+        im.onload = () => { clearTimeout(t); res(im); };
+        im.onerror = () => { clearTimeout(t); rej(new Error('error ' + w.img)); };
+        im.src = w.img;
+      });
+      p.catch(() => { if (IMG[w.w] === p) delete IMG[w.w]; });
+    }
     return IMG[w.w];
   }
 
@@ -389,6 +399,7 @@
     if (G.idx === 0) {                                // a level begins: the record's level (the title continues from it)
       G.pick = G.level; paintPick();
       if (PP) PP.setLevel(GAME_ID, G.level + 1);
+      G.jumpTold = false;                             // the jump guide: once a level (phonics-kit common rule)
     }
     clearTimers(); endDragSilently(); S.stopVoice(); S.resetSnap();
     G.busy = true;
@@ -397,8 +408,12 @@
     const cfg = LEVELS[G.level], word = G.order[G.level * PER + G.idx];
     G.word = word; resetPicStars();
     showLevel();
-    const img = await loadImg(word);
+    // a picture that won't load (an error, or 10 s without an answer) is tried once more, then skipped — the board used
+    // to stay blank and busy with no hint, and only Home got the child out
+    let img = await loadImg(word).catch(() => null);
+    if (!img && alive(tok)) { await wait(500); img = await loadImg(word).catch(() => null); }
     if (!alive(tok)) return;
+    if (!img) { skipPicture(); return; }
     G.img = img;
     const nx = G.order[G.level * PER + G.idx + 1]; if (nx) loadImg(nx);
     const cu = G.cut = Jigsaw.cut(cfg.cols, cfg.rows, (Math.random() * 1e9) | 1, IW, IH);
@@ -461,6 +476,16 @@
     explaining(false);
     G.busy = false;
     armHint();
+  }
+  /** the picture didn't load: on to the next one; past the level's last, the clear card if a picture was played, else
+   *  back to the title with the levels open */
+  function skipPicture() {
+    G.busy = false;
+    if (Q.has('log')) console.log('picture failed, skipped:', G.word.w);
+    G.idx++;
+    if (G.idx < PER && G.level * PER + G.idx < G.order.length) { startPuzzle(); return; }
+    if (G.order.slice(G.level * PER, G.level * PER + PER).some(w => G.levelStars[w.w])) { levelClear(); return; }
+    showTitle(); levelMenu(true);
   }
   /** a piece's canvas in a .dpiece box at its board place (screen px) */
   function pieceEl(p, br, bs) {
@@ -916,7 +941,7 @@
     S.setListening(false);
     nextPicture();
   }
-  /** once a game, on the first quiet try: the hand taps JUMP twice (it hops) while the tutor says what it does */
+  /** once a level, on the first quiet try: the hand taps JUMP twice (it hops) while the tutor says what it does */
   async function jumpGuide() {
     const jb = E.word.querySelector('.jump');
     if (!jb) return;
