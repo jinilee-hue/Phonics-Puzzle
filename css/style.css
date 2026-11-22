@@ -516,11 +516,11 @@ img { -webkit-user-drag: none; user-select: none; }
 .book-btns { --hb: calc(8 * var(--u)); margin-top: auto; }
 .pill-btn:disabled { filter: grayscale(.75) brightness(1.05); opacity: .55; }
 .clear-card.book-card { height: calc(84 * var(--u)); }
-.clear-panel.book-panel { justify-content: flex-start; gap: calc(2.4 * var(--u)); padding: calc(4 * var(--u)) calc(3 * var(--u)) calc(3 * var(--u)); }
+.clear-panel.book-panel { justify-content: flex-start; gap: calc(1.6 * var(--u)); padding: calc(2.8 * var(--u)) calc(3 * var(--u)) calc(4.5 * var(--u)); }   /* room under Decorate (user: "버튼 아래 여백이 너무 없어"): tighter top, gaps and stickers so the content fits above it */
 .book-head { display: flex; align-items: baseline; gap: calc(2 * var(--u)); }
 .book-title { font-size: calc(6.6 * var(--u)); }
 .book-count { font-weight: 800; font-size: calc(4 * var(--u)); color: var(--title-edge); padding-top: calc(.6 * var(--u)); }
-.book-grid { display: grid; grid-template-columns: repeat(6, calc(13 * var(--u))); gap: calc(1.8 * var(--u)) calc(1.5 * var(--u)); }
+.book-grid { display: grid; grid-template-columns: repeat(6, calc(12.4 * var(--u))); gap: calc(1.2 * var(--u)) calc(1.5 * var(--u)); }
 .sticker { position: relative; display: flex; flex-direction: column; align-items: center; gap: calc(.5 * var(--u)); padding: 0; background: none; }
 .sticker .pic { width: 100%; height: calc(10.8 * var(--u)); border-radius: calc(1.4 * var(--u)); object-fit: cover; display: block; rotate: var(--r, 0deg);
   box-shadow: 0 0 0 calc(.45 * var(--u)) var(--white), 0 calc(.6 * var(--u)) calc(.8 * var(--u)) var(--board-shade); transition: transform .15s; }

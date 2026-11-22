@@ -673,7 +673,7 @@
   }
   function showBookCount() {
     const n = WORDS.filter(x => stickers[x.w] > 0).length;
-    $('#bookCount2').textContent = `${n} / ${WORDS.length}`; $('#btnDecor').disabled = !n;   // (the title's book button has no count — user)
+    $('#btnDecor').disabled = !n;   // (no count anywhere — user: "타이틀 옆에 갯수는 삭제해")
   }
   function resetPicStars() { G.picStars = [false, false, false]; picStarsEl.classList.remove('show'); picStarsEl.querySelectorAll('i').forEach(i => i.classList.remove('on')); }
   function earnStar(i) {
