@@ -46,7 +46,7 @@
     });
   }
   const words = s => (String(s).toLowerCase().match(/[a-z]+/g) || []);
-  const SAME = { meat: ['meet'], mitt: ['mit', 'mitts'], mouse: ['mice'], man: ['men'], monkey: ['monkeys'], mushroom: ['mushrooms'], mirror: ['mirrors'], moon: ['moons'], milk: ['milks'], mug: ['mugs', 'muck', 'mugg'], map: ['maps'], mop: ['mops'],
+  const SAME = { meat: ['meet'], mitt: ['mit', 'mitts'], mouse: ['mouses'], mice: [], mail: ['mails', 'male'], mask: ['masks'], mat: ['mats', 'matt'], match: ['matches'], mouth: ['mouths'], man: ['men'], monkey: ['monkeys'], mushroom: ['mushrooms'], mirror: ['mirrors', 'mira', 'mirra', 'miro', 'mirro'], moon: ['moons'], milk: ['milks'], mug: ['mugs', 'muck', 'mugg'], map: ['maps'], mop: ['mops'],
     mat: ['matt', 'mats'], mail: ['male', 'mails'], mask: ['masks'], match: ['matches'], mice: ['mise'], mouth: ['mouths'] };
   const said = (w, text) => { const ws = words(text); return ws.includes(w) || (SAME[w] || []).some(x => ws.includes(x)); };
 

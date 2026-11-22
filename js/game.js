@@ -895,24 +895,20 @@
   /** the company phonics-api first (key on this device), the on-device whisper as backup — Eye Catch's rule */
   async function judgeSpeech(pcm16k, target) {
     const rv = WORDS.map(x => x.w).filter(x => x !== target);
-    const dev = STT.judge(pcm16k, target, rv);
+    const dev = () => STT.judge(pcm16k, target, rv);   // (only when the server can't judge)
     if (window.PhonicsAPI && PhonicsAPI.usable()) {
       const r = await PhonicsAPI.analyze(PhonicsAPI.encodeWav(pcm16k, 16000), target);
       if (r.ok) {
         const j = PhonicsAPI.judge(r.data, target, rv, PH);
         STT.last = { by: 'phonics-api', target, ms: r.ms, verdict: j.verdict, heard: j.heard };
-        if (j.verdict === 'ok') return 'ok';
-        // the server heard another word: wrong only when the on-device recogniser hears another word too
-        if (j.verdict === 'wrong') { const d = await dev; return d === 'ok' ? 'ok' : d === 'wrong' ? 'wrong' : 'unclear'; }
-        // nearest to the target among the pack words, up to 1.3 sounds off per sound (Eye Catch's looser rule)
-        const dt = j.d[target], dr = Math.min(...rv.filter(x => j.d[x] != null).map(x => j.d[x]), Infinity);
-        if (j.heard && dt != null && j.rel <= 1.3 && dr - dt > 0) return 'ok';
-        const d = await dev;
-        return d === 'ok' ? 'ok' : 'unclear';
+        // phonics-api first, always (user 2026-11-22: "phonics-api 가 무조건 우선이지"): its verdict stands. The old 'nearest
+        // word' pass (up to 1.3 sounds off) and the on-device override are gone — they let other words through. The
+        // on-device recogniser judges only when the server can't (no key, offline, busy, timeout) — below.
+        return j.verdict === 'ok' ? 'ok' : j.verdict === 'wrong' ? 'wrong' : 'unclear';
       }
       if (Q.has('log')) console.log('phonics-api failed -> on-device', r.reason, r.status || '');
     }
-    return dev;
+    return dev();
   }
   async function chant(w) {
     const word = E.word.querySelector('.word'), m = word && word.querySelector('b');
