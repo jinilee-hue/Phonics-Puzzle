@@ -247,7 +247,7 @@
     clearInterval(ambient);
     ambient = setInterval(titleSparkle, 140);
     const tok = G.tok;
-    later(7000, () => { if (alive(tok) && G.screen === 'title') S.say('t:pressstart'); });
+    later(7000, () => { if (alive(tok) && G.screen === 'title' && !decorating()) S.say('t:pressstart'); });
   }
   // the sparkle stream that flows round to START (the reference video)
   let amb = 0;
@@ -262,7 +262,7 @@
   }
 
   let starting = false;
-  E.start.addEventListener('click', () => { if (G.screen === 'title' && !starting) startGame(); });
+  E.start.addEventListener('click', () => { if (G.screen === 'title' && !starting && !decorating()) startGame(); });
   async function startGame() {
     S.unlock(); S.startBgm(); S.sfx('start'); S.stopVoice();
     STT.preload();                       // the on-device backup recogniser loads while the first puzzle plays
@@ -571,7 +571,7 @@
   }
   function showBookCount() {
     const n = WORDS.filter(x => stickers[x.w] > 0).length;
-    $('#bookCount').textContent = `${n}/${WORDS.length}`; $('#bookCount2').textContent = `${n} / ${WORDS.length}`;
+    $('#bookCount2').textContent = `${n} / ${WORDS.length}`; $('#btnDecor').disabled = !n;   // (the title's book button has no count — user)
   }
   function resetPicStars() { G.picStars = [false, false, false]; picStarsEl.classList.remove('show'); picStarsEl.querySelectorAll('i').forEach(i => i.classList.remove('on')); }
   function earnStar(i) {
@@ -815,6 +815,130 @@
   $('#btnBookClose').addEventListener('click', () => { S.sfx('tap'); S.stopVoice(); $('#book').classList.remove('show'); });
   showBookCount();
 
+  // ── my sticker wall (title): stickers from MY STICKERS stuck anywhere on the title and decorated freely (user: "스티커를
+  // 모은건 화면에 붙일수 있게 해주면 안돼? … 자유롭게 꾸밀수 있게"). Decorate (in the book) opens the tray along the bottom:
+  // tap a sticker = it lands on the screen, or drag it where you like; on the screen drag = move, the corner knob = turn and
+  // size, × or dragging it back onto the tray = peel off, tap = hear the word. A sticker can go up any number of times.
+  // Kept on the device (ppDecor: word, x / y in stage u, size, turn; array order = stacking). ───────────────────────────
+  const decorEl = $('#decor'), decorTray = $('#decorTray'), decorList = $('#decorList');
+  const MAX_DECALS = 40, SW = 177.78;
+  let decals = [];
+  try { decals = (JSON.parse(localStorage.getItem('ppDecor') || '[]') || []).filter(d => d && WORDS.some(x => x.w === d.w)); } catch (e) { decals = []; }
+  const saveDecor = () => { try { localStorage.setItem('ppDecor', JSON.stringify(decals.map(({ w, x, y, s, r }) => ({ w, x, y, s, r })))); } catch (e) { /* storage off */ } };
+  const decorating = () => app.classList.contains('decor');
+  const wordOf = w => WORDS.find(x => x.w === w);
+  const toStage = (cx, cy) => { const r = stage.getBoundingClientRect(), k = r.width / SW; return [(cx - r.left) / k, (cy - r.top) / k]; };
+  const clampPos = d => { d.x = Math.min(SW - 3, Math.max(3, d.x)); d.y = Math.min(97, Math.max(3, d.y)); };
+  const ICO_X = '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></svg>';
+  const ICO_TURN = '<svg viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v4.6h-4.6"/></svg>';
+  function paintDecal(d) {
+    const el = d.el; el.style.left = `calc(${d.x.toFixed(2)} * var(--u))`; el.style.top = `calc(${d.y.toFixed(2)} * var(--u))`;
+    el.style.setProperty('--s', d.s.toFixed(3)); el.style.setProperty('--r', d.r.toFixed(1) + 'deg');
+  }
+  function makeDecal(d) {
+    const x = wordOf(d.w), el = document.createElement('div');
+    el.className = 'decal' + ((stickers[d.w] || 0) >= 3 ? ' gold' : '');
+    el.innerHTML = `<img src="${x.img}" alt="${x.w}" draggable="false"><button class="h h-x" aria-label="Peel off">${ICO_X}</button><button class="h h-turn" aria-label="Turn and size">${ICO_TURN}</button>`;
+    d.el = el; el._d = d; paintDecal(d); decorEl.appendChild(el);
+    return el;
+  }
+  decals.forEach(makeDecal);
+  let selD = null;
+  function select(d) { if (selD && selD.el) selD.el.classList.remove('sel'); selD = d; if (d) d.el.classList.add('sel'); }
+  function toFront(d) { const i = decals.indexOf(d); if (i >= 0 && i < decals.length - 1) { decals.splice(i, 1); decals.push(d); decorEl.appendChild(d.el); } }
+  function peel(d) {
+    const i = decals.indexOf(d); if (i < 0) return;
+    decals.splice(i, 1); if (selD === d) selD = null;
+    d.el.classList.add('peel'); S.sfx('fly'); setTimeout(() => d.el.remove(), 260); saveDecor();
+  }
+  function stickFx(d) {
+    restartAnim(d.el, 'stick'); S.sfx('snap');
+    const r = d.el.getBoundingClientRect(); FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 10, 90, u() / 9);
+  }
+  const overTray = (cx, cy) => { const r = decorTray.getBoundingClientRect(); return cx > r.left && cx < r.right && cy > r.top && cy < r.bottom; };
+  function buildDecorTray() {
+    const tilt = [-4, 3, -2, 4, -3, 2, 3, -4, 2, -3, 4, -2, -3, 4, -4, 2, 3, -3];
+    decorList.innerHTML = WORDS.map((x, i) => {
+      const n = stickers[x.w] || 0; if (!n) return '';
+      return `<button class="dsticker${n >= 3 ? ' gold' : ''}" data-w="${x.w}" style="--r:${tilt[i % 18]}deg" aria-label="${x.w}"><img src="${x.img}" alt="" draggable="false"></button>`;
+    }).join('');
+  }
+  function openDecor() {
+    if (!WORDS.some(x => stickers[x.w] > 0)) return;
+    S.sfx('tap'); S.stopVoice(); $('#book').classList.remove('show');
+    buildDecorTray(); select(null); app.classList.add('decor');
+    E.titleHand.classList.add('leave');
+  }
+  function closeDecor() {
+    S.sfx('tap'); select(null); app.classList.remove('decor'); decorTray.classList.remove('drop');
+    E.titleHand.classList.remove('leave'); restartAnim(E.start, 'in'); restartAnim(E.sys, 'pop'); restartAnim($('.sys-left'), 'pop');
+  }
+  $('#btnDecor').addEventListener('click', openDecor);
+  $('#btnDecorDone').addEventListener('click', closeDecor);
+
+  // one finger at a time: move a sticker on the screen, turn / size it by its knob, or pull a new one out of the tray
+  let DG = null;
+  stage.addEventListener('pointerdown', (e) => {
+    if (!decorating() || DG) return;
+    const knob = e.target.closest('.h'), del = e.target.closest('.decal'), ts = e.target.closest('.dsticker');
+    if (knob && del) {
+      e.preventDefault(); const d = del._d;
+      if (knob.classList.contains('h-x')) return peel(d);
+      const r = del.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      DG = { kind: 'turn', id: e.pointerId, d, cx, cy, a0: Math.atan2(e.clientY - cy, e.clientX - cx), l0: Math.hypot(e.clientX - cx, e.clientY - cy) || 1, r0: d.r, s0: d.s };
+      return;
+    }
+    if (del) {
+      e.preventDefault(); const d = del._d, [px, py] = toStage(e.clientX, e.clientY);
+      select(d); toFront(d); del.classList.add('drag');
+      DG = { kind: 'move', id: e.pointerId, d, ox: d.x - px, oy: d.y - py, sx: e.clientX, sy: e.clientY, moved: false };
+      return;
+    }
+    if (ts) {
+      e.preventDefault();
+      DG = { kind: 'new', id: e.pointerId, w: ts.dataset.w, btn: ts, sx: e.clientX, sy: e.clientY, moved: false, d: null };
+      return;
+    }
+    if (!e.target.closest('.decor-tray')) select(null);   // a tap on the empty screen lets go of the chosen sticker
+  });
+  addEventListener('pointermove', (e) => {
+    if (!DG || e.pointerId !== DG.id) return;
+    if (DG.kind === 'turn') {
+      const d = DG.d, a = Math.atan2(e.clientY - DG.cy, e.clientX - DG.cx), l = Math.hypot(e.clientX - DG.cx, e.clientY - DG.cy);
+      d.r = DG.r0 + (a - DG.a0) * 180 / Math.PI; d.s = Math.min(2.4, Math.max(0.5, DG.s0 * l / DG.l0)); paintDecal(d);
+      return;
+    }
+    if (!DG.moved && Math.hypot(e.clientX - DG.sx, e.clientY - DG.sy) < 8) return;
+    DG.moved = true;
+    if (DG.kind === 'new' && !DG.d) {             // out of the tray: the sticker comes up under the finger
+      if (decals.length >= MAX_DECALS) { restartAnim(DG.btn, 'nope'); S.sfx('boing'); DG = null; return; }
+      const [px, py] = toStage(e.clientX, e.clientY);
+      const d = { w: DG.w, x: px, y: py, s: 1, r: (Math.random() * 16 - 8) }; decals.push(d); makeDecal(d);
+      select(d); d.el.classList.add('drag'); DG.d = d; DG.ox = 0; DG.oy = 0; S.sfx('pick');
+    }
+    const d = DG.d, [px, py] = toStage(e.clientX, e.clientY);
+    d.x = px + DG.ox; d.y = py + DG.oy; paintDecal(d);
+    decorTray.classList.toggle('drop', overTray(e.clientX, e.clientY));
+  });
+  function endDecorDrag(e, cancel) {
+    if (!DG || e.pointerId !== DG.id) return;
+    const g = DG; DG = null; decorTray.classList.remove('drop');
+    if (g.kind === 'turn') { saveDecor(); return; }
+    if (g.kind === 'new' && !g.d) {               // a tap on a tray sticker: it lands somewhere on the screen
+      if (cancel) return;
+      if (decals.length >= MAX_DECALS) { restartAnim(g.btn, 'nope'); S.sfx('boing'); return; }
+      const d = { w: g.w, x: 26 + Math.random() * (SW - 52), y: 22 + Math.random() * 44, s: 1, r: Math.random() * 20 - 10 };
+      decals.push(d); makeDecal(d); select(d); stickFx(d); saveDecor(); S.chant(d.w);
+      return;
+    }
+    const d = g.d; d.el.classList.remove('drag');
+    if (!cancel && g.moved && overTray(e.clientX, e.clientY)) return peel(d);   // dragged back onto the tray = peeled off
+    if (!g.moved && g.kind === 'move') { restartAnim(d.el, 'bump'); S.stopVoice(); S.chant(d.w); return; }   // tap = hear it
+    clampPos(d); paintDecal(d); stickFx(d); saveDecor();
+  }
+  addEventListener('pointerup', e => endDecorDrag(e, false));
+  addEventListener('pointercancel', e => endDecorDrag(e, true));
+
   // ── HUD ─────────────────────────────────────────────────────────────────────────────────────────────────
   const btnSound = $('#btnSound');
   function paintSound() { app.classList.toggle('muted', S.muted); btnSound.setAttribute('aria-pressed', String(!S.muted)); }
@@ -852,7 +976,7 @@
     endDrag(x, y);
     return true;
   }
-  window.__pp = { G, E, startGame, showTitle, startPuzzle, solveOne, beginDrag, moveDrag, endDrag, levelClear, fake, judgeSpeech, setFace, openBook, earnStar };
+  window.__pp = { G, E, startGame, showTitle, startPuzzle, solveOne, beginDrag, moveDrag, endDrag, levelClear, fake, judgeSpeech, setFace, openBook, earnStar, openDecor, closeDecor, decals: () => decals };
   showTitle();
   window.__ready = true;
 })();

@@ -503,8 +503,10 @@ img { -webkit-user-drag: none; user-select: none; }
 .mini-stars i { width: calc(2.6 * var(--u)); height: calc(2.6 * var(--u)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; }
 .mini-stars i.off { filter: grayscale(1) brightness(1.25) opacity(.4); }
 /* the sticker book */
-.pill-btn.book { margin-left: calc(.17 * var(--hb)); }
-.pill-btn.book svg path { stroke-width: 2.1; }
+.sysbtn.book { margin-left: calc(.17 * var(--hb)); }   /* the book only, no count (user) */
+.sysbtn.book svg { fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+.book-btns { --hb: calc(8 * var(--u)); margin-top: auto; }
+.pill-btn:disabled { filter: grayscale(.75) brightness(1.05); opacity: .55; }
 .clear-card.book-card { height: calc(84 * var(--u)); }
 .clear-panel.book-panel { justify-content: flex-start; gap: calc(2.4 * var(--u)); padding: calc(4 * var(--u)) calc(3 * var(--u)) calc(3 * var(--u)); }
 .book-head { display: flex; align-items: baseline; gap: calc(2 * var(--u)); }
@@ -602,3 +604,54 @@ img { -webkit-user-drag: none; user-select: none; }
 .mic.idle { filter: saturate(.75); }
 .mic.ok { background: radial-gradient(130% 80% at 50% -6%, var(--white-a70) 0 40%, var(--white-a0) 52%), linear-gradient(var(--gold-hi), var(--gold) 50%, var(--star-deep)); box-shadow: 0 calc(.5 * var(--u)) 0 var(--gold-ink), 0 calc(.9 * var(--u)) calc(1 * var(--u)) var(--shadow); animation: bump .5s cubic-bezier(.2, 1.8, .4, 1); }
 .mic:active { transform: translateY(calc(.4 * var(--u))); }
+
+/* ── my sticker wall (title): stickers from MY STICKERS stuck anywhere on the title, decorated freely (user: "스티커를 모은건
+   화면에 붙일수 있게… 자유롭게 꾸밀수 있게"). Out of decorate mode they are just there (no taps — START stays under the finger);
+   in it: drag = move, the corner knob = turn + size, × = peel off (or drag it back onto the tray), tap = hear the word. ── */
+.decor-wall { position: absolute; inset: 0; pointer-events: none; }
+.decal { position: absolute; width: calc(20 * var(--u)); aspect-ratio: 6 / 5; transform: translate(-50%, -50%) rotate(var(--r, 0deg)) scale(var(--s, 1)); touch-action: none; }
+.decal img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: calc(2.2 * var(--u)); pointer-events: none;
+  box-shadow: 0 0 0 calc(.9 * var(--u)) var(--white), 0 calc(1 * var(--u)) calc(1.4 * var(--u)) calc(.9 * var(--u)) var(--shadow); }
+.decal.gold img { box-shadow: 0 0 0 calc(.9 * var(--u)) var(--white), 0 0 0 calc(1.6 * var(--u)) var(--gold), 0 calc(1 * var(--u)) calc(1.4 * var(--u)) calc(1.6 * var(--u)) var(--shadow); }
+.decal.stick img { animation: stick .42s cubic-bezier(.2, 1.7, .4, 1); }
+@keyframes stick { 0% { transform: scale(1.18); filter: brightness(1.12); } 100% { transform: none; filter: none; } }
+.decal.peel { transition: opacity .22s, scale .22s; opacity: 0; scale: .4; }
+.decal.bump img { animation: bump .5s cubic-bezier(.2, 1.8, .4, 1); }
+#app.decor .decal { pointer-events: auto; cursor: grab; }
+#app.decor .decal.drag { z-index: 60; cursor: grabbing; }
+#app.decor .decal.drag img { box-shadow: 0 0 0 calc(.9 * var(--u)) var(--white), 0 calc(2.2 * var(--u)) calc(2.4 * var(--u)) calc(1 * var(--u)) var(--shadow); }
+.decal .h { position: absolute; width: calc(7.4 * var(--u)); height: calc(7.4 * var(--u)); margin: calc(-3.7 * var(--u)) 0 0 calc(-3.7 * var(--u)); border-radius: 50%; display: none; place-items: center;
+  scale: calc(1 / var(--s, 1)); background: var(--white); color: var(--ink); box-shadow: 0 calc(.5 * var(--u)) calc(1 * var(--u)) var(--shadow); touch-action: none; }
+.decal .h svg { width: 58%; height: 58%; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.decal .h-x { left: calc(-.9 * var(--u)); top: calc(-.9 * var(--u)); }
+.decal .h-turn { left: calc(100% + .9 * var(--u)); top: calc(100% + .9 * var(--u)); color: var(--pink); }
+#app.decor .decal.sel .h { display: grid; }
+#app.decor .decal.sel img { outline: calc(.45 * var(--u)) dashed var(--white); outline-offset: calc(1.9 * var(--u)); }
+/* the tray: the PIECES tray's teal, along the bottom; the stickers you have, Done (gold, the Next button's) at its end */
+.decor-tray { position: absolute; left: 50%; bottom: calc(3 * var(--u)); translate: -50% 0; z-index: 30; display: none; align-items: center; gap: calc(1.6 * var(--u));
+  padding: calc(1.4 * var(--u)) calc(1.4 * var(--u)) calc(1.4 * var(--u)) calc(1.6 * var(--u)); border-radius: calc(4.4 * var(--u));
+  background: linear-gradient(var(--tray-top), var(--tray) 55%, var(--tray-lo)); box-shadow: inset 0 calc(.4 * var(--u)) calc(.3 * var(--u)) var(--white-a40), 0 calc(1.4 * var(--u)) calc(1.6 * var(--u)) var(--shadow); }
+#app.decor .decor-tray { display: flex; animation: trayUp .5s cubic-bezier(.2, 1.3, .4, 1) both; }
+@keyframes trayUp { 0% { transform: translateY(calc(24 * var(--u))); } 100% { transform: none; } }
+.decor-list { display: flex; align-items: center; gap: calc(.9 * var(--u)); padding: calc(1.1 * var(--u)) calc(1.4 * var(--u)); border-radius: calc(3 * var(--u)); min-height: calc(8.4 * var(--u));
+  background: linear-gradient(var(--tray-in-lo), var(--tray-in)); box-shadow: inset 0 calc(.6 * var(--u)) calc(1 * var(--u)) var(--tray-shade); outline: calc(.35 * var(--u)) dashed transparent; outline-offset: calc(-.9 * var(--u)); transition: outline-color .15s, background .15s; }
+.decor-tray.drop .decor-list { outline-color: var(--tray-ink); }
+.decor-tray.drop .dsticker { opacity: .45; }
+.dsticker { width: calc(7.2 * var(--u)); aspect-ratio: 6 / 5; padding: 0; border-radius: calc(1 * var(--u)); background: none; rotate: var(--r, 0deg); touch-action: none; cursor: grab; transition: transform .12s, opacity .15s; }
+.dsticker img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: calc(1 * var(--u)); pointer-events: none;
+  box-shadow: 0 0 0 calc(.45 * var(--u)) var(--white), 0 calc(.45 * var(--u)) calc(.5 * var(--u)) calc(.45 * var(--u)) var(--tray-shade); }
+.dsticker.gold img { box-shadow: 0 0 0 calc(.45 * var(--u)) var(--white), 0 0 0 calc(.8 * var(--u)) var(--gold), 0 calc(.45 * var(--u)) calc(.5 * var(--u)) calc(.8 * var(--u)) var(--tray-shade); }
+.dsticker:hover { transform: translateY(calc(-.5 * var(--u))) scale(1.06); }
+.dsticker:active { transform: scale(.94); }
+.dsticker.nope { animation: nope .4s; }
+.decor-done { position: relative; width: calc(10.4 * var(--u)); height: calc(10.4 * var(--u)); border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: radial-gradient(130% 80% at 50% -6%, var(--white-a70) 0 40%, var(--white-a0) 52%), radial-gradient(circle at 50% 118%, var(--gold-hi) 0, var(--white-a0) 46%),
+    linear-gradient(var(--gold-hi), var(--gold) 50%, var(--star-deep));
+  box-shadow: inset 0 0 calc(.3 * var(--u)) var(--star-deep), 0 calc(.7 * var(--u)) 0 var(--gold-ink), 0 calc(1.2 * var(--u)) calc(1.4 * var(--u)) var(--shadow); translate: 0 calc(-.35 * var(--u)); }
+.decor-done::before { content: ''; position: absolute; left: 22%; top: 15%; width: 14%; height: 8%; border-radius: 50%; background: var(--white-a90); rotate: -32deg; pointer-events: none; }
+.decor-done svg { width: 56%; height: 56%; fill: none; stroke: var(--white); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 calc(.25 * var(--u)) 0 var(--gold-ink)); }
+.decor-done:active { translate: 0 calc(.1 * var(--u)); box-shadow: inset 0 0 calc(.3 * var(--u)) var(--star-deep), 0 calc(.25 * var(--u)) 0 var(--gold-ink), 0 calc(.6 * var(--u)) calc(1 * var(--u)) var(--shadow); }
+/* decorating: START, the hand and the corner buttons step aside */
+#app .start, #titleHand, .sys { transition: opacity .25s; }
+#app.decor .start, #app.decor #titleHand, #app.decor .sys { opacity: 0 !important; pointer-events: none; }
+@keyframes bump { 40% { transform: scale(1.12) rotate(-3deg); } 70% { transform: scale(.97); } }   /* (a tapped sticker — book and wall) */
