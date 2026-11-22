@@ -488,11 +488,13 @@ img { -webkit-user-drag: none; user-select: none; }
 /* ── stars instead of points (user picked "별 3개 + 스티커북", 2026-11-22): up to 3 per picture — done, no wrong spot,
    the word said right. Top left counts them; the result card's stars show how the level went; finished pictures
    are stickers in MY STICKERS (title). ── */
-.pic-stars { position: absolute; left: calc(152 * var(--u)); top: calc(31 * var(--u)); translate: -50% 0;   /* (translate, not transform: the pop animation uses transform) */ z-index: 9; display: none; gap: calc(.4 * var(--u)); align-items: flex-end; }
+.pic-stars { position: absolute; left: calc(83 * var(--u)); top: calc(70.5 * var(--u)); translate: -50% 0;   /* above the word bar, on the picture just finished (user: "별 모양 위치가 퍼즐쪽에 있는게 어색한데" — it sat in the PIECES tray) */
+  z-index: 9; display: none; gap: calc(.5 * var(--u)); align-items: flex-end; padding: calc(.8 * var(--u)) calc(2.2 * var(--u)) calc(.5 * var(--u)); border-radius: 999px;
+  background: var(--white-a70); box-shadow: 0 calc(.6 * var(--u)) calc(1.6 * var(--u)) var(--shadow); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 .pic-stars.show { display: flex; }
-.pic-stars i { width: calc(8 * var(--u)); height: calc(8 * var(--u)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; filter: grayscale(1) brightness(1.3) opacity(.4); transition: filter .2s; }
-.pic-stars i:nth-child(2) { width: calc(9.6 * var(--u)); height: calc(9.6 * var(--u)); }
-.pic-stars i.on { filter: drop-shadow(0 calc(.4 * var(--u)) calc(.4 * var(--u)) var(--tray-shade)); animation: starPop .5s cubic-bezier(.2, 1.8, .4, 1); }
+.pic-stars i { width: calc(7 * var(--u)); height: calc(7 * var(--u)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; filter: grayscale(1) brightness(1.15) opacity(.35); transition: filter .2s; }
+.pic-stars i:nth-child(2) { width: calc(8.6 * var(--u)); height: calc(8.6 * var(--u)); }
+.pic-stars i.on { filter: drop-shadow(0 calc(.3 * var(--u)) calc(.3 * var(--u)) var(--shadow)); animation: starPop .5s cubic-bezier(.2, 1.8, .4, 1); }
 .pic-stars.show { animation: popIn .4s cubic-bezier(.2, 1.6, .4, 1) both; }
 .fly-star { position: fixed; z-index: 60; pointer-events: none; background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; }
 .clear-stars i.off { filter: grayscale(1) brightness(1.2) opacity(.45); }
