@@ -35,7 +35,7 @@ with sync_playwright() as p:
         print(f"{r['level']:4s} shown={r['shown']:9s} board={r['board']:9s} (diff {r['diff']}, next {r['next']} {r['nextDiff']}) said={r['said']} {'OK' if r['ok'] else 'MISMATCH'}")
         if n == 17: break
         pg.click('#btnNext', force=True)
-        if n % 6 == 5:
+        if n % 3 == 2:                                  # (a game = 3 pictures, then the result card)
             pg.wait_for_selector('#clear.show', timeout=15000); time.sleep(0.4); pg.click('#btnGo', force=True)
     b.close()
 seen = sorted(r['shown'] for r in rows)

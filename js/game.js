@@ -1,13 +1,14 @@
 /* Phonics Puzzle — the game.
  * Title (logo drop + float + glint, twinkling stars, slow room drift with pointer parallax, START shine, tapping hand) →
  * START: sparkle burst, the logo lifts away → game screen (frame + sparkle comets,
- * HUD pop, tray slides in) → 3 levels x 6 pictures from the lesson pack FP.K.U1L1 (every m-word with a picture):
- * level 1 = 2x2 pieces, level 2 = 3x2, level 3 = 3x3. Each puzzle: the picture shows and its word is said, it breaks
+ * HUD pop, tray slides in) → a game = 3 pictures from the lesson pack FP.K.U1L1 (every m-word with a picture, dealt from
+ * a per-device deck) at the current level; the levels cut ever more pieces (LEVELS: 2x2 … 5x4) and are never picked — a
+ * good game (2+ stars a picture) moves up, two poor ones in a row move down. Each puzzle: the picture shows and its word is said, it breaks
  * into pieces that fly into the PIECES tray, the child drags them onto the faint picture (snap = colour burst, stars,
  * notes, +100). Done: the seams vanish, the word shows with its m in pink and "/m/ /m/ word" is chanted (pack audio),
  * then the child SAYS the word (mic opened once at START): the company phonics-api judges it when this device has a key
  * (title, top left; same judging as Eye Catch), else the on-device whisper; right = gold mic + bonus, two misses = "good
- * try" — never a dead end. Then Next. After 6 pictures: LEVEL CLEAR card; after level 3: ALL CLEAR.
+ * try" — never a dead end. Then Next. After 3 pictures: the result card (LEVEL UP! / GOOD TRY! / ALL CLEAR! at the top).
  * Tutor lines (EN/KO by the title toggle) = phonics-api TTS in the unified tutor voice (tools/build_voice.py).
  */
 (function () {
@@ -15,8 +16,10 @@
   const $ = s => document.querySelector(s);
   const app = $('#app'), stage = $('#stage'), S = window.Sound, Q = new URLSearchParams(location.search);
   const PACK = window.PP_WORDS, WORDS = PACK.words, IW = PACK.size[0], IH = PACK.size[1];
-  const LEVELS = [{ cols: 2, rows: 2 }, { cols: 3, rows: 2 }, { cols: 3, rows: 3 }];
-  const PER = Math.ceil(WORDS.length / LEVELS.length);
+  // the game levels (user 2026-11-22: "계속 쪼개지는 퍼즐 갯수가 늘어난다"): more pieces each step — add a row to go further
+  // (5x4 on a 1024 x 768 screen: a piece's body is 94 x 98 px on the board; the tray shows every cut's pieces ~100 px wide)
+  const LEVELS = [{ cols: 2, rows: 2 }, { cols: 3, rows: 2 }, { cols: 3, rows: 3 }, { cols: 4, rows: 3 }, { cols: 4, rows: 4 }, { cols: 5, rows: 4 }];
+  const PER = 3;                                                      // pictures in one game
   const FAST = Q.has('fast');
   const PH = Object.fromEntries(WORDS.map(w => [w.w, w.ph]));        // expected phonemes (pack + server G2P)
   const fake = [];                                                    // ?fake=1 (QA): verdicts instead of the mic
@@ -162,10 +165,17 @@
     if (hold) lookBack = setTimeout(() => lookAt(null), hold);
   }
 
-  // ── level = the tab on the board's top edge ───────────────────────────────────────────────────────
+  // ── level = the tab on the board's top edge (shown only — no picking): LEVEL n, its piece grid, a dot per picture ──
   function showLevel() {
-    const t = `${G.level + 1}-${G.idx + 1}`;
+    const t = String(G.level + 1), tab = $('#boardTab');
     if (E.level.textContent !== t) { E.level.textContent = t; restartAnim(E.level, 'bump'); }
+    const L = LEVELS[G.level], g = tab.querySelector('.grid');
+    if (!g || g.style.getPropertyValue('--c') !== String(L.cols) || g.style.getPropertyValue('--r') !== String(L.rows)) {
+      g?.remove(); E.level.insertAdjacentHTML('afterend', gridOf(L));
+    }
+    let pips = tab.querySelector('.pips');
+    if (!pips) { tab.insertAdjacentHTML('beforeend', '<span class="pips" aria-hidden="true"></span>'); pips = tab.querySelector('.pips'); }
+    pips.innerHTML = G.order.map((w, i) => `<i class="${i < G.idx ? 'done' : i === G.idx ? 'cur' : ''}"></i>`).join('');
   }
 
   // ── frame lights: bulbs (pink / blue / yellow) with a star at each corner and every few bulbs ─────────────
@@ -248,7 +258,6 @@
     G.tok++; clearTimers(); endDragSilently(); S.stopVoice(); FX.clear();
     G.screen = 'title'; app.dataset.screen = 'title'; G.busy = true;
     E.clear.classList.remove('show'); E.word.classList.remove('show'); E.next.classList.remove('show'); hideHand();
-    levelMenu(false);                               // (the tab's level list never stays open on the title)
     E.drag.innerHTML = ''; E.bursts.innerHTML = '';
     E.logoWrap.classList.remove('float', 'leave'); E.stars.classList.remove('leave'); E.bubbles.classList.remove('leave'); E.titleHand.classList.remove('leave');
     restartAnim(E.logoWrap, 'drop');
@@ -275,72 +284,55 @@
   let starting = false;
   E.start.addEventListener('click', () => { if (G.screen === 'title' && !starting && !decorating()) startGame(); });
 
-  // ── continue + level select (phonics-kit F1 — the same as Croco; user 2026-11-22: "진행저장은 왜 puzzle은 적용안됐어? 통일해서
-  // 적용해"). The shared record (js/phonics-progress.js, 'puzzle'): setLevel when a level starts, played when it is cleared.
-  // The chip left of START shows the level START plays (the page opens on the saved level = continue) and opens the levels:
-  // open = every level reached and the one after the highest cleared; the rest show a lock. Each level = its piece grid.
+  // ── levels without picking (user 2026-11-22: "레벨 고르기 없이", "잘했을 때만" — phonics-kit 공통 규칙: 레벨). START continues
+  // at the saved level; each game's stars set the next game's level. The shared record (js/phonics-progress.js, 'puzzle'):
+  // setLevel when the level changes, played at the end of each game. ────────────────────────────────────────────────────
   const PP = window.PhonicsProgress || null, GAME_ID = 'puzzle';
   const progress = () => (PP ? PP.get(GAME_ID) : { level: null, maxLevel: null, best: {} });
-  function unlockedTop() {
-    const r = progress();
-    return Math.max(1, Math.min(LEVELS.length, Math.max(r.maxLevel || 1, ((r.best && r.best.level) || 0) + 1)));
-  }
   const gridOf = L => `<span class="grid" style="--c:${L.cols};--r:${L.rows}">${'<i></i>'.repeat(L.cols * L.rows)}</span>`;
-  const SVG_LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.2" y="10.6" width="13.6" height="9.6" rx="2.4"/><path d="M8.4 10.6V8.2a3.6 3.6 0 0 1 7.2 0v2.4"/></svg>';
-  // the board's LEVEL tab is the picker (user 2026-11-22: the level display goes into the game screen): it shows the level's
-  // piece grid; the title has START only, which continues at G.pick (the saved level)
-  function paintPick() {
-    const pk = $('#boardTab');
-    pk.querySelector('.grid')?.remove();
-    pk.querySelector('.caret').insertAdjacentHTML('beforebegin', gridOf(LEVELS[G.pick]));
-    pk.setAttribute('aria-label', `Level ${G.pick + 1}`);
+  // the learning level (the lesson) is FP.K.U1L1 only so far; the game levels run inside it. A next lesson pack starts again
+  // at the easy end (level 1) — the hook: the record keeps the lesson its level belongs to, a different one resets it.
+  const LESSON = PACK.pack || 'FP.K.U1L1', RUN_KEY = 'pp.level.v1';   // { lesson, poor: poor games in a row }
+  let run = { lesson: LESSON, poor: 0 };
+  try { const r = JSON.parse(localStorage.getItem(RUN_KEY) || 'null'); if (r && typeof r === 'object') run = { lesson: r.lesson || LESSON, poor: +r.poor || 0 }; } catch (e) { /* storage off */ }
+  const saveRun = () => { try { localStorage.setItem(RUN_KEY, JSON.stringify(run)); } catch (e) { /* storage off */ } };
+  if (run.lesson !== LESSON) { run = { lesson: LESSON, poor: 0 }; saveRun(); if (PP) PP.setLevel(GAME_ID, 1); }   // a new lesson: level 1
+  /** the level START plays: the saved one (or ?level=n for QA) */
+  function savedLevel() {
+    const n = Q.get('level') ? +Q.get('level') : (progress().level || 1);
+    return Math.min(LEVELS.length - 1, Math.max(0, (n || 1) - 1));
   }
-  function levelMenu(open) {
-    const m = $('#lvMenu'), pk = $('#boardTab'), panel = m.querySelector('.lm-panel');
-    if (open) {
-      const top = unlockedTop();
-      panel.innerHTML = LEVELS.map((L, k) => {
-        const on = k < top || k === G.pick;
-        return `<button class="lm-t${k === G.pick ? ' cur' : ''}${on ? '' : ' lock'}" data-k="${k}" aria-label="Level ${k + 1}${on ? '' : ' (locked)'}"${on ? '' : ' aria-disabled="true"'}>`
-          + `<span class="n">${k + 1}</span>${gridOf(L)}${on ? '' : SVG_LOCK}</button>`;
-      }).join('');
-      const r = pk.getBoundingClientRect(), sr = stage.getBoundingClientRect();
-      panel.style.setProperty('--tx', (r.left - sr.left) + 'px');
-      panel.style.setProperty('--ty', (r.bottom - sr.top + u() * 0.8) + 'px');   // under the tab
+  /** the next game's level from its stars a picture: 2+ = up (the top level repeats), under 1.5 twice in a row = one down
+   *  (never below level 1), else the same level again */
+  function judgeGame(avg) {
+    const top = LEVELS.length - 1;
+    if (avg >= 2) { run.poor = 0; return G.level < top ? { to: G.level + 1, kind: 'up' } : { to: top, kind: 'top' }; }
+    if (avg >= 1.5) { run.poor = 0; return { to: G.level, kind: 'same' }; }
+    if (++run.poor < 2) return { to: G.level, kind: 'same' };
+    run.poor = 0;
+    return G.level > 0 ? { to: G.level - 1, kind: 'down' } : { to: 0, kind: 'same' };
+  }
+  // the pictures: every game deals the next 3 of a shuffled deck of all the m-words kept on this device (Magic Block's
+  // pj.mdeck.v1), so every word comes round before any comes again; ?words=a,b,… (QA) deals that list in order instead
+  const DECK_KEY = 'pp.mdeck.v1';
+  let qWords = 0;
+  function nextSet() {
+    const byW = new Map(WORDS.map(w => [w.w, w]));
+    if (Q.get('words')) {
+      const list = Q.get('words').split(',').filter(w => byW.has(w));
+      return list.length ? Array.from({ length: Math.min(PER, list.length) }, () => byW.get(list[qWords++ % list.length])) : shuffle(WORDS).slice(0, PER);
     }
-    m.classList.toggle('show', open);
-    m.setAttribute('aria-hidden', String(!open));
-    pk.setAttribute('aria-expanded', String(open));
-  }
-  $('#boardTab').addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (G.screen !== 'game' || app.classList.contains('explain') || E.clear.classList.contains('show')) return;
-    S.unlock(); S.sfx('tap');
-    levelMenu(!$('#lvMenu').classList.contains('show'));
-  });
-  /** another level from the tab, mid-game: its first picture starts now (the stars so far stay in the total) */
-  function switchLevel(k) {
-    G.pick = G.level = k; G.idx = 0; G.levelStars = {};
-    loadImg(G.order[k * PER]);
-    startPuzzle();
-  }
-  $('#lvMenu').addEventListener('click', (e) => {
-    e.stopPropagation();
-    const t = e.target.closest('.lm-t');
-    if (!t) { levelMenu(false); return; }                   // outside the tiles: close
-    if (t.classList.contains('lock')) {
-      S.sfx('boing');
-      t.animate([{ translate: '0 0' }, { translate: '-6% 0' }, { translate: '6% 0' }, { translate: '0 0' }], { duration: 260 });
-      return;
+    let deck = [];
+    try { deck = (JSON.parse(localStorage.getItem(DECK_KEY) || '[]') || []).filter((w, i, a) => byW.has(w) && a.indexOf(w) === i); } catch (e) { deck = []; }
+    const set = [];
+    while (set.length < PER) {
+      if (!deck.length) deck = shuffle(WORDS.map(w => w.w)).filter(w => !set.includes(w));   // a fresh round of all of them
+      if (!deck.length) break;
+      set.push(deck.shift());
     }
-    S.sfx('pick');
-    levelMenu(false);
-    const k = +t.dataset.k;
-    if (k !== G.level) switchLevel(k);
-  });
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') levelMenu(false); });
-  G.pick = Math.min(progress().level || 1, unlockedTop()) - 1;   // continue at the saved level, never past the open ones
-  paintPick();
+    try { localStorage.setItem(DECK_KEY, JSON.stringify(deck)); } catch (e) { /* storage off: a fresh deal next time */ }
+    return set.map(w => byW.get(w));
+  }
   async function startGame() {
     S.unlock(); S.startBgm(); S.sfx('start'); S.stopVoice();
     STT.preload();                       // the on-device backup recogniser loads while the first puzzle plays
@@ -362,11 +354,16 @@
     newGame();
     enterGame(tok);
   }
+  /** START: the saved level, the star total from 0, the explanation on this first game */
   function newGame() {
-    G.order = Q.get('words') ? Q.get('words').split(',').map(w => WORDS.find(x => x.w === w)).filter(Boolean) : shuffle(WORDS);
-    G.level = Q.get('level') ? Math.min(LEVELS.length - 1, Math.max(0, +Q.get('level') - 1)) : (G.pick || 0); G.idx = 0; G.stars = 0; G.levelStars = {}; G.taught = false;
+    G.level = savedLevel(); G.stars = 0; G.taught = false;
     setRib(E.score, 0);
-    loadImg(G.order[G.level * PER]);
+    dealGame();
+  }
+  /** one game: the next pictures from the deck, their stars from 0 */
+  function dealGame() {
+    G.order = nextSet(); G.idx = 0; G.levelStars = {}; G.jumps = 0; G.skipped = [];
+    loadImg(G.order[0]);
   }
   async function enterGame(tok) {
     G.screen = 'game'; app.dataset.screen = 'game'; G.busy = true;
@@ -406,16 +403,15 @@
   }
   async function startPuzzle() {
     const tok = ++G.tok;
-    if (G.idx === 0) {                                // a level begins: the record's level (the title continues from it)
-      G.pick = G.level; paintPick();
-      if (PP) PP.setLevel(GAME_ID, G.level + 1);
-      G.jumpTold = false;                             // the jump guide: once a level (phonics-kit common rule)
+    if (G.idx === 0) {                                // a game begins: the record keeps its level (the title continues from it)
+      if (PP && progress().level !== G.level + 1) PP.setLevel(GAME_ID, G.level + 1);
+      G.jumpTold = false;                             // the jump guide: once a game (phonics-kit common rule)
     }
     clearTimers(); endDragSilently(); S.stopVoice(); S.resetSnap();
     G.busy = true;
     resetBoard();
     E.drag.innerHTML = '';
-    const cfg = LEVELS[G.level], word = G.order[G.level * PER + G.idx];
+    const cfg = LEVELS[G.level], word = G.order[G.idx];
     G.word = word; resetPicStars();
     showLevel();
     // a picture that won't load (an error, or 10 s without an answer) is tried once more, then skipped — the board used
@@ -425,7 +421,7 @@
     if (!alive(tok)) return;
     if (!img) { skipPicture(); return; }
     G.img = img;
-    const nx = G.order[G.level * PER + G.idx + 1]; if (nx) loadImg(nx);
+    const nx = G.order[G.idx + 1]; if (nx) loadImg(nx);
     const cu = G.cut = Jigsaw.cut(cfg.cols, cfg.rows, (Math.random() * 1e9) | 1, IW, IH);
     const rs = renderScale();
     Jigsaw.renderGhost(E.ghost, img, cu, rs);
@@ -487,14 +483,15 @@
     G.busy = false;
     armHint();
   }
-  /** the picture didn't load: on to the next one; past the level's last, the clear card if a picture was played, else
-   *  back to the title with the levels open */
+  /** the picture didn't load: on to the next one; past the game's last, the result card if a picture was played, else
+   *  back to the title */
   function skipPicture() {
     G.busy = false;
     if (Q.has('log')) console.log('picture failed, skipped:', G.word.w);
+    G.skipped.push(G.word.w);                       // (not counted in the game's stars)
     G.idx++;
-    if (G.idx < PER && G.level * PER + G.idx < G.order.length) { startPuzzle(); return; }
-    if (G.order.slice(G.level * PER, G.level * PER + PER).some(w => G.levelStars[w.w])) { levelClear(); return; }
+    if (G.idx < G.order.length) { startPuzzle(); return; }
+    if (G.order.some(w => G.levelStars[w.w])) { gameEnd(); return; }
     showTitle();
   }
   /** a piece's canvas in a .dpiece box at its board place (screen px) */
@@ -929,7 +926,7 @@
     S.sfx('tap'); hideHand(); S.stopVoice();
     E.next.classList.remove('show'); E.word.classList.remove('show'); picStarsEl.classList.remove('show');
     G.idx++;
-    if (G.idx >= PER || G.level * PER + G.idx >= G.order.length) levelClear();
+    if (G.idx >= G.order.length) gameEnd();
     else startPuzzle();
   }
   E.next.addEventListener('click', () => { if (E.next.classList.contains('show')) nextPicture(); });
@@ -951,21 +948,27 @@
     hideHand();
   }
 
-  // ── level clear / all clear ─────────────────────────────────────────────────────────────────────────────
-  function levelClear() {
+  // ── the end of a game (its 3 pictures): the stars set the next game's level; the card says how it went ──────────────
+  function gameEnd() {
     G.tok++; G.busy = true; clearTimers();
-    const last = G.level >= LEVELS.length - 1;
-    candyText(E.clearTitle, last ? 'ALL CLEAR!' : `LEVEL ${G.level + 1} CLEAR!`);
-    const tilt = [-3, 2, -2, 3, -2, 2], words = G.order.slice(G.level * PER, G.level * PER + PER);
+    const played = G.order.filter(w => !(G.skipped || []).includes(w.w));    // (a picture that never loaded doesn't count)
+    const got = played.reduce((s, w) => s + (G.levelStars[w.w] || 0), 0), avg = got / Math.max(1, played.length);
+    const was = G.level, nx = judgeGame(avg);
+    // the big stars: a picture's stars on average — 2 big stars and up = the level goes up
+    const big = avg >= 2.6 ? 3 : avg >= 2 ? 2 : 1;
+    if (PP) PP.played(GAME_ID, { level: was + 1, stars: got, avgStars: +avg.toFixed(2), levelStars: big, pictures: played.length, jumps: G.jumps || 0, next: nx.to + 1 }, { higher: ['levelStars', 'avgStars'] });
+    G.level = nx.to; saveRun();
+    if (PP && nx.to !== was) PP.setLevel(GAME_ID, nx.to + 1);           // the next game (and the next START) plays it
+    candyText(E.clearTitle, { up: 'LEVEL UP!', top: 'ALL CLEAR!' }[nx.kind] || 'GOOD TRY!');
+    const tilt = [-3, 2, -2, 3, -2, 2];
     const mini = n => `<span class="mini-stars">${[0, 1, 2].map(i => `<i class="${i < n ? '' : 'off'}"></i>`).join('')}</span>`;
-    E.clearPics.innerHTML = words.map((w, i) => `<figure><img src="${w.img}" alt="${w.w}" style="--d:${(0.35 + i * 0.08).toFixed(2)}s;--r:${tilt[i % 6]}deg">${mini(G.levelStars[w.w] || 0)}</figure>`).join('');
-    // the big stars: how the level went (of 3 x 6 = 18 stars: 16+ = 3, 10+ = 2, else 1)
-    const got = words.reduce((s, w) => s + (G.levelStars[w.w] || 0), 0), big = got >= 16 ? 3 : got >= 10 ? 2 : 1;
-    if (PP) PP.played(GAME_ID, { level: G.level + 1, stars: got, levelStars: big, pictures: words.length, jumps: G.jumps || 0 }, { higher: ['levelStars'] });
-    if (PP && !last) PP.setLevel(GAME_ID, G.level + 2);   // cleared: next time the title continues from the next level
+    E.clearPics.innerHTML = played.map((w, i) => `<figure><img src="${w.img}" alt="${w.w}" style="--d:${(0.35 + i * 0.08).toFixed(2)}s;--r:${tilt[i % 6]}deg">${mini(G.levelStars[w.w] || 0)}</figure>`).join('')
+      // LEVEL UP: an arrow on to the new level's piece grid
+      + (nx.kind === 'up' ? `<i class="to-next" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 5.5 16.5 12 9 18.5"/></svg></i>`
+        + `<figure class="next-lv" aria-label="Level ${nx.to + 1}"><span class="lv-tile">${gridOf(LEVELS[nx.to])}</span><span class="lv-cap">LEVEL ${nx.to + 1}</span></figure>` : '');
     document.querySelectorAll('.clear-stars i').forEach((st, i) => st.classList.toggle('off', i >= big));
-    E.goTxt.textContent = last ? 'Play again' : 'Next';
-    E.go.setAttribute('aria-label', last ? 'Play again' : 'Next level');
+    E.goTxt.textContent = 'Next';
+    E.go.setAttribute('aria-label', 'Next game');
     restartAnim(E.clear, 'show');
     S.sfx('fanfare'); FX.confetti(160);
     // each star lands with a sparkle
@@ -973,13 +976,13 @@
       const st = document.querySelectorAll('.clear-stars i')[i]; if (!st || st.classList.contains('off') || !E.clear.classList.contains('show')) return;
       const r = st.getBoundingClientRect(); FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 12, 120, u() / 9); S.sfx('sparkle');
     }, (d + .3) * 1000));
-    setTimeout(() => S.say(last ? 't:allclear' : 't:level'), 700);
+    setTimeout(() => S.say({ up: 't:level', top: 't:allclear' }[nx.kind] || 't:goodtry'), 700);
+    return nx;
   }
   E.go.addEventListener('click', () => {
     S.sfx('tap');
     E.clear.classList.remove('show');
-    if (G.level >= LEVELS.length - 1) { newGame(); G.level = 0; }
-    else { G.level++; G.idx = 0; }
+    dealGame();                                     // the next pictures, at the level this game set
     startPuzzle();
   });
   $('#btnHome').addEventListener('click', () => { S.sfx('tap'); showTitle(); });
@@ -1163,7 +1166,7 @@
     endDrag(x, y);
     return true;
   }
-  window.__pp = { G, E, startGame, showTitle, startPuzzle, solveOne, beginDrag, moveDrag, endDrag, levelClear, fake, judgeSpeech, setFace, openBook, earnStar, openDecor, closeDecor, decals: () => decals };
+  window.__pp = { G, E, startGame, showTitle, startPuzzle, solveOne, beginDrag, moveDrag, endDrag, gameEnd, levelClear: gameEnd, LEVELS, run: () => run, fake, judgeSpeech, setFace, openBook, earnStar, openDecor, closeDecor, decals: () => decals };
   showTitle();
   window.__ready = true;
 })();

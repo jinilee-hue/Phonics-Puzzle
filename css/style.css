@@ -486,14 +486,17 @@ img { -webkit-user-drag: none; user-select: none; }
 .board-tab small { font-size: calc(2.2 * var(--u)); letter-spacing: .06em; padding-top: calc(.4 * var(--u)); }
 .board-tab b { font-size: calc(3.8 * var(--u)); padding-top: calc(.5 * var(--u)); display: inline-block; }
 .board-tab b.bump { animation: ribBumpS .5s cubic-bezier(.2, 1.8, .4, 1); }
-/* the level picker is the board's LEVEL tab (user 2026-11-22: "퍼즐 갯수 레벨 표시는 게임화면 안에 넣는게 어때?" → "게임 화면
-   LEVEL 탭으로"): level-picture number, the level's piece grid, a caret; tap → the levels open under it. The title has START only. */
-.board-tab { width: auto; min-width: calc(21 * var(--u)); padding-left: calc(2.4 * var(--u)); padding-right: calc(2 * var(--u)); font-weight: 800; color: var(--tray-ink); }
-.board-tab .grid { height: calc(3.4 * var(--u)); gap: calc(.25 * var(--u)); margin-left: calc(.3 * var(--u)); }
-.board-tab .caret { width: calc(2.8 * var(--u)); height: calc(2.8 * var(--u)); margin-left: calc(-.3 * var(--u)); fill: none; stroke: currentColor; stroke-width: 3.2;
-  stroke-linecap: round; stroke-linejoin: round; transition: rotate .25s; }
-.board-tab[aria-expanded="true"] .caret { rotate: 180deg; }
-.board-tab:active { scale: .96; }
+/* the LEVEL tab shows the level and is never pressed (user 2026-11-22: "레벨 고르기 없이" — the picker is gone): LEVEL n, the
+   level's piece grid, and a dot per picture of the game (done = cream, now = orange, still to come = sunk) like the tray's dots.
+   1 u further left and tighter than the old picker tab, so the last dot stays clear of the logo's stars at every grid. */
+.board-tab { left: calc(42 * var(--u)); gap: calc(.75 * var(--u)); width: auto; min-width: calc(21 * var(--u)); padding-left: calc(2.4 * var(--u)); padding-right: calc(2.2 * var(--u));
+  font-weight: 800; color: var(--tray-ink); pointer-events: none; }
+.board-tab .grid { height: calc(3.1 * var(--u)); gap: calc(.22 * var(--u)); margin-left: calc(.2 * var(--u)); }
+.board-tab .pips { display: flex; align-items: center; gap: calc(.45 * var(--u)); margin-left: calc(.3 * var(--u)); padding-top: calc(.2 * var(--u)); }
+.board-tab .pips i { width: calc(1.2 * var(--u)); height: calc(1.2 * var(--u)); border-radius: 50%; background: var(--tray-lo);
+  box-shadow: inset 0 calc(.15 * var(--u)) calc(.2 * var(--u)) var(--tray-shade); transition: background .2s, scale .2s; }
+.board-tab .pips i.done { background: var(--tray-ink); }
+.board-tab .pips i.cur { background: var(--orange); scale: 1.25; box-shadow: 0 0 calc(.5 * var(--u)) var(--orange-ring); }
 
 /* ── stars instead of points (user picked "별 3개 + 스티커북", 2026-11-22): up to 3 per picture — done, no wrong spot,
    the word said right. Top left counts them; the result card's stars show how the level went; finished pictures
@@ -591,6 +594,17 @@ img { -webkit-user-drag: none; user-select: none; }
 .clear-pics img { width: calc(13.2 * var(--u)); height: calc(11 * var(--u)); object-fit: cover; border-radius: calc(1.4 * var(--u)); rotate: var(--r, 0deg);
   box-shadow: 0 0 0 calc(.4 * var(--u)) var(--white), 0 calc(.6 * var(--u)) calc(.9 * var(--u)) var(--board-shade); animation: popIn .45s cubic-bezier(.2, 1.6, .4, 1) both; animation-delay: var(--d); }
 .clear-btns { display: flex; justify-content: center; gap: calc(3 * var(--u)); --hb: calc(9 * var(--u)); }
+/* LEVEL UP: an arrow on to a tile with the new level's piece grid on the LEVEL tab's teal, LEVEL n under it (the stars' row) */
+.clear-pics .to-next { align-self: flex-start; margin: calc(3.3 * var(--u)) calc(-.3 * var(--u)) 0; width: calc(4.4 * var(--u)); height: calc(4.4 * var(--u));
+  animation: popIn .45s cubic-bezier(.2, 1.6, .4, 1) .75s both; }
+.clear-pics .to-next svg { display: block; width: 100%; height: 100%; fill: none; stroke: var(--frame); stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; }
+.lv-tile { width: calc(13.2 * var(--u)); height: calc(11 * var(--u)); border-radius: calc(1.4 * var(--u)); display: grid; place-items: center; rotate: 3deg;
+  background: linear-gradient(var(--tray-top), var(--tray-hi) 55%, var(--tray));
+  box-shadow: 0 0 0 calc(.4 * var(--u)) var(--white), 0 calc(.6 * var(--u)) calc(.9 * var(--u)) var(--board-shade), inset 0 calc(.5 * var(--u)) calc(.45 * var(--u)) var(--white-a70);
+  animation: popIn .5s cubic-bezier(.2, 1.6, .4, 1) .9s both; }
+.lv-tile .grid { height: calc(6.4 * var(--u)); gap: calc(.4 * var(--u)); }
+.lv-cap { height: calc(2.6 * var(--u)); display: flex; align-items: center; font-weight: 800; font-size: calc(2.6 * var(--u)); line-height: 1; letter-spacing: .04em;
+  color: var(--tray-lo); padding-top: calc(.3 * var(--u)); animation: popIn .45s cubic-bezier(.2, 1.6, .4, 1) 1s both; }
 
 /* ── phonics-api key (title, top left) ───────────────────────────────────────── */
 .sys.sys-left { right: auto; left: calc(3 * var(--u)); }
@@ -661,7 +675,7 @@ img { -webkit-user-drag: none; user-select: none; }
 .decor-done:active { translate: 0 calc(.1 * var(--u)); box-shadow: inset 0 0 calc(.3 * var(--u)) var(--star-deep), 0 calc(.25 * var(--u)) 0 var(--gold-ink), 0 calc(.6 * var(--u)) calc(1 * var(--u)) var(--shadow); }
 /* decorating: START, the hand and the corner buttons step aside */
 #app .start, #titleHand, .sys { transition: opacity .25s; }
-#app.decor .start, #app.decor #titleHand, #app.decor .sys, #app.decor .lvpick { opacity: 0 !important; pointer-events: none; }
+#app.decor .start, #app.decor #titleHand, #app.decor .sys { opacity: 0 !important; pointer-events: none; }
 @keyframes bump { 40% { transform: scale(1.12) rotate(-3deg); } 70% { transform: scale(.97); } }   /* (a tapped sticker — book and wall) */
 
 /* SKIP for the explanation (greeting + the first puzzle's how-to demo, #app.explain): bottom right, a quiet white
@@ -693,36 +707,7 @@ img { -webkit-user-drag: none; user-select: none; }
 @keyframes jumpHop { 0% { translate: 0 0; scale: 1; } 18% { translate: 0 calc(.3 * var(--u)); scale: 1.1 .9; } 50% { translate: 0 calc(-2.4 * var(--u)); scale: .94 1.07; }
   80% { translate: 0 0; scale: 1.1 .9; } 100% { translate: 0 0; scale: 1; } }
 
-/* ── continue + level select (phonics-kit F1, the same as Croco; user 2026-11-22: "진행저장은 왜 puzzle은 적용안됐어? 통일해서
-   적용해"): a chip left of START shows the level START plays — the page opens on the saved level — and opens the levels.
-   Each level is drawn as its piece grid (2×2, 3×2, 3×3), no words. Locked levels are grey with a lock. */
-.lvpick { position: absolute; z-index: 6; left: calc(58.6 * var(--u)); top: calc(76.6 * var(--u)); translate: -100% -50%;
-  display: flex; align-items: center; gap: calc(1.1 * var(--u)); height: calc(10.4 * var(--u)); padding: 0 calc(1.8 * var(--u)) 0 calc(1.2 * var(--u));
-  border-radius: 999px; background: linear-gradient(var(--white), var(--cream)); color: var(--ink);
-  box-shadow: 0 calc(.6 * var(--u)) 0 var(--orange-ring), 0 calc(1.2 * var(--u)) calc(1.8 * var(--u)) var(--shadow); transition: opacity .3s, scale .3s; }
-.lvpick .n { display: grid; place-items: center; width: calc(7.2 * var(--u)); height: calc(7.2 * var(--u)); border-radius: 50%;
-  font: 800 calc(4.6 * var(--u)) / 1 var(--font); color: var(--white); padding-top: .08em;
-  background: linear-gradient(var(--orange-hi), var(--orange) 55%, var(--orange-lo)); box-shadow: inset 0 calc(-.5 * var(--u)) 0 var(--orange-ink); }
-.lvpick svg { width: calc(3.2 * var(--u)); height: calc(3.2 * var(--u)); fill: none; stroke: var(--ink); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; transition: rotate .25s; }
-.lvpick[aria-expanded="true"] svg { rotate: 180deg; }
-.lvpick:active { scale: .95; }
+/* a level's piece grid (the LEVEL tab, the LEVEL UP card) */
 .grid { display: grid; grid-template-columns: repeat(var(--c), 1fr); grid-template-rows: repeat(var(--r), 1fr); gap: calc(.35 * var(--u));
   height: calc(5.6 * var(--u)); aspect-ratio: var(--c) / var(--r); }
 .grid i { border-radius: calc(.5 * var(--u)); background: linear-gradient(var(--orange-hi), var(--orange)); box-shadow: inset 0 calc(-.25 * var(--u)) 0 var(--orange-lo); }
-.lvmenu { position: absolute; inset: 0; z-index: 35; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s, visibility 0s .2s; }
-.lvmenu.show { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .2s, visibility 0s; }
-.lm-panel { position: absolute; left: var(--tx, 30%); top: var(--ty, 20%); translate: -6% 0; display: flex; gap: calc(1.8 * var(--u));
-  padding: calc(2 * var(--u)); border-radius: calc(4 * var(--u)); background: var(--white);
-  box-shadow: 0 calc(1.4 * var(--u)) calc(3 * var(--u)) var(--shadow); scale: .9; transform-origin: 6% 0; transition: scale .2s; }
-.lvmenu.show .lm-panel { scale: 1; }
-.lm-t { position: relative; width: calc(13 * var(--u)); height: calc(13 * var(--u)); display: grid; place-items: center; border-radius: calc(3 * var(--u));
-  background: var(--cream); box-shadow: inset 0 0 0 calc(.45 * var(--u)) var(--orange-ring); }
-.lm-t .grid { height: calc(7.2 * var(--u)); }
-.lm-t .n { position: absolute; left: calc(-1.2 * var(--u)); top: calc(-1.2 * var(--u)); display: grid; place-items: center; width: calc(5.6 * var(--u)); height: calc(5.6 * var(--u));
-  border-radius: 50%; font: 800 calc(3.4 * var(--u)) / 1 var(--font); color: var(--white); padding-top: .08em;
-  background: linear-gradient(var(--orange-hi), var(--orange) 55%, var(--orange-lo)); box-shadow: inset 0 calc(-.4 * var(--u)) 0 var(--orange-ink); }
-.lm-t.cur { box-shadow: inset 0 0 0 calc(.55 * var(--u)) var(--orange), 0 calc(.5 * var(--u)) calc(1.2 * var(--u)) var(--shadow); }
-.lm-t:not(.lock):active { scale: .94; }
-.lm-t.lock { cursor: default; filter: grayscale(1); opacity: .55; }
-.lm-t.lock svg { position: absolute; right: calc(.8 * var(--u)); bottom: calc(.8 * var(--u)); width: calc(3.6 * var(--u)); height: calc(3.6 * var(--u));
-  fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
