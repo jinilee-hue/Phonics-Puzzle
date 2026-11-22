@@ -248,6 +248,7 @@
     G.tok++; clearTimers(); endDragSilently(); S.stopVoice(); FX.clear();
     G.screen = 'title'; app.dataset.screen = 'title'; G.busy = true;
     E.clear.classList.remove('show'); E.word.classList.remove('show'); E.next.classList.remove('show'); hideHand();
+    levelMenu(false);                               // (the tab's level list never stays open on the title)
     E.drag.innerHTML = ''; E.bursts.innerHTML = '';
     E.logoWrap.classList.remove('float', 'leave'); E.stars.classList.remove('leave'); E.bubbles.classList.remove('leave'); E.titleHand.classList.remove('leave');
     restartAnim(E.logoWrap, 'drop');
@@ -286,15 +287,16 @@
   }
   const gridOf = L => `<span class="grid" style="--c:${L.cols};--r:${L.rows}">${'<i></i>'.repeat(L.cols * L.rows)}</span>`;
   const SVG_LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.2" y="10.6" width="13.6" height="9.6" rx="2.4"/><path d="M8.4 10.6V8.2a3.6 3.6 0 0 1 7.2 0v2.4"/></svg>';
+  // the board's LEVEL tab is the picker (user 2026-11-22: the level display goes into the game screen): it shows the level's
+  // piece grid; the title has START only, which continues at G.pick (the saved level)
   function paintPick() {
-    const pk = $('#lvPick');
+    const pk = $('#boardTab');
     pk.querySelector('.grid')?.remove();
-    pk.querySelector('.n').textContent = G.pick + 1;
-    pk.querySelector('.n').insertAdjacentHTML('afterend', gridOf(LEVELS[G.pick]));
+    pk.querySelector('.caret').insertAdjacentHTML('beforebegin', gridOf(LEVELS[G.pick]));
     pk.setAttribute('aria-label', `Level ${G.pick + 1}`);
   }
   function levelMenu(open) {
-    const m = $('#lvMenu'), pk = $('#lvPick'), panel = m.querySelector('.lm-panel');
+    const m = $('#lvMenu'), pk = $('#boardTab'), panel = m.querySelector('.lm-panel');
     if (open) {
       const top = unlockedTop();
       panel.innerHTML = LEVELS.map((L, k) => {
@@ -304,17 +306,24 @@
       }).join('');
       const r = pk.getBoundingClientRect(), sr = stage.getBoundingClientRect();
       panel.style.setProperty('--tx', (r.left - sr.left) + 'px');
+      panel.style.setProperty('--ty', (r.bottom - sr.top + u() * 0.8) + 'px');   // under the tab
     }
     m.classList.toggle('show', open);
     m.setAttribute('aria-hidden', String(!open));
     pk.setAttribute('aria-expanded', String(open));
   }
-  $('#lvPick').addEventListener('click', (e) => {
+  $('#boardTab').addEventListener('click', (e) => {
     e.stopPropagation();
-    if (G.screen !== 'title' || starting || decorating()) return;
+    if (G.screen !== 'game' || app.classList.contains('explain') || E.clear.classList.contains('show')) return;
     S.unlock(); S.sfx('tap');
     levelMenu(!$('#lvMenu').classList.contains('show'));
   });
+  /** another level from the tab, mid-game: its first picture starts now (the stars so far stay in the total) */
+  function switchLevel(k) {
+    G.pick = G.level = k; G.idx = 0; G.levelStars = {};
+    loadImg(G.order[k * PER]);
+    startPuzzle();
+  }
   $('#lvMenu').addEventListener('click', (e) => {
     e.stopPropagation();
     const t = e.target.closest('.lm-t');
@@ -325,8 +334,9 @@
       return;
     }
     S.sfx('pick');
-    G.pick = +t.dataset.k; paintPick(); levelMenu(false);
-    $('#lvPick').animate([{ scale: 1 }, { scale: 1.15, offset: 0.45 }, { scale: 1 }], { duration: 420, easing: 'ease-out' });
+    levelMenu(false);
+    const k = +t.dataset.k;
+    if (k !== G.level) switchLevel(k);
   });
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') levelMenu(false); });
   G.pick = Math.min(progress().level || 1, unlockedTop()) - 1;   // continue at the saved level, never past the open ones
@@ -485,7 +495,7 @@
     G.idx++;
     if (G.idx < PER && G.level * PER + G.idx < G.order.length) { startPuzzle(); return; }
     if (G.order.slice(G.level * PER, G.level * PER + PER).some(w => G.levelStars[w.w])) { levelClear(); return; }
-    showTitle(); levelMenu(true);
+    showTitle();
   }
   /** a piece's canvas in a .dpiece box at its board place (screen px) */
   function pieceEl(p, br, bs) {
@@ -669,19 +679,12 @@
   function earnStar(i) {
     if (!G.picStars || G.picStars[i]) return;
     G.picStars[i] = true;
-    if (!picStarsEl.classList.contains('show')) restartAnim(picStarsEl, 'show');
-    const slot = picStarsEl.children[i]; slot.classList.add('on');
+    // the slot in the score pill lights up (sparkles there) and the total next to it bumps
+    const slot = picStarsEl.children[i]; restartAnim(slot, 'on');
     const r = slot.getBoundingClientRect(), k = u() / 9;
-    FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 10, 110, k); S.sfx('sparkle');
-    // a star flies from the slot to the counter, which bumps when it lands
-    const to = E.score.parentElement.querySelector('.star-ico').getBoundingClientRect();
-    const n0 = G.picStars.filter(Boolean).length;
-    if (!r.width || !to.width) { G.stars++; setRib(E.score, G.stars, true); G.levelStars[G.word.w] = n0; saveSticker(G.word.w, n0); return; }   // (row already hidden: just count)
-    const f = document.createElement('i'); f.className = 'fly-star';
-    f.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
-    document.body.appendChild(f);
-    f.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${to.left - r.left}px,${to.top - r.top}px) scale(${to.width / r.width})`, opacity: .9 }],
-      { duration: 650, easing: 'cubic-bezier(.5,0,.3,1)', delay: 250 }).onfinish = () => { f.remove(); G.stars++; setRib(E.score, G.stars, true); };
+    if (r.width) FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 10, 110, k);
+    S.sfx('sparkle');
+    G.stars++; setRib(E.score, G.stars, true);
     const n = G.picStars.filter(Boolean).length;
     G.levelStars[G.word.w] = n; saveSticker(G.word.w, n);
   }

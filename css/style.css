@@ -301,9 +301,11 @@ img { -webkit-user-drag: none; user-select: none; }
 @keyframes plus { 0% { transform: translate(-50%, -20%) scale(.4); opacity: 0; } 25% { transform: translate(-50%, -60%) scale(1.15); opacity: 1; } 100% { transform: translate(-50%, -160%) scale(1); opacity: 0; } }
 
 /* ── word bar (puzzle done) + next ───────────────────────────────────────────── */
-.wordbar { position: absolute; left: calc(83 * var(--u)); top: calc(83 * var(--u)); transform: translate(-50%, 0); z-index: 8; display: none; align-items: center; gap: calc(1.6 * var(--u));
-  height: calc(13 * var(--u)); padding: 0 calc(2 * var(--u)) 0 calc(4.4 * var(--u)); border-radius: calc(6.5 * var(--u)); background: var(--white);
-  box-shadow: 0 0 0 calc(.8 * var(--u)) var(--orange-ring), 0 0 0 calc(1.4 * var(--u)) var(--orange), 0 calc(1.6 * var(--u)) calc(2 * var(--u)) var(--shadow); }
+/* one orange edge, no pale inner ring (user 2026-11-22: "단어 박스 안에 옅은 주황색 라인은 삭제해"): the white grows into the
+   ring's place, so the box's outer edge stays where it was */
+.wordbar { position: absolute; left: calc(83 * var(--u)); top: calc(82.2 * var(--u)); transform: translate(-50%, 0); z-index: 8; display: none; align-items: center; gap: calc(1.6 * var(--u));
+  height: calc(14.6 * var(--u)); padding: 0 calc(2.8 * var(--u)) 0 calc(5.2 * var(--u)); border-radius: calc(7.3 * var(--u)); background: var(--white);
+  box-shadow: 0 0 0 calc(.6 * var(--u)) var(--orange), 0 calc(1.6 * var(--u)) calc(2 * var(--u)) var(--shadow); }
 .wordbar.show { display: flex; animation: wordIn .6s cubic-bezier(.2, 1.5, .4, 1) both; }
 @keyframes wordIn { 0% { transform: translate(-50%, calc(6 * var(--u))) scale(.4); opacity: 0; } 100% { transform: translate(-50%, 0); opacity: 1; } }
 .wordbar .word { font-weight: 800; font-size: calc(9 * var(--u)); line-height: 1; padding-top: calc(1.2 * var(--u)); color: var(--ink); letter-spacing: .01em; white-space: nowrap; }
@@ -484,19 +486,25 @@ img { -webkit-user-drag: none; user-select: none; }
 .board-tab small { font-size: calc(2.2 * var(--u)); letter-spacing: .06em; padding-top: calc(.4 * var(--u)); }
 .board-tab b { font-size: calc(3.8 * var(--u)); padding-top: calc(.5 * var(--u)); display: inline-block; }
 .board-tab b.bump { animation: ribBumpS .5s cubic-bezier(.2, 1.8, .4, 1); }
+/* the level picker is the board's LEVEL tab (user 2026-11-22: "퍼즐 갯수 레벨 표시는 게임화면 안에 넣는게 어때?" → "게임 화면
+   LEVEL 탭으로"): level-picture number, the level's piece grid, a caret; tap → the levels open under it. The title has START only. */
+.board-tab { width: auto; min-width: calc(21 * var(--u)); padding-left: calc(2.4 * var(--u)); padding-right: calc(2 * var(--u)); font-weight: 800; color: var(--tray-ink); }
+.board-tab .grid { height: calc(3.4 * var(--u)); gap: calc(.25 * var(--u)); margin-left: calc(.3 * var(--u)); }
+.board-tab .caret { width: calc(2.8 * var(--u)); height: calc(2.8 * var(--u)); margin-left: calc(-.3 * var(--u)); fill: none; stroke: currentColor; stroke-width: 3.2;
+  stroke-linecap: round; stroke-linejoin: round; transition: rotate .25s; }
+.board-tab[aria-expanded="true"] .caret { rotate: 180deg; }
+.board-tab:active { scale: .96; }
 
 /* ── stars instead of points (user picked "별 3개 + 스티커북", 2026-11-22): up to 3 per picture — done, no wrong spot,
    the word said right. Top left counts them; the result card's stars show how the level went; finished pictures
    are stickers in MY STICKERS (title). ── */
-.pic-stars { position: absolute; left: calc(83 * var(--u)); top: calc(70.5 * var(--u)); translate: -50% 0;   /* above the word bar, on the picture just finished (user: "별 모양 위치가 퍼즐쪽에 있는게 어색한데" — it sat in the PIECES tray) */
-  z-index: 9; display: none; gap: calc(.5 * var(--u)); align-items: flex-end; padding: calc(.8 * var(--u)) calc(2.2 * var(--u)) calc(.5 * var(--u)); border-radius: 999px;
-  background: var(--white-a70); box-shadow: 0 calc(.6 * var(--u)) calc(1.6 * var(--u)) var(--shadow); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-.pic-stars.show { display: flex; }
-.pic-stars i { width: calc(7 * var(--u)); height: calc(7 * var(--u)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; filter: grayscale(1) brightness(1.15) opacity(.35); transition: filter .2s; }
-.pic-stars i:nth-child(2) { width: calc(8.6 * var(--u)); height: calc(8.6 * var(--u)); }
-.pic-stars i.on { filter: drop-shadow(0 calc(.3 * var(--u)) calc(.3 * var(--u)) var(--shadow)); animation: starPop .5s cubic-bezier(.2, 1.8, .4, 1); }
-.pic-stars.show { animation: popIn .4s cubic-bezier(.2, 1.6, .4, 1) both; }
-.fly-star { position: fixed; z-index: 60; pointer-events: none; background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; }
+/* this picture's 3 stars sit in the score pill after the total (user 2026-11-22: "별 획득은 위에 점수판이랑 합칠수 없어?" —
+   it used to be its own pill above the word bar): empty slots light up as they are earned, the total bumps at once */
+.score-box .pic-stars { position: relative; z-index: 1; display: flex; align-items: center; gap: calc(.03 * var(--hb)); height: calc(.62 * var(--hb));
+  margin-left: calc(.2 * var(--hb)); padding-left: calc(.18 * var(--hb)); border-left: calc(.035 * var(--hb)) solid var(--white-a70); }
+.score-box .pic-stars i { width: calc(.56 * var(--hb)); height: calc(.56 * var(--hb)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat;
+  filter: grayscale(1) brightness(1.7) opacity(.55); transition: filter .2s; }
+.score-box .pic-stars i.on { filter: drop-shadow(0 calc(.04 * var(--hb)) calc(.04 * var(--hb)) var(--shadow)); animation: starPop .5s cubic-bezier(.2, 1.8, .4, 1); }
 .clear-stars i.off { filter: grayscale(1) brightness(1.2) opacity(.45); }
 .clear-pics figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: calc(.7 * var(--u)); }
 .mini-stars { display: flex; gap: calc(.2 * var(--u)); }
@@ -703,9 +711,9 @@ img { -webkit-user-drag: none; user-select: none; }
 .grid i { border-radius: calc(.5 * var(--u)); background: linear-gradient(var(--orange-hi), var(--orange)); box-shadow: inset 0 calc(-.25 * var(--u)) 0 var(--orange-lo); }
 .lvmenu { position: absolute; inset: 0; z-index: 35; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s, visibility 0s .2s; }
 .lvmenu.show { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .2s, visibility 0s; }
-.lm-panel { position: absolute; left: var(--tx, 30%); top: calc(64 * var(--u)); translate: -18% -100%; display: flex; gap: calc(1.8 * var(--u));
+.lm-panel { position: absolute; left: var(--tx, 30%); top: var(--ty, 20%); translate: -6% 0; display: flex; gap: calc(1.8 * var(--u));
   padding: calc(2 * var(--u)); border-radius: calc(4 * var(--u)); background: var(--white);
-  box-shadow: 0 calc(1.4 * var(--u)) calc(3 * var(--u)) var(--shadow); scale: .9; transform-origin: 18% 100%; transition: scale .2s; }
+  box-shadow: 0 calc(1.4 * var(--u)) calc(3 * var(--u)) var(--shadow); scale: .9; transform-origin: 6% 0; transition: scale .2s; }
 .lvmenu.show .lm-panel { scale: 1; }
 .lm-t { position: relative; width: calc(13 * var(--u)); height: calc(13 * var(--u)); display: grid; place-items: center; border-radius: calc(3 * var(--u));
   background: var(--cream); box-shadow: inset 0 0 0 calc(.45 * var(--u)) var(--orange-ring); }

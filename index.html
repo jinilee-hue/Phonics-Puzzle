@@ -6,7 +6,7 @@
 <title>Phonics Puzzle</title>
 <link rel="stylesheet" href="css/font.css?v=54832f73">
 <link rel="stylesheet" href="css/font-ko.css?v=fa5b8de1">
-<link rel="stylesheet" href="css/style.css?v=dbf7b5ec">
+<link rel="stylesheet" href="css/style.css?v=dd472051">
 </head>
 <body>
 <div id="app" data-screen="title">
@@ -21,8 +21,7 @@
          over the logo, under START; moved / turned / sized / peeled off in decorate mode (game.js decor) -->
     <div class="title-el decor-wall" id="decor"></div>
     <button class="title-el start" id="btnStart" aria-label="Start"><img src="assets/img/start.webp" alt="" draggable="false"><i class="shine"></i></button>
-    <button class="title-el lvpick" id="lvPick" aria-haspopup="true" aria-expanded="false" aria-label="Level 1"><span class="n">1</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 14.5 12 9l5.5 5.5"/></svg></button>
-    <div class="title-el lvmenu" id="lvMenu" aria-hidden="true"><div class="lm-panel" role="dialog" aria-label="Levels"></div></div>
+    <div class="lvmenu" id="lvMenu" aria-hidden="true"><div class="lm-panel" role="dialog" aria-label="Levels"></div></div>
     <img class="title-el hand-cue" id="titleHand" src="assets/img/hand.webp" alt="" draggable="false">
     <div class="title-el decor-tray" id="decorTray"><div class="decor-list" id="decorList"></div>
       <button class="decor-done" id="btnDecorDone" aria-label="Done"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button></div>
@@ -30,7 +29,7 @@
     <!-- game -->
     <img class="game-el game-logo" id="gameLogo" src="assets/img/logo.webp" alt="" draggable="false">
     <!-- the level on a tab on the board's top edge (user picked C of three; kept on the top edge) -->
-    <div class="game-el board-tab" id="boardTab"><small>LEVEL</small><b id="boardTabTxt">1-1</b></div>
+    <button class="game-el board-tab" id="boardTab" aria-haspopup="true" aria-expanded="false" aria-label="Level 1"><small>LEVEL</small><b id="boardTabTxt">1-1</b><svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg></button>
     <!-- the tutor (the user's bunny), left of the board, pointing at it: layers from tools/build_tutor.py (ears behind the body
          so they can wiggle) + new SVG eyes (white, iris, light) that blink and look at the pieces -->
     <div class="game-el tutor" id="tutor">
@@ -96,8 +95,6 @@
       <div class="tray-dots" id="trayDots" aria-hidden="true"></div>
       <button class="tray-btn down" id="btnDown" aria-label="Down"><img src="assets/img/ui/down.webp" alt="" draggable="false"></button>
     </div>
-    <!-- this picture's stars (up to 3: done · no wrong spot · the word said), shown in the empty tray -->
-    <div class="game-el pic-stars" id="picStars" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="game-el wordbar" id="wordBar" aria-live="polite"></div>
     <button class="game-el next-btn" id="btnNext" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 5.5 16.5 12 9 18.5"/></svg></button>
     <button class="game-el skip-btn" id="btnSkip" aria-label="Skip">SKIP</button>   <!-- only while the explanation runs (#app.explain) -->
@@ -107,7 +104,7 @@
   <!-- screen-edge HUD (Toy Catch's top bar: --hb high, 3 u from the edges) — the art is the user's sheet
        design/puzzle_assets.png, cut by tools/cut_buttons.py; score and level are written live on the blank ribbons -->
   <div class="hud-left game-el">
-    <div class="score-box" id="scorePill"><img class="trophy-img star-ico" src="assets/img/ui/clear_star.svg" alt="" draggable="false"><b id="score" data-t="0">0</b></div>
+    <div class="score-box" id="scorePill"><img class="trophy-img star-ico" src="assets/img/ui/clear_star.svg" alt="" draggable="false"><b id="score" data-t="0">0</b><span class="pic-stars" id="picStars" aria-hidden="true"><i></i><i></i><i></i></span></div>
   </div>
   <!-- phonics-api key (title only): a teacher enters it once per device; dot mint = the company server judges, sand = on-device -->
   <div class="sys sys-left title-el">
@@ -167,6 +164,6 @@
 <script src="js/jigsaw.js?v=9c864933"></script>
 <script src="js/fx.js?v=78baa07e"></script>
 <script src="js/phonics-progress.js?v=48b311dc"></script>
-<script src="js/game.js?v=2e9503ff"></script>
+<script src="js/game.js?v=3441fe50"></script>
 </body>
 </html>
