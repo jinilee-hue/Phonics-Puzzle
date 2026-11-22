@@ -31,6 +31,7 @@ LINES = {
     'great2': 'You got it!',
     'great3': 'Wonderful!',
     'goodtry': "Good try! Let's go on.",
+    'jump': 'Want to skip? Tap the jump button!',          # the say step's JUMP guide (phonics-kit rule 2)
     'hint': 'This piece goes here!',
     'oops': 'Oops! Try another spot.',
     'level': 'Level clear!',
@@ -48,6 +49,7 @@ LINES_KO = {
     'great2': '맞았어!',
     'great3': '정말 멋져!',
     'goodtry': '잘했어! 다음으로 가자!',
+    'jump': '넘어가고 싶으면 점프 버튼을 눌러!',
     'hint': '이 조각은 여기에 들어가!',
     'oops': '앗, 다른 자리를 찾아봐!',
     'level': '레벨 통과!',

@@ -171,6 +171,12 @@ window.PP_VOICE = {
 0.794,
 1.92
 ],
+"t:jump": [
+"t_jump.mp3",
+0.0,
+1.105,
+2.52
+],
 "t:hint": [
 "t_hint.mp3",
 0.0,
@@ -261,6 +267,12 @@ window.PP_VOICE = {
 1.272,
 1.821
 ],
+"k:jump": [
+"k_jump.mp3",
+0.0,
+1.327,
+2.24
+],
 "k:hint": [
 "k_hint.mp3",
 0.0,
@@ -308,6 +320,7 @@ window.PP_VOICE = {
 "great2": "You got it!",
 "great3": "Wonderful!",
 "goodtry": "Good try! Let's go on.",
+"jump": "Want to skip? Tap the jump button!",
 "hint": "This piece goes here!",
 "oops": "Oops! Try another spot.",
 "level": "Level clear!",
@@ -325,6 +338,7 @@ window.PP_VOICE = {
 "great2": "맞았어!",
 "great3": "정말 멋져!",
 "goodtry": "잘했어! 다음으로 가자!",
+"jump": "넘어가고 싶으면 점프 버튼을 눌러!",
 "hint": "이 조각은 여기에 들어가!",
 "oops": "앗, 다른 자리를 찾아봐!",
 "level": "레벨 통과!",

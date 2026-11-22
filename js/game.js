@@ -301,7 +301,9 @@
     FX.frameComets(E.frame.getBoundingClientRect(), FAST ? 60 : 1100);
     await wait(500);
     if (!alive(tok)) return;
-    await S.say('t:hello');
+    G.skipTeach = false;
+    if (!G.taught) explaining(true);               // SKIP shows from the greeting through the how-to demo
+    await Promise.race([S.say('t:hello'), skipped()]);
     if (!alive(tok)) return;
     // the microphone: asked here, once (the tutor asks for it if the browser prompt stays up); an unanswered prompt
     // must not hold the game — after 15 s it goes on, and the word step just shows Next until the mic is on
@@ -392,8 +394,10 @@
     }
     await wait(700);
     if (!alive(tok)) return;
-    G.busy = false; G.oops = false; G.wrong = 0;
-    if (!G.taught) { G.taught = true; S.say('t:howto'); }
+    G.oops = false; G.wrong = 0;
+    if (!G.taught) { G.taught = true; if (!G.skipTeach) await teachDemo(); if (!alive(tok)) return; }
+    explaining(false);
+    G.busy = false;
     armHint();
   }
   /** a piece's canvas in a .dpiece box at its board place (screen px) */
@@ -447,6 +451,7 @@
   }
   E.up.addEventListener('click', () => scrollTray(-1));
   E.down.addEventListener('click', () => scrollTray(1));
+  $('#btnSkip').addEventListener('click', (e) => { e.stopPropagation(); skipTeach(); });   // the explanation's SKIP
   let wheelAt = 0;
   E.tray.addEventListener('wheel', (e) => { e.preventDefault(); const now = performance.now(); if (now - wheelAt < 220 || Math.abs(e.deltaY) < 4) return; wheelAt = now; scrollTray(e.deltaY > 0 ? 1 : -1); }, { passive: false });
 
@@ -594,6 +599,27 @@
     G.levelStars[G.word.w] = n; saveSticker(G.word.w, n);
   }
 
+  // ── the explanation (first game of a visit): the greeting, then on the first puzzle the hand moves a piece to its
+  // place while the tutor says how. SKIP (bottom right, white see-through glass, like the other phonics games —
+  // phonics-kit README "공통 규칙" 1; user 2026-11-22: "puzzle만 게임설명과 게임설명 skip 하는 버튼만 없어? 다른게임처럼
+  // 만들어줘") cuts it: the voice stops, the demo ends, the child plays at once.
+  function explaining(on) { app.classList.toggle('explain', !!on); }
+  let skipFns = [];
+  const skipped = () => new Promise(r => skipFns.push(r));
+  function skipTeach() {
+    if (!app.classList.contains('explain')) return;
+    G.skipTeach = true; S.sfx('tap'); S.stopVoice(); hideHint(); explaining(false);
+    skipFns.splice(0).forEach(r => r());
+  }
+  async function teachDemo() {
+    const slot = liveSlots()[G.top];
+    const p = slot && G.pieces[+slot.dataset.i];
+    if (!p || p.placed || !p.cv.isConnected) return;
+    explaining(true); tutor('lean');
+    await Promise.race([Promise.all([S.say('t:howto'), guideHand(p)]), skipped()]);
+    hideHint();
+  }
+
   // ── hint: after a while without a move, the hand shows where the top tray piece goes ──────────────────────
   function armHint() {
     clearTimeout(G.hintT);
@@ -606,8 +632,12 @@
     const slot = liveSlots()[G.top];
     const p = slot && G.pieces[+slot.dataset.i];
     if (!p || p.placed || !p.cv.isConnected) return;
-    showHint(p, 3400);
     S.say('t:hint'); tutor('lean');
+    guideHand(p).then(armHint);
+  }
+  /** the hint picture + the white hand gliding from piece p to its place, twice; resolves when done or cut */
+  function guideHand(p) {
+    showHint(p, 3400);
     { const hb = E.board.getBoundingClientRect(), hs = hb.width / IW, hcu = G.cut; lookAt(hb.left + (p.c * hcu.cw + hcu.cw / 2) * hs, hb.top + (p.r * hcu.ch + hcu.ch / 2) * hs, 3000); }
     // the hand glides from the piece to its place, twice
     const sr = stage.getBoundingClientRect(), k = u(), cr = p.cv.getBoundingClientRect(), br = E.board.getBoundingClientRect(), bs = br.width / IW, cu = G.cut;
@@ -616,12 +646,14 @@
     const off = [-3.42 * k, -0.24 * k];    // the common white hand's fingertip: 38 % across, 2 % down of its 9 x 12 u
     E.hand.classList.add('show'); E.hand.classList.remove('press');
     E.hand.getAnimations().forEach(x => x.cancel());
-    E.hand.animate([
+    const anim = E.hand.animate([
       { left: a[0] + off[0] + 'px', top: a[1] + off[1] + 'px', opacity: 0, offset: 0 },
       { left: a[0] + off[0] + 'px', top: a[1] + off[1] + 'px', opacity: 1, offset: .15 },
       { left: b[0] + off[0] + 'px', top: b[1] + off[1] + 'px', opacity: 1, offset: .75 },
       { left: b[0] + off[0] + 'px', top: b[1] + off[1] + 'px', opacity: 0, offset: 1 },
-    ], { duration: 1600, iterations: 2, easing: 'ease-in-out', fill: 'forwards' }).onfinish = () => { E.hand.classList.remove('show'); armHint(); };
+    ], { duration: 1600, iterations: 2, easing: 'ease-in-out', fill: 'forwards' });
+    const end = () => E.hand.classList.remove('show');
+    return anim.finished.then(end, end);
   }
   function showHint(p, ms) {
     Jigsaw.renderHint(E.hint, G.cut, p.r, p.c, Math.min(1, renderScale()));
@@ -656,22 +688,30 @@
   }
   const SPK = '<svg viewBox="0 0 24 24"><path class="fill" d="M4 9.5v5h3.6L12 18.6V5.4L7.6 9.5z"/><path d="M15.4 8.6a4.6 4.6 0 0 1 0 6.8M17.9 6.2a8 8 0 0 1 0 11.6"/></svg>';
   const MIC = '<svg viewBox="0 0 24 24"><rect class="fill" x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg>';
+  // JUMP (phonics-kit README "공통 규칙" 2): the jumping child of Phonics Match's button, in purple here — the word bar
+  // already has an orange speaker and a green mic ("모양이 같으면 안돼"; a game may pick its own JUMP colour)
+  const JUMP = '<svg viewBox="0 0 24 24"><g transform="translate(12 12.2) scale(1.12) translate(-12 -12)"><circle cx="15.4" cy="4.1" r="2.45" />'
+    + '<path d="M14.1 7.1 11.2 12" /><path d="M13.6 8.3 18.3 6.2" /><path d="M13.6 8.3 9.3 6.5" /><path d="M11.2 12 14.8 13.5 13 16.5" />'
+    + '<path d="M11.2 12 8 14.3 5 12.9" /><path d="M7.8 20.9h9.8" /></g></svg>';
   const canSpeak = () => Q.has('fake') || (Mic.state === 'on' && (PhonicsAPI.usable() || STT.state !== 'error'));
   /** the word with its m in pink, "/m/ /m/ word" from the pack, then the child says it, then Next */
   async function wordStep(tok) {
     const w = G.word.w;
     E.word.innerHTML = `<div class="word"><b>${w[0]}</b>${w.slice(1)}</div><button class="snd" aria-label="Listen: ${w}">${SPK}</button>`
-      + (canSpeak() ? `<button class="mic idle" aria-label="Say it">${MIC}</button>` : '');
+      + (canSpeak() ? `<button class="mic idle" aria-label="Say it">${MIC}</button><button class="jump" aria-label="Jump">${JUMP}</button>` : '');
+    G.jumped = false;
     E.word.querySelector('.snd').addEventListener('click', (e) => { e.stopPropagation(); if (!G.listening) chant(w); });
     const mic = E.word.querySelector('.mic');
+    const jb = E.word.querySelector('.jump');
+    if (jb) jb.addEventListener('click', (e) => { e.stopPropagation(); jumpWord(tok); });
     if (mic) mic.addEventListener('click', (e) => { e.stopPropagation(); if (!G.listening && !mic.classList.contains('ok')) speak(tok, mic, true); });
     restartAnim(E.word, 'show');
     await wait(450);
     if (!alive(tok)) return;
     await chant(w);
     if (!alive(tok)) return;
-    if (mic) await speak(tok, mic, false); else earnStar(2);      // (no microphone: listening counts)
-    if (!alive(tok)) return;
+    if (mic) await speak(tok, mic, false);              // no microphone: no word star (phonics-kit rule 5 — the star is for saying it)
+    if (!alive(tok) || G.jumped) return;
     restartAnim(E.next, 'show');
     later(2600, () => { if (alive(tok) && E.next.classList.contains('show') && !G.listening) pointAt(E.next); });
   }
@@ -683,7 +723,7 @@
       if (!again) { await S.say('t:sayit'); if (!alive(tok)) return; }
       for (let t = 0; t < (again ? 1 : 2); t++) {
         const v = await listenOnce(tok, mic, w, t);
-        if (!alive(tok)) return;
+        if (!alive(tok) || G.jumped) return;
         if (v === 'ok') {
           mic.className = 'mic ok'; tutor('cheer');
           S.sfx('win');
@@ -693,8 +733,9 @@
           await S.say('t:great' + (1 + ((Math.random() * 3) | 0)));
           return;
         }
-        if (v === null) { mic.remove(); earnStar(2); return; }   // no recogniser at all: listening counts
+        if (v === null) { mic.remove(); E.word.querySelector('.jump')?.remove(); return; }   // can't judge: no word star (kit rule 5)
         mic.className = 'mic idle';
+        if (v === 'silence' && !G.jumpTold) { G.jumpTold = true; await jumpGuide(); if (!alive(tok) || G.jumped) return; }
         if (t === 0 && !again) {                            // once more, with the model again
           await S.say(v === 'silence' ? 't:sayit' : 't:again');
           if (!alive(tok)) return;
@@ -709,7 +750,7 @@
   async function listenOnce(tok, mic, w, t) {
     mic.className = 'mic listen'; S.sfx('listen'); S.setListening(true);
     if (Q.has('fake')) { await wait(700); mic.className = 'mic think'; await wait(300); S.setListening(false); return fake.length ? fake.shift() : 'ok'; }
-    const r = await Mic.listen({ waitMs: t ? 5000 : 4500, onLevel: v => mic.style.setProperty('--lv', v.toFixed(2)), aborted: () => !alive(tok) });
+    const r = await Mic.listen({ waitMs: t ? 5000 : 4500, onLevel: v => mic.style.setProperty('--lv', v.toFixed(2)), aborted: () => !alive(tok) || G.jumped });
     S.setListening(false);
     if (!alive(tok) || r.kind === 'aborted') return 'unclear';
     if (r.kind === 'nomic') return null;
@@ -757,14 +798,31 @@
     E.hand.style.left = r.left + r.width * .55 - sr.left - 3.42 * k + 'px'; E.hand.style.top = r.top + r.height * .55 - sr.top - 0.24 * k + 'px';
     E.hand.classList.add('show', 'press');
   }
-  E.next.addEventListener('click', () => {
-    if (!E.next.classList.contains('show')) return;
+  function nextPicture() {
     S.sfx('tap'); hideHand(); S.stopVoice();
     E.next.classList.remove('show'); E.word.classList.remove('show'); picStarsEl.classList.remove('show');
     G.idx++;
     if (G.idx >= PER || G.level * PER + G.idx >= G.order.length) levelClear();
     else startPuzzle();
-  });
+  }
+  E.next.addEventListener('click', () => { if (E.next.classList.contains('show')) nextPicture(); });
+  /** JUMP: skip saying this word — no word star — and go straight on to the next picture */
+  function jumpWord(tok) {
+    if (G.jumped || !alive(tok)) return;
+    G.jumped = true; G.jumps = (G.jumps || 0) + 1;
+    S.setListening(false);
+    nextPicture();
+  }
+  /** once a game, on the first quiet try: the hand taps JUMP twice (it hops) while the tutor says what it does */
+  async function jumpGuide() {
+    const jb = E.word.querySelector('.jump');
+    if (!jb) return;
+    pointAt(jb);
+    const hop = () => { jb.classList.remove('poke'); void jb.offsetWidth; jb.classList.add('poke'); };
+    later(700, hop); later(1250, hop);
+    await Promise.all([S.has && S.has('t:jump') ? S.say('t:jump') : wait(0), wait(2000)]);
+    hideHand();
+  }
 
   // ── level clear / all clear ─────────────────────────────────────────────────────────────────────────────
   function levelClear() {

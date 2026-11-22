@@ -655,3 +655,32 @@ img { -webkit-user-drag: none; user-select: none; }
 #app .start, #titleHand, .sys { transition: opacity .25s; }
 #app.decor .start, #app.decor #titleHand, #app.decor .sys { opacity: 0 !important; pointer-events: none; }
 @keyframes bump { 40% { transform: scale(1.12) rotate(-3deg); } 70% { transform: scale(.97); } }   /* (a tapped sticker — book and wall) */
+
+/* SKIP for the explanation (greeting + the first puzzle's how-to demo, #app.explain): bottom right, a quiet white
+   see-through glass pill with the word in white — the phonics games' common SKIP (Phonics Match, Toy Catch, Eye Catch);
+   the top bar's height (7.6 u), 3 u in from the corner (user 2026-11-22: "다른게임처럼 만들어줘") */
+.skip-btn { position: absolute; z-index: 40; right: calc(3 * var(--u)); bottom: calc(3 * var(--u)); height: var(--hb);
+  padding: calc(.05 * var(--hb)) calc(.4 * var(--hb)) 0; display: grid; place-items: center; white-space: nowrap; border-radius: 999px;
+  font: 800 calc(.44 * var(--hb)) / 1 var(--font); letter-spacing: .08em; color: #fff; text-shadow: 0 calc(.03 * var(--hb)) calc(.08 * var(--hb)) rgba(90,70,120,.45);
+  background: linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.3));
+  -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: 0 calc(.1 * var(--hb)) calc(.22 * var(--hb)) rgba(60,40,80,.18);
+  opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .25s, visibility 0s .25s; }
+#app.explain[data-screen="game"] .skip-btn { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .3s, visibility 0s; }
+.skip-btn:active { scale: .94; }
+
+/* JUMP in the say step (phonics-kit README "공통 규칙" 2): the jumping child, in purple — next to the orange speaker and
+   the green mic it must not look like either; it jumps in with the word bar and hops when the guide's hand taps it */
+:root { --jump-hi: #d2b6ff; --jump: #9d6bff; --jump-lo: #7b4fe2; --jump-ink: #5531b0; }
+.wordbar .jump { position: relative; width: calc(9 * var(--u)); height: calc(9 * var(--u)); border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: radial-gradient(130% 80% at 50% -6%, var(--white-a70) 0 40%, var(--white-a0) 52%), linear-gradient(var(--jump-hi), var(--jump) 50%, var(--jump-lo));
+  box-shadow: 0 calc(.5 * var(--u)) 0 var(--jump-ink), 0 calc(.9 * var(--u)) calc(1 * var(--u)) var(--shadow);
+  animation: jumpIn .62s cubic-bezier(.3, .7, .4, 1) .3s both; }
+.wordbar .jump svg { width: 62%; height: 62%; fill: none; stroke: var(--white); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.wordbar .jump svg circle { fill: var(--white); stroke: none; }
+.wordbar .jump:active { transform: translateY(calc(.4 * var(--u))); }
+.wordbar .jump.poke { animation: jumpHop .52s ease-out; }
+@keyframes jumpIn { 0% { opacity: 0; translate: 0 calc(4 * var(--u)); scale: .5; } 18% { opacity: 1; translate: 0 calc(1.6 * var(--u)); scale: 1.08 .9; }
+  50% { translate: 0 calc(-2.6 * var(--u)); scale: .94 1.07; } 78% { translate: 0 0; scale: 1.1 .9; } 100% { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes jumpHop { 0% { translate: 0 0; scale: 1; } 18% { translate: 0 calc(.3 * var(--u)); scale: 1.1 .9; } 50% { translate: 0 calc(-2.4 * var(--u)); scale: .94 1.07; }
+  80% { translate: 0 0; scale: 1.1 .9; } 100% { translate: 0 0; scale: 1; } }
