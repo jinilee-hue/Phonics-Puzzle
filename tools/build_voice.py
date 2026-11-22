@@ -24,6 +24,8 @@ WORDS = [w['w'] for w in WJ['words']]
 LINES = {
     'hello': "Let's play Phonics Puzzle!",
     'howto': 'Drag the pieces to the right places!',
+    'howto2': 'When the picture is done, say the word!',     # the explanation demo (user 2026-11-22)
+    'tryit': 'Now you try!',
     'done': 'You did it!',
     'sayit': 'Now you say it!',
     'again': 'One more time!',
@@ -42,6 +44,8 @@ LINES = {
 LINES_KO = {
     'hello': '파닉스 퍼즐 놀이 하자!',
     'howto': '조각을 끌어서 알맞은 자리에 놓아 봐!',
+    'howto2': '그림을 다 맞추면 단어를 말해 봐!',
+    'tryit': '이제 혼자 해 봐!',
     'done': '다 맞췄어!',
     'sayit': '이제 네가 말해 봐!',
     'again': '한 번 더 말해 봐!',

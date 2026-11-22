@@ -263,6 +263,64 @@
 
   let starting = false;
   E.start.addEventListener('click', () => { if (G.screen === 'title' && !starting && !decorating()) startGame(); });
+
+  // ── continue + level select (phonics-kit F1 — the same as Croco; user 2026-11-22: "진행저장은 왜 puzzle은 적용안됐어? 통일해서
+  // 적용해"). The shared record (js/phonics-progress.js, 'puzzle'): setLevel when a level starts, played when it is cleared.
+  // The chip left of START shows the level START plays (the page opens on the saved level = continue) and opens the levels:
+  // open = every level reached and the one after the highest cleared; the rest show a lock. Each level = its piece grid.
+  const PP = window.PhonicsProgress || null, GAME_ID = 'puzzle';
+  const progress = () => (PP ? PP.get(GAME_ID) : { level: null, maxLevel: null, best: {} });
+  function unlockedTop() {
+    const r = progress();
+    return Math.max(1, Math.min(LEVELS.length, Math.max(r.maxLevel || 1, ((r.best && r.best.level) || 0) + 1)));
+  }
+  const gridOf = L => `<span class="grid" style="--c:${L.cols};--r:${L.rows}">${'<i></i>'.repeat(L.cols * L.rows)}</span>`;
+  const SVG_LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.2" y="10.6" width="13.6" height="9.6" rx="2.4"/><path d="M8.4 10.6V8.2a3.6 3.6 0 0 1 7.2 0v2.4"/></svg>';
+  function paintPick() {
+    const pk = $('#lvPick');
+    pk.querySelector('.grid')?.remove();
+    pk.querySelector('.n').textContent = G.pick + 1;
+    pk.querySelector('.n').insertAdjacentHTML('afterend', gridOf(LEVELS[G.pick]));
+    pk.setAttribute('aria-label', `Level ${G.pick + 1}`);
+  }
+  function levelMenu(open) {
+    const m = $('#lvMenu'), pk = $('#lvPick'), panel = m.querySelector('.lm-panel');
+    if (open) {
+      const top = unlockedTop();
+      panel.innerHTML = LEVELS.map((L, k) => {
+        const on = k < top || k === G.pick;
+        return `<button class="lm-t${k === G.pick ? ' cur' : ''}${on ? '' : ' lock'}" data-k="${k}" aria-label="Level ${k + 1}${on ? '' : ' (locked)'}"${on ? '' : ' aria-disabled="true"'}>`
+          + `<span class="n">${k + 1}</span>${gridOf(L)}${on ? '' : SVG_LOCK}</button>`;
+      }).join('');
+      const r = pk.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+      panel.style.setProperty('--tx', (r.left - sr.left) + 'px');
+    }
+    m.classList.toggle('show', open);
+    m.setAttribute('aria-hidden', String(!open));
+    pk.setAttribute('aria-expanded', String(open));
+  }
+  $('#lvPick').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (G.screen !== 'title' || starting || decorating()) return;
+    S.unlock(); S.sfx('tap');
+    levelMenu(!$('#lvMenu').classList.contains('show'));
+  });
+  $('#lvMenu').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const t = e.target.closest('.lm-t');
+    if (!t) { levelMenu(false); return; }                   // outside the tiles: close
+    if (t.classList.contains('lock')) {
+      S.sfx('boing');
+      t.animate([{ translate: '0 0' }, { translate: '-6% 0' }, { translate: '6% 0' }, { translate: '0 0' }], { duration: 260 });
+      return;
+    }
+    S.sfx('pick');
+    G.pick = +t.dataset.k; paintPick(); levelMenu(false);
+    $('#lvPick').animate([{ scale: 1 }, { scale: 1.15, offset: 0.45 }, { scale: 1 }], { duration: 420, easing: 'ease-out' });
+  });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') levelMenu(false); });
+  G.pick = Math.min(progress().level || 1, unlockedTop()) - 1;   // continue at the saved level, never past the open ones
+  paintPick();
   async function startGame() {
     S.unlock(); S.startBgm(); S.sfx('start'); S.stopVoice();
     STT.preload();                       // the on-device backup recogniser loads while the first puzzle plays
@@ -286,7 +344,7 @@
   }
   function newGame() {
     G.order = Q.get('words') ? Q.get('words').split(',').map(w => WORDS.find(x => x.w === w)).filter(Boolean) : shuffle(WORDS);
-    G.level = Math.min(LEVELS.length - 1, Math.max(0, (+Q.get('level') || 1) - 1)); G.idx = 0; G.stars = 0; G.levelStars = {}; G.taught = false;
+    G.level = Q.get('level') ? Math.min(LEVELS.length - 1, Math.max(0, +Q.get('level') - 1)) : (G.pick || 0); G.idx = 0; G.stars = 0; G.levelStars = {}; G.taught = false;
     setRib(E.score, 0);
     loadImg(G.order[G.level * PER]);
   }
@@ -328,6 +386,10 @@
   }
   async function startPuzzle() {
     const tok = ++G.tok;
+    if (G.idx === 0) {                                // a level begins: the record's level (the title continues from it)
+      G.pick = G.level; paintPick();
+      if (PP) PP.setLevel(GAME_ID, G.level + 1);
+    }
     clearTimers(); endDragSilently(); S.stopVoice(); S.resetSnap();
     G.busy = true;
     resetBoard();
@@ -616,9 +678,50 @@
     const p = slot && G.pieces[+slot.dataset.i];
     if (!p || p.placed || !p.cv.isConnected) return;
     explaining(true); tutor('lean');
-    await Promise.race([Promise.all([S.say('t:howto'), guideHand(p)]), skipped()]);
+    // played for real, like the other games' explanations (user 2026-11-22: "다른 파닉스 처럼 실제로 게임진행하면서
+    // 설명 하는게 있어야하지 않아?"): the hand drags a tray piece onto its place and it snaps with the child's own
+    // snap; then the word step is told, then "Now you try!"
+    const on = () => app.classList.contains('explain');
+    const steps = (async () => {
+      await Promise.all([S.say('t:howto'), demoDrag(p)]);
+      if (!on()) return;
+      await S.say('t:howto2');
+      if (!on()) return;
+      tutor('cheer');
+      await S.say('t:tryit');
+    })();
+    await Promise.race([steps, skipped()]);
     hideHint();
   }
+  /** the explanation's real move: the white hand comes to piece p in the tray, grabs it and drags it onto its place,
+   *  where it snaps exactly like a child's move (same snap, burst, sound). SKIP mid-way finishes the move at once. */
+  async function demoDrag(p) {
+    const sr = stage.getBoundingClientRect(), k = u(), off = [-3.42 * k, -0.24 * k];
+    const r = p.cv.getBoundingClientRect(), a = [r.left + r.width / 2, r.top + r.height / 2];
+    const cu = G.cut, br = E.board.getBoundingClientRect(), bs = br.width / IW;
+    const b = [br.left + (p.c * cu.cw + cu.cw / 2) * bs, br.top + (p.r * cu.ch + cu.ch / 2) * bs];
+    const handAt = (x, y) => { E.hand.style.left = x - sr.left + off[0] + 'px'; E.hand.style.top = y - sr.top + off[1] + 'px'; };
+    const cut = () => !app.classList.contains('explain');
+    hideHand(); handAt(a[0], a[1]); E.hand.classList.add('show');
+    await wait(cut() ? 0 : 550);
+    E.hand.classList.add('press');
+    beginDrag(p, a[0], a[1], -1);
+    const T = 1400, t0 = performance.now(), lift = 9 * k;
+    await new Promise(res => {
+      const step = () => {
+        const t = cut() ? 1 : Math.min(1, (performance.now() - t0) / T), e = t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+        const x = a[0] + (b[0] - a[0]) * e, y = a[1] + (b[1] - a[1]) * e - Math.sin(Math.PI * e) * lift;   // a little arc
+        if (G.drag) { moveDrag(x, y); handAt(x, y); }
+        if (t < 1 && G.drag) requestAnimationFrame(step); else res();
+      };
+      requestAnimationFrame(step);
+    });
+    if (G.drag && G.drag.p === p) endDrag(b[0], b[1]);           // the right place: it snaps
+    E.hand.classList.remove('press');
+    await wait(cut() ? 0 : 450);
+    hideHand();
+  }
+
 
   // ── hint: after a while without a move, the hand shows where the top tray piece goes ──────────────────────
   function armHint() {
@@ -834,6 +937,8 @@
     E.clearPics.innerHTML = words.map((w, i) => `<figure><img src="${w.img}" alt="${w.w}" style="--d:${(0.35 + i * 0.08).toFixed(2)}s;--r:${tilt[i % 6]}deg">${mini(G.levelStars[w.w] || 0)}</figure>`).join('');
     // the big stars: how the level went (of 3 x 6 = 18 stars: 16+ = 3, 10+ = 2, else 1)
     const got = words.reduce((s, w) => s + (G.levelStars[w.w] || 0), 0), big = got >= 16 ? 3 : got >= 10 ? 2 : 1;
+    if (PP) PP.played(GAME_ID, { level: G.level + 1, stars: got, levelStars: big, pictures: words.length, jumps: G.jumps || 0 }, { higher: ['levelStars'] });
+    if (PP && !last) PP.setLevel(GAME_ID, G.level + 2);   // cleared: next time the title continues from the next level
     document.querySelectorAll('.clear-stars i').forEach((st, i) => st.classList.toggle('off', i >= big));
     E.goTxt.textContent = last ? 'Play again' : 'Next';
     E.go.setAttribute('aria-label', last ? 'Play again' : 'Next level');

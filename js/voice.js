@@ -129,6 +129,18 @@ window.PP_VOICE = {
 1.161,
 2.45
 ],
+"t:howto2": [
+"t_howto2.mp3",
+0.0,
+0.934,
+2.501
+],
+"t:tryit": [
+"t_tryit.mp3",
+0.0,
+0.893,
+1.19
+],
 "t:done": [
 "t_done.mp3",
 0.0,
@@ -225,6 +237,18 @@ window.PP_VOICE = {
 1.258,
 2.31
 ],
+"k:howto2": [
+"k_howto2.mp3",
+0.0,
+1.441,
+2.206
+],
+"k:tryit": [
+"k_tryit.mp3",
+0.0,
+1.303,
+1.15
+],
 "k:done": [
 "k_done.mp3",
 0.0,
@@ -313,6 +337,8 @@ window.PP_VOICE = {
 "lines": {
 "hello": "Let's play Phonics Puzzle!",
 "howto": "Drag the pieces to the right places!",
+"howto2": "When the picture is done, say the word!",
+"tryit": "Now you try!",
 "done": "You did it!",
 "sayit": "Now you say it!",
 "again": "One more time!",
@@ -331,6 +357,8 @@ window.PP_VOICE = {
 "lines_ko": {
 "hello": "파닉스 퍼즐 놀이 하자!",
 "howto": "조각을 끌어서 알맞은 자리에 놓아 봐!",
+"howto2": "그림을 다 맞추면 단어를 말해 봐!",
+"tryit": "이제 혼자 해 봐!",
 "done": "다 맞췄어!",
 "sayit": "이제 네가 말해 봐!",
 "again": "한 번 더 말해 봐!",

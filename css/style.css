@@ -653,7 +653,7 @@ img { -webkit-user-drag: none; user-select: none; }
 .decor-done:active { translate: 0 calc(.1 * var(--u)); box-shadow: inset 0 0 calc(.3 * var(--u)) var(--star-deep), 0 calc(.25 * var(--u)) 0 var(--gold-ink), 0 calc(.6 * var(--u)) calc(1 * var(--u)) var(--shadow); }
 /* decorating: START, the hand and the corner buttons step aside */
 #app .start, #titleHand, .sys { transition: opacity .25s; }
-#app.decor .start, #app.decor #titleHand, #app.decor .sys { opacity: 0 !important; pointer-events: none; }
+#app.decor .start, #app.decor #titleHand, #app.decor .sys, #app.decor .lvpick { opacity: 0 !important; pointer-events: none; }
 @keyframes bump { 40% { transform: scale(1.12) rotate(-3deg); } 70% { transform: scale(.97); } }   /* (a tapped sticker — book and wall) */
 
 /* SKIP for the explanation (greeting + the first puzzle's how-to demo, #app.explain): bottom right, a quiet white
@@ -684,3 +684,37 @@ img { -webkit-user-drag: none; user-select: none; }
   50% { translate: 0 calc(-2.6 * var(--u)); scale: .94 1.07; } 78% { translate: 0 0; scale: 1.1 .9; } 100% { opacity: 1; translate: 0 0; scale: 1; } }
 @keyframes jumpHop { 0% { translate: 0 0; scale: 1; } 18% { translate: 0 calc(.3 * var(--u)); scale: 1.1 .9; } 50% { translate: 0 calc(-2.4 * var(--u)); scale: .94 1.07; }
   80% { translate: 0 0; scale: 1.1 .9; } 100% { translate: 0 0; scale: 1; } }
+
+/* ── continue + level select (phonics-kit F1, the same as Croco; user 2026-11-22: "진행저장은 왜 puzzle은 적용안됐어? 통일해서
+   적용해"): a chip left of START shows the level START plays — the page opens on the saved level — and opens the levels.
+   Each level is drawn as its piece grid (2×2, 3×2, 3×3), no words. Locked levels are grey with a lock. */
+.lvpick { position: absolute; z-index: 6; left: calc(58.6 * var(--u)); top: calc(76.6 * var(--u)); translate: -100% -50%;
+  display: flex; align-items: center; gap: calc(1.1 * var(--u)); height: calc(10.4 * var(--u)); padding: 0 calc(1.8 * var(--u)) 0 calc(1.2 * var(--u));
+  border-radius: 999px; background: linear-gradient(var(--white), var(--cream)); color: var(--ink);
+  box-shadow: 0 calc(.6 * var(--u)) 0 var(--orange-ring), 0 calc(1.2 * var(--u)) calc(1.8 * var(--u)) var(--shadow); transition: opacity .3s, scale .3s; }
+.lvpick .n { display: grid; place-items: center; width: calc(7.2 * var(--u)); height: calc(7.2 * var(--u)); border-radius: 50%;
+  font: 800 calc(4.6 * var(--u)) / 1 var(--font); color: var(--white); padding-top: .08em;
+  background: linear-gradient(var(--orange-hi), var(--orange) 55%, var(--orange-lo)); box-shadow: inset 0 calc(-.5 * var(--u)) 0 var(--orange-ink); }
+.lvpick svg { width: calc(3.2 * var(--u)); height: calc(3.2 * var(--u)); fill: none; stroke: var(--ink); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; transition: rotate .25s; }
+.lvpick[aria-expanded="true"] svg { rotate: 180deg; }
+.lvpick:active { scale: .95; }
+.grid { display: grid; grid-template-columns: repeat(var(--c), 1fr); grid-template-rows: repeat(var(--r), 1fr); gap: calc(.35 * var(--u));
+  height: calc(5.6 * var(--u)); aspect-ratio: var(--c) / var(--r); }
+.grid i { border-radius: calc(.5 * var(--u)); background: linear-gradient(var(--orange-hi), var(--orange)); box-shadow: inset 0 calc(-.25 * var(--u)) 0 var(--orange-lo); }
+.lvmenu { position: absolute; inset: 0; z-index: 35; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s, visibility 0s .2s; }
+.lvmenu.show { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .2s, visibility 0s; }
+.lm-panel { position: absolute; left: var(--tx, 30%); top: calc(64 * var(--u)); translate: -18% -100%; display: flex; gap: calc(1.8 * var(--u));
+  padding: calc(2 * var(--u)); border-radius: calc(4 * var(--u)); background: var(--white);
+  box-shadow: 0 calc(1.4 * var(--u)) calc(3 * var(--u)) var(--shadow); scale: .9; transform-origin: 18% 100%; transition: scale .2s; }
+.lvmenu.show .lm-panel { scale: 1; }
+.lm-t { position: relative; width: calc(13 * var(--u)); height: calc(13 * var(--u)); display: grid; place-items: center; border-radius: calc(3 * var(--u));
+  background: var(--cream); box-shadow: inset 0 0 0 calc(.45 * var(--u)) var(--orange-ring); }
+.lm-t .grid { height: calc(7.2 * var(--u)); }
+.lm-t .n { position: absolute; left: calc(-1.2 * var(--u)); top: calc(-1.2 * var(--u)); display: grid; place-items: center; width: calc(5.6 * var(--u)); height: calc(5.6 * var(--u));
+  border-radius: 50%; font: 800 calc(3.4 * var(--u)) / 1 var(--font); color: var(--white); padding-top: .08em;
+  background: linear-gradient(var(--orange-hi), var(--orange) 55%, var(--orange-lo)); box-shadow: inset 0 calc(-.4 * var(--u)) 0 var(--orange-ink); }
+.lm-t.cur { box-shadow: inset 0 0 0 calc(.55 * var(--u)) var(--orange), 0 calc(.5 * var(--u)) calc(1.2 * var(--u)) var(--shadow); }
+.lm-t:not(.lock):active { scale: .94; }
+.lm-t.lock { cursor: default; filter: grayscale(1); opacity: .55; }
+.lm-t.lock svg { position: absolute; right: calc(.8 * var(--u)); bottom: calc(.8 * var(--u)); width: calc(3.6 * var(--u)); height: calc(3.6 * var(--u));
+  fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
