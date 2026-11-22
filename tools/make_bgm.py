@@ -1,8 +1,9 @@
-"""Original background music for Phonics Puzzle: a light, bouncy playroom loop under the word voices.
-C major, 120 BPM, 16 bars (32 s): marimba tune over C–Am–F–G (A half) and F–G–Em–Am (B half), plucked off-beat chords,
-round bass, soft kick / claps / shaker, glockenspiel sparkles. The synth voices are Eye Catch's tools/make_bgm.py
-(Croco Phonics' synths, no samples); the tune and chords are this game's own. Seamless loop (reverb tail folded back).
--> assets/audio/bgm.mp3 + js/bgm-data.js (base64)
+"""Original background music for Phonics Puzzle — upbeat (user 2026-11-22: "게임 음악 좀더 신나는 걸로"):
+G major, 140 BPM, 16 bars (27.4 s). A half over G–D–Em–C, B half (the chorus) over C–D–Bm–Em / C–D–G–D.
+Four-on-the-floor kick, claps (+ snare in the chorus) on 2 and 4, 16th hats with an open hat on every off-beat, an
+octave-jumping bass, plucked off-beat chords, a steel-pan hook (doubled by marimba and glockenspiel in the chorus),
+brassy stabs, bongo / snare fills into each half. Synth voices from Eye Catch's tools/make_bgm.py (no samples);
+tune and arrangement are this game's own. Seamless loop. -> assets/audio/bgm.mp3 + js/bgm-data.js (base64)
 Run: /Users/jini/.local/bin/uv run --with numpy --with scipy python tools/make_bgm.py
 """
 import base64
@@ -18,7 +19,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT_MP3 = ROOT / 'assets' / 'audio' / 'bgm.mp3'
 OUT_JS = ROOT / 'js' / 'bgm-data.js'
 SR = 44100
-BPM = 120
+BPM = 140
 BEAT = 60 / BPM
 BARS = 16
 LOOP = BARS * 4 * BEAT
@@ -32,27 +33,28 @@ def m(s):
     return NOTE[s[:-1]] + 12 * (int(s[-1]) + 1)
 
 
-CHORDS = ['C', 'Am', 'F', 'G', 'C', 'Am', ('F', 'G'), 'C',
-          'F', 'G', 'Em', 'Am', 'F', 'G', 'C', 'G']
-TONES = {'C': ['C', 'E', 'G'], 'Am': ['A', 'C', 'E'], 'F': ['F', 'A', 'C'], 'G': ['G', 'B', 'D'], 'Em': ['E', 'G', 'B']}
-HOOK = [('E5', 0, .5), ('G5', .5, .5), ('C6', 1, .5), ('G5', 1.5, .5), ('A5', 2, .5), ('G5', 2.5, .5), ('E5', 3, 1)]
+CHORDS = ['G', 'D', 'Em', 'C', 'G', 'D', 'Em', ('C', 'D'),
+          'C', 'D', 'Bm', 'Em', 'C', 'D', 'G', 'D']
+TONES = {'G': ['G', 'B', 'D'], 'D': ['D', 'F#', 'A'], 'Em': ['E', 'G', 'B'], 'C': ['C', 'E', 'G'], 'Bm': ['B', 'D', 'F#']}
+HOOK = [('D6', 0, .5), ('B5', .5, .25), ('D6', .75, .5), ('G6', 1.25, .5), ('F#6', 1.75, .25), ('E6', 2, .5), ('D6', 2.5, .5), ('B5', 3, .75)]
 MEL = [
     HOOK,
-    [('C6', 0, .5), ('B5', .5, .5), ('A5', 1, .5), ('E5', 1.5, .5), ('A5', 2, 1), ('C6', 3, 1)],
-    [('A5', 0, .5), ('C6', .5, .5), ('F6', 1, 1), ('E6', 2, .5), ('D6', 2.5, .5), ('C6', 3, 1)],
-    [('B5', 0, .5), ('D6', .5, .5), ('G5', 1, .5), ('B5', 1.5, .5), ('D6', 2, 1.5), ('G5', 3.5, .5)],
+    [('A5', 0, .5), ('F#5', .5, .25), ('A5', .75, .5), ('D6', 1.25, .75), ('C6', 2, .5), ('B5', 2.5, .5), ('A5', 3, .75)],
+    [('B5', 0, .5), ('G5', .5, .25), ('B5', .75, .5), ('E6', 1.25, .5), ('D6', 1.75, .25), ('B5', 2, .5), ('G5', 2.5, .5), ('E5', 3, .75)],
+    [('E5', 0, .5), ('G5', .5, .5), ('C6', 1, .5), ('E6', 1.5, .5), ('D6', 2, .25), ('C6', 2.25, .25), ('B5', 2.5, .5), ('A5', 3, 1)],
     HOOK,
-    [('E6', 0, .5), ('C6', .5, .5), ('A5', 1, 1), ('B5', 2, .5), ('C6', 2.5, .5), ('E6', 3, 1)],
-    [('F6', 0, .5), ('E6', .5, .5), ('D6', 1, .5), ('C6', 1.5, .5), ('B5', 2, .5), ('D6', 2.5, .5), ('G6', 3, 1)],
-    [('E6', 0, 1), ('C6', 1.5, .5), ('G5', 2, .5), ('E5', 2.5, .5)],
-    [('A5', 0, .75), ('G5', .75, .25), ('F5', 1, .5), ('A5', 1.5, .5), ('C6', 2, 1), ('A5', 3, 1)],
-    [('B5', 0, .75), ('A5', .75, .25), ('G5', 1, .5), ('B5', 1.5, .5), ('D6', 2, 1), ('B5', 3, 1)],
-    [('G5', 0, .5), ('B5', .5, .5), ('E6', 1, .5), ('D6', 1.5, .5), ('B5', 2, .5), ('G5', 2.5, .5), ('E5', 3, 1)],
-    [('A5', 0, .5), ('C6', .5, .5), ('E6', 1, 1), ('D6', 2, .5), ('C6', 2.5, .5), ('A5', 3, 1)],
-    [('F6', 0, .5), ('E6', .5, .5), ('D6', 1, .5), ('C6', 1.5, .5), ('A5', 2, .5), ('C6', 2.5, .5), ('F6', 3, 1)],
-    [('D6', 0, .5), ('B5', .5, .5), ('G5', 1, .5), ('B5', 1.5, .5), ('D6', 2, .5), ('G6', 2.5, .5), ('F6', 3, 1)],
-    [('E6', 0, .5), ('D6', .5, .5), ('C6', 1, .5), ('G5', 1.5, .5), ('E5', 2, .5), ('G5', 2.5, .5), ('C6', 3, 1)],
-    [('D5', 0, .5), ('E5', .5, .5), ('F5', 1, .5), ('G5', 1.5, .5), ('B5', 2, .5), ('D6', 2.5, .5)],
+    [('A5', 0, .5), ('F#5', .5, .25), ('A5', .75, .5), ('D6', 1.25, .5), ('E6', 1.75, .25), ('F#6', 2, .5), ('E6', 2.5, .5), ('D6', 3, .75)],
+    [('B5', 0, .5), ('E6', .5, .25), ('G6', .75, .5), ('E6', 1.25, .5), ('B5', 1.75, .25), ('D6', 2, .5), ('E6', 2.5, .5), ('G6', 3, .75)],
+    [('E6', 0, .5), ('D6', .5, .5), ('C6', 1, .5), ('B5', 1.5, .5), ('A5', 2, .25), ('B5', 2.25, .25), ('C6', 2.5, .25), ('D6', 2.75, .25),
+     ('E6', 3, .25), ('F#6', 3.25, .25), ('G6', 3.5, .5)],
+    [('G6', 0, .75), ('E6', .75, .25), ('G6', 1, .5), ('E6', 1.5, .5), ('C6', 2, .5), ('E6', 2.5, .5), ('G6', 3, .5), ('A6', 3.5, .5)],
+    [('F#6', 0, .75), ('D6', .75, .25), ('F#6', 1, .5), ('A6', 1.5, .5), ('F#6', 2, .5), ('E6', 2.5, .5), ('D6', 3, 1)],
+    [('D6', 0, .5), ('B5', .5, .5), ('D6', 1, .5), ('F#6', 1.5, .5), ('E6', 2, .5), ('D6', 2.5, .5), ('B5', 3, 1)],
+    [('E6', 0, .5), ('G6', .5, .5), ('B6', 1, .5), ('G6', 1.5, .5), ('E6', 2, .5), ('F#6', 2.5, .5), ('G6', 3, 1)],
+    [('E6', 0, .5), ('G6', .5, .25), ('A6', .75, .5), ('G6', 1.25, .5), ('E6', 1.75, .25), ('C6', 2, .5), ('E6', 2.5, .5), ('G6', 3, 1)],
+    [('F#6', 0, .5), ('A6', .5, .25), ('F#6', .75, .5), ('D6', 1.25, .75), ('E6', 2, .5), ('F#6', 2.5, .5), ('A6', 3, 1)],
+    [('B6', 0, .75), ('A6', .75, .25), ('G6', 1, .5), ('D6', 1.5, .5), ('B5', 2, .5), ('D6', 2.5, .5), ('G6', 3, 1)],
+    [('A5', 0, .25), ('B5', .25, .25), ('C6', .5, .25), ('D6', .75, .25), ('E6', 1, .25), ('F#6', 1.25, .25), ('G6', 1.5, .5), ('F#6', 2, .5), ('D6', 2.5, .5)],
 ]
 assert len(MEL) == BARS == len(CHORDS)
 
@@ -168,40 +170,59 @@ def chord_at(bar, beat):
 
 for bar in range(BARS):
     t0 = bar * 4 * BEAT
-    B = bar >= 8
+    B = bar >= 8                                    # the chorus
     fill = bar in (7, 15)
-    for note, b, ln in MEL[bar]:
+    for note, b, ln in MEL[bar]:                    # the hook: steel pan; in the chorus doubled by marimba (8va below) + glock
         f = hz(m(note))
-        add(marimba(f, ln * BEAT), t0 + b * BEAT, pan=.12, gain=.34)
+        add(steelpan(f, ln * BEAT), t0 + b * BEAT, pan=.1, gain=.34)
         if B:
-            add(glock(f), t0 + b * BEAT + .004, pan=-.25, gain=.045)
-    for b, iv, ln in ((0, 0, .8), (1.5, 7, .4), (2, 0, .8), (3.5, 12, .4)):
+            add(marimba(f / 2, ln * BEAT), t0 + b * BEAT + .003, pan=-.15, gain=.16)
+            add(glock(f), t0 + b * BEAT + .006, pan=-.3, gain=.045)
+    for k in range(8):                              # octave-jumping bass on the 8ths (root down, octave up, 5th on beat 3)
+        b = k * .5
         root = m(TONES[chord_at(bar, b)][0] + '2')
         if root > m('G#2'):
             root -= 12
-        add(bass(hz(root + iv), ln * BEAT), t0 + b * BEAT, gain=.24 if iv == 0 else .17)
-    for k in range(4):
+        iv = 12 if k % 2 else (7 if k == 4 else 0)
+        if fill and bar == 15 and k >= 5:
+            continue
+        add(bass(hz(root + iv), .38 * BEAT), t0 + b * BEAT, gain=.25 if k % 2 == 0 else .2)
+    for k in range(4):                              # plucked chords on every off-beat
         tones = TONES[chord_at(bar, k)]
         for i, n in enumerate(tones):
-            add(pluck(hz(m(n + '4')), .16), t0 + (k + .5) * BEAT + i * .006, pan=-.3, gain=.075)
-    for b in ((0,) if fill else (0, 2)):
-        add(kick(), t0 + b * BEAT, gain=.42)
-    for b in (1, 3):
-        if fill and b == 3:
+            add(pluck(hz(m(n + '4')), .14), t0 + (k + .5) * BEAT + i * .005, pan=-.3, gain=.085)
+    if B:                                           # brassy stabs on the and-of-2 and on 4
+        for b in (1.5, 3):
+            for i, n in enumerate(TONES[chord_at(bar, b)]):
+                add(bass(hz(m(n + '4')), .22 * BEAT), t0 + b * BEAT + i * .004, pan=.25, gain=.05)
+    for b in range(4):                              # four-on-the-floor
+        if bar == 15 and b >= 2:
             continue
-        add(clap(), t0 + b * BEAT, pan=.05, gain=.14)
-    for k in range(8):
-        add(hat(), t0 + k * BEAT / 2 + .002, pan=-.4, gain=.03 if k % 2 else .018)
+        add(kick(), t0 + b * BEAT, gain=.5)
+    for b in (1, 3):
+        if bar == 15 and b == 3:
+            continue
+        add(clap(), t0 + b * BEAT, pan=.05, gain=.16)
+        if B:
+            add(snare(), t0 + b * BEAT + .002, pan=-.05, gain=.1)
+    for k in range(16):                             # 16th hats + an open hat on every off-beat
+        if bar == 15 and k >= 8:
+            break
+        add(hat(), t0 + k * BEAT / 4 + .002, pan=-.4, gain=.03 if k % 2 == 0 else .016)
+    for k in range(4):
+        if bar == 15 and k >= 2:
+            break
+        add(hat(True), t0 + (k + .5) * BEAT, pan=.35, gain=.035)
     if bar in (0, 8):
-        add(crash(), t0, pan=-.2, gain=.04)
-    if fill:
-        for k in range(4):
-            add(bongo(420 if k % 2 else 300), t0 + (2 + k * .5) * BEAT, pan=.4 if k % 2 else -.4, gain=.1)
-        for k, n in enumerate(['G5', 'B5', 'D6', 'G6'] if bar == 15 else ['G5', 'B5', 'D6', 'F6']):
-            add(glock(hz(m(n))), t0 + (2 + k * .5) * BEAT, pan=.4, gain=.08)
-    if bar in (3, 11):
-        for k, n in enumerate(['G5', 'B5', 'D6', 'F6']):
-            add(glock(hz(m(n))), t0 + (3 + k * .25) * BEAT, pan=.4, gain=.06)
+        add(crash(), t0, pan=-.2, gain=.055)
+    if bar == 7:                                    # bongo run into the chorus
+        for k in range(8):
+            add(bongo(440 if k % 2 else 320), t0 + (2 + k * .25) * BEAT, pan=.4 if k % 2 else -.4, gain=.09 + k * .006)
+    if bar == 15:                                   # snare roll + glock climb back to the top
+        for k in range(8):
+            add(snare(), t0 + (2 + k * .25) * BEAT, pan=0, gain=.05 + k * .012)
+        for k, n in enumerate(['G5', 'B5', 'D6', 'G6']):
+            add(glock(hz(m(n))), t0 + (2 + k * .5) * BEAT, pan=.4, gain=.07)
 
 # a little room (short, so it stays punchy)
 ir_t = np.arange(int(1.0 * SR)) / SR
