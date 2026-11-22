@@ -485,6 +485,45 @@ img { -webkit-user-drag: none; user-select: none; }
 .board-tab b { font-size: calc(3.8 * var(--u)); padding-top: calc(.5 * var(--u)); display: inline-block; }
 .board-tab b.bump { animation: ribBumpS .5s cubic-bezier(.2, 1.8, .4, 1); }
 
+/* ── stars instead of points (user picked "별 3개 + 스티커북", 2026-11-22): up to 3 per picture — done, no wrong spot,
+   the word said right. Top left counts them; the result card's stars show how the level went; finished pictures
+   are stickers in MY STICKERS (title). ── */
+.pic-stars { position: absolute; left: calc(152 * var(--u)); top: calc(31 * var(--u)); translate: -50% 0;   /* (translate, not transform: the pop animation uses transform) */ z-index: 9; display: none; gap: calc(.4 * var(--u)); align-items: flex-end; }
+.pic-stars.show { display: flex; }
+.pic-stars i { width: calc(8 * var(--u)); height: calc(8 * var(--u)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; filter: grayscale(1) brightness(1.3) opacity(.4); transition: filter .2s; }
+.pic-stars i:nth-child(2) { width: calc(9.6 * var(--u)); height: calc(9.6 * var(--u)); }
+.pic-stars i.on { filter: drop-shadow(0 calc(.4 * var(--u)) calc(.4 * var(--u)) var(--tray-shade)); animation: starPop .5s cubic-bezier(.2, 1.8, .4, 1); }
+.pic-stars.show { animation: popIn .4s cubic-bezier(.2, 1.6, .4, 1) both; }
+.fly-star { position: fixed; z-index: 60; pointer-events: none; background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; }
+.clear-stars i.off { filter: grayscale(1) brightness(1.2) opacity(.45); }
+.clear-pics figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: calc(.7 * var(--u)); }
+.mini-stars { display: flex; gap: calc(.2 * var(--u)); }
+.mini-stars i { width: calc(2.6 * var(--u)); height: calc(2.6 * var(--u)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat; }
+.mini-stars i.off { filter: grayscale(1) brightness(1.25) opacity(.4); }
+/* the sticker book */
+.pill-btn.book { margin-left: calc(.17 * var(--hb)); }
+.pill-btn.book svg path { stroke-width: 2.1; }
+.clear-card.book-card { height: calc(84 * var(--u)); }
+.clear-panel.book-panel { justify-content: flex-start; gap: calc(2.4 * var(--u)); padding: calc(4 * var(--u)) calc(3 * var(--u)) calc(3 * var(--u)); }
+.book-head { display: flex; align-items: baseline; gap: calc(2 * var(--u)); }
+.book-title { font-size: calc(6.6 * var(--u)); }
+.book-count { font-weight: 800; font-size: calc(4 * var(--u)); color: var(--title-edge); padding-top: calc(.6 * var(--u)); }
+.book-grid { display: grid; grid-template-columns: repeat(6, calc(13 * var(--u))); gap: calc(1.8 * var(--u)) calc(1.5 * var(--u)); }
+.sticker { position: relative; display: flex; flex-direction: column; align-items: center; gap: calc(.5 * var(--u)); padding: 0; background: none; }
+.sticker .pic { width: 100%; height: calc(10.8 * var(--u)); border-radius: calc(1.4 * var(--u)); object-fit: cover; display: block; rotate: var(--r, 0deg);
+  box-shadow: 0 0 0 calc(.45 * var(--u)) var(--white), 0 calc(.6 * var(--u)) calc(.8 * var(--u)) var(--board-shade); transition: transform .15s; }
+.sticker.gold .pic { box-shadow: 0 0 0 calc(.45 * var(--u)) var(--white), 0 0 0 calc(.9 * var(--u)) var(--gold), 0 calc(.6 * var(--u)) calc(.8 * var(--u)) var(--board-shade); }
+.sticker .name { font-weight: 800; font-size: calc(2.6 * var(--u)); line-height: 1; color: var(--ink); }
+.sticker .name b { color: var(--pink); }
+.sticker .mini-stars { position: absolute; left: 50%; top: calc(9.4 * var(--u)); translate: -50% 0; }
+.sticker:active .pic { transform: scale(.94); }
+.sticker.bump .pic { animation: bump .5s cubic-bezier(.2, 1.8, .4, 1); }
+.sticker.empty .slot { width: 100%; height: calc(10.8 * var(--u)); border-radius: calc(1.4 * var(--u)); display: grid; place-items: center;
+  border: calc(.35 * var(--u)) dashed var(--frame-shade); background: var(--white-a40); font-weight: 800; font-size: calc(5 * var(--u)); color: var(--frame-shade); }
+.sticker.empty .name { color: var(--frame-shade); }
+.book-close { position: absolute; right: calc(-1.6 * var(--u)); top: calc(-1.6 * var(--u)); --hb: calc(8 * var(--u)); }
+.book-close svg { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
+
 /* candy jelly pills (the result card's Home / Next): the round jelly buttons' look — glossy cap, light from below, the side
    under it, a white spot; Home in the sound / exit pink, Next in the Next button's gold */
 .pill-btn { --e: calc(.09 * var(--hb)); --pt: #ff9fca; --pm: #f45a9c; --pl: #df3f86; --pg: #ffc9e2; --pb: #c9357a; --pd: #b02b6a; --pi: #8c2054;
@@ -519,7 +558,7 @@ img { -webkit-user-drag: none; user-select: none; }
 .clear-panel { position: absolute; inset: calc(5 * var(--u)); border-radius: calc(2.4 * var(--u)); background: linear-gradient(var(--cream), var(--board));
   box-shadow: 0 calc(-.15 * var(--u)) calc(.3 * var(--u)) 0 var(--frame-wall), 0 calc(.2 * var(--u)) calc(.25 * var(--u)) 0 var(--frame-gloss),
     inset 0 calc(1.2 * var(--u)) calc(1.6 * var(--u)) var(--board-shade), inset 0 calc(-.3 * var(--u)) calc(.5 * var(--u)) var(--white-a40);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(2.8 * var(--u)); padding: calc(7.5 * var(--u)) calc(3 * var(--u)) calc(2 * var(--u)); text-align: center; }
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(4.6 * var(--u)); padding: calc(8 * var(--u)) calc(3 * var(--u)) calc(2.5 * var(--u)); text-align: center; }   /* no score: more room (user: "너무 좁아 보이는데.. 획득 점수는 빼") */
 .clear-stars { position: absolute; left: 50%; top: calc(-10.5 * var(--u)); transform: translateX(-50%); display: flex; align-items: flex-end; gap: calc(.4 * var(--u)); pointer-events: none; }
 .clear-stars i { width: calc(15 * var(--u)); height: calc(15 * var(--u)); background: url(../assets/img/ui/clear_star.svg) center / contain no-repeat;
   filter: drop-shadow(0 calc(.8 * var(--u)) calc(.8 * var(--u)) var(--frame-wall)); transform-origin: 50% 70%;
@@ -532,16 +571,13 @@ img { -webkit-user-drag: none; user-select: none; }
 /* the title in candy letters: a gradient fill, a dark orange edge and a white outer line (the logo's lettering) */
 .candy-txt { position: relative; display: inline-block; font-weight: 800; line-height: 1; white-space: nowrap; padding-top: .12em; }
 .candy-txt span { display: block; }
-.candy-txt .w, .candy-txt .o { position: absolute; left: 0; top: 0; padding-top: inherit; }
-.candy-txt .w { color: var(--white); -webkit-text-stroke: .3em var(--white); filter: drop-shadow(0 .08em .08em var(--frame-wall)); }
-.candy-txt .o { color: var(--title-edge); -webkit-text-stroke: .14em var(--title-edge); }
+.candy-txt .o { position: absolute; left: 0; top: 0; padding-top: inherit; }
+.candy-txt .o { color: var(--title-edge); -webkit-text-stroke: .14em var(--title-edge); filter: drop-shadow(0 .06em .05em var(--frame-wall)); }
 .candy-txt .f { position: relative; background: linear-gradient(var(--title-hi) 15%, var(--title-mid) 55%, var(--title-lo) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.clear-title { font-size: calc(7.4 * var(--u)); letter-spacing: .02em; }
-.clear-pics { display: flex; justify-content: center; gap: calc(1.4 * var(--u)); }
-.clear-pics img { width: calc(12.2 * var(--u)); height: calc(10.2 * var(--u)); object-fit: cover; border-radius: calc(1.4 * var(--u)); rotate: var(--r, 0deg);
+.clear-title { font-size: calc(9.6 * var(--u)); letter-spacing: .02em; }   /* bigger, no white outline (user) */
+.clear-pics { display: flex; justify-content: center; gap: calc(1.5 * var(--u)); }
+.clear-pics img { width: calc(13.2 * var(--u)); height: calc(11 * var(--u)); object-fit: cover; border-radius: calc(1.4 * var(--u)); rotate: var(--r, 0deg);
   box-shadow: 0 0 0 calc(.4 * var(--u)) var(--white), 0 calc(.6 * var(--u)) calc(.9 * var(--u)) var(--board-shade); animation: popIn .45s cubic-bezier(.2, 1.6, .4, 1) both; animation-delay: var(--d); }
-.clear-score { --hb: calc(8.6 * var(--u)); display: flex; justify-content: center; }
-.clear-score .score-box { margin-left: calc(.5 * var(--hb)); }
 .clear-btns { display: flex; justify-content: center; gap: calc(3 * var(--u)); --hb: calc(9 * var(--u)); }
 
 /* ── phonics-api key (title, top left) ───────────────────────────────────────── */

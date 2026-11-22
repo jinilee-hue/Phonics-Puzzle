@@ -26,7 +26,7 @@
     tray: $('#tray'), list: $('#trayList'), view: $('#trayView'), dots: $('#trayDots'), up: $('#btnUp'), down: $('#btnDown'),
     word: $('#wordBar'), next: $('#btnNext'), hand: $('#gameHand'), drag: $('#drag'), bursts: $('#bursts'), stars: $('#titleStars'), tutor: $('#tutor'), bubbles: $('#bubbles'),
     score: $('#score'), level: $('#boardTabTxt'), hudL: $('.hud-left'), sys: $('.sys:not(.sys-left)'),
-    clear: $('#clear'), clearTitle: $('#clearTitle'), clearPics: $('#clearPics'), clearScore: $('#clearScore'), go: $('#btnGo'), goTxt: $('#goTxt'),
+    clear: $('#clear'), clearTitle: $('#clearTitle'), clearPics: $('#clearPics'), go: $('#btnGo'), goTxt: $('#goTxt'),
   };
   const G = { screen: 'title', tok: 0, order: [], level: 0, idx: 0, score: 0, cut: null, img: null, word: null, pieces: [], left: 0,
     top: 0, drag: null, busy: true, timers: [], hintAt: 0 };
@@ -179,15 +179,15 @@
   }
   layoutLights(E.lights, 92, 78.33, 15, 12);
   layoutLights($('#clearLights'), 104, 68, 17, 10);
-  /** big candy letters: a white outer line, a dark edge and a gradient fill, stacked */
-  function candyText(el, t) { el.innerHTML = `<span class="w">${t}</span><span class="o">${t}</span><span class="f">${t}</span>`; }
+  /** big candy letters: a dark edge under a gradient fill (no white outer line — user) */
+  function candyText(el, t) { el.innerHTML = `<span class="o">${t}</span><span class="f">${t}</span>`; }
   // score / level written on the sheet's blank ribbons: an outline layer under a gradient-filled one
   function setRib(el, t, bump) {
     t = String(t);
     if (el.dataset.t !== t || !el.firstChild || el.firstChild.nodeType === 3) { el.dataset.t = t; el.innerHTML = `<span class="o">${t}</span><span class="f">${t}</span>`; }
     if (bump) restartAnim(el, 'bump');
   }
-  [E.score, E.clearScore].forEach(el => { el.classList.add('rib-txt'); setRib(el, el.textContent); });
+  [E.score].forEach(el => { el.classList.add('rib-txt'); setRib(el, el.textContent); });
   // twinkling stars over the title room (user: "배경에 별 반짝이 좀 더"): sparkles and little candy stars, seeded positions,
   // each on its own beat; some drift up slowly. They sit behind the logo and START.
   (function titleStars() {
@@ -286,7 +286,7 @@
   }
   function newGame() {
     G.order = Q.get('words') ? Q.get('words').split(',').map(w => WORDS.find(x => x.w === w)).filter(Boolean) : shuffle(WORDS);
-    G.level = Math.min(LEVELS.length - 1, Math.max(0, (+Q.get('level') || 1) - 1)); G.idx = 0; G.score = 0; G.taught = false;
+    G.level = Math.min(LEVELS.length - 1, Math.max(0, (+Q.get('level') || 1) - 1)); G.idx = 0; G.stars = 0; G.levelStars = {}; G.taught = false;
     setRib(E.score, 0);
     loadImg(G.order[G.level * PER]);
   }
@@ -331,7 +331,7 @@
     resetBoard();
     E.drag.innerHTML = '';
     const cfg = LEVELS[G.level], word = G.order[G.level * PER + G.idx];
-    G.word = word;
+    G.word = word; resetPicStars();
     showLevel();
     const img = await loadImg(word);
     if (!alive(tok)) return;
@@ -392,7 +392,7 @@
     }
     await wait(700);
     if (!alive(tok)) return;
-    G.busy = false; G.oops = false;
+    G.busy = false; G.oops = false; G.wrong = 0;
     if (!G.taught) { G.taught = true; S.say('t:howto'); }
     armHint();
   }
@@ -497,6 +497,7 @@
     if (onBoard) {                     // a wrong place: a soft boing, the right place glows for a moment
       S.sfx('boing'); restartAnim(E.frame, 'nope'); tutor('oops');
       showHint(p, 1500);
+      G.wrong++;
       if (!G.oops) { G.oops = true; S.say('t:oops'); }       // said once per picture
     }
     backToTray(d);
@@ -549,7 +550,6 @@
       const cx = br.left + (tl + cu.cw / 2 + cu.m) * bs, cy = br.top + (tt + cu.ch / 2 + cu.m) * bs;
       S.sfx('snap'); tutor('hop'); lookAt(cx, cy, 900);
       candyBurst(cx, cy, 0.55);                       // Toy Catch's catch burst, a little smaller for one piece
-      addScore(100, cx, cy);
       if (G.left === 0) complete(tok); else armHint();
     }, 210);
   }
@@ -559,13 +559,39 @@
     if (G.top > max) G.top = max;
     updateTray();
   }
-  function addScore(n, x, y) {
-    G.score += n;
-    setRib(E.score, G.score, true);
-    const t = document.createElement('b');
-    t.className = 'plus'; t.textContent = '+' + n; t.style.left = x + 'px'; t.style.top = y + 'px';
-    E.bursts.appendChild(t);
-    setTimeout(() => t.remove(), 1050);
+  // ── stars (up to 3 per picture) and the sticker book ─────────────────────────────────────────────────
+  const picStarsEl = $('#picStars');
+  let stickers = {};
+  try { stickers = JSON.parse(localStorage.getItem('ppStickers') || '{}') || {}; } catch (e) { stickers = {}; }
+  function saveSticker(w, n) {
+    if ((stickers[w] || 0) >= n) return;
+    stickers[w] = n;
+    try { localStorage.setItem('ppStickers', JSON.stringify(stickers)); } catch (e) { /* storage off */ }
+    showBookCount();
+  }
+  function showBookCount() {
+    const n = WORDS.filter(x => stickers[x.w] > 0).length;
+    $('#bookCount').textContent = `${n}/${WORDS.length}`; $('#bookCount2').textContent = `${n} / ${WORDS.length}`;
+  }
+  function resetPicStars() { G.picStars = [false, false, false]; picStarsEl.classList.remove('show'); picStarsEl.querySelectorAll('i').forEach(i => i.classList.remove('on')); }
+  function earnStar(i) {
+    if (!G.picStars || G.picStars[i]) return;
+    G.picStars[i] = true;
+    if (!picStarsEl.classList.contains('show')) restartAnim(picStarsEl, 'show');
+    const slot = picStarsEl.children[i]; slot.classList.add('on');
+    const r = slot.getBoundingClientRect(), k = u() / 9;
+    FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 10, 110, k); S.sfx('sparkle');
+    // a star flies from the slot to the counter, which bumps when it lands
+    const to = E.score.parentElement.querySelector('.star-ico').getBoundingClientRect();
+    const n0 = G.picStars.filter(Boolean).length;
+    if (!r.width || !to.width) { G.stars++; setRib(E.score, G.stars, true); G.levelStars[G.word.w] = n0; saveSticker(G.word.w, n0); return; }   // (row already hidden: just count)
+    const f = document.createElement('i'); f.className = 'fly-star';
+    f.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
+    document.body.appendChild(f);
+    f.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${to.left - r.left}px,${to.top - r.top}px) scale(${to.width / r.width})`, opacity: .9 }],
+      { duration: 650, easing: 'cubic-bezier(.5,0,.3,1)', delay: 250 }).onfinish = () => { f.remove(); G.stars++; setRib(E.score, G.stars, true); };
+    const n = G.picStars.filter(Boolean).length;
+    G.levelStars[G.word.w] = n; saveSticker(G.word.w, n);
   }
 
   // ── hint: after a while without a move, the hand shows where the top tray piece goes ──────────────────────
@@ -620,7 +646,8 @@
     FX.confetti(110);
     const br = E.board.getBoundingClientRect(), k = u() / 9;
     [[0, 0], [1, 0], [0, 1], [1, 1], [.5, .5]].forEach(([fx, fy], i) => setTimeout(() => FX.sparkles(br.left + br.width * fx, br.top + br.height * fy, 12, 140, k), i * 120));
-    addScore(200, br.left + br.width / 2, br.top + br.height * .4);
+    later(350, () => alive(tok) && earnStar(0));                       // ★ done
+    if (!G.wrong) later(800, () => alive(tok) && earnStar(1));        // ★ no wrong spot
     await wait(500);
     if (!alive(tok)) return;
     await S.say('t:done');
@@ -643,7 +670,7 @@
     if (!alive(tok)) return;
     await chant(w);
     if (!alive(tok)) return;
-    if (mic) await speak(tok, mic, false);
+    if (mic) await speak(tok, mic, false); else earnStar(2);      // (no microphone: listening counts)
     if (!alive(tok)) return;
     restartAnim(E.next, 'show');
     later(2600, () => { if (alive(tok) && E.next.classList.contains('show') && !G.listening) pointAt(E.next); });
@@ -662,11 +689,11 @@
           S.sfx('win');
           const r = mic.getBoundingClientRect();
           candyBurst(r.left + r.width / 2, r.top + r.height / 2, 0.7);
-          addScore(300, r.left + r.width / 2, r.top - 2 * u());
+          earnStar(2);                                      // ★ the word said right
           await S.say('t:great' + (1 + ((Math.random() * 3) | 0)));
           return;
         }
-        if (v === null) { mic.remove(); return; }           // no recogniser at all: Next only
+        if (v === null) { mic.remove(); earnStar(2); return; }   // no recogniser at all: listening counts
         mic.className = 'mic idle';
         if (t === 0 && !again) {                            // once more, with the model again
           await S.say(v === 'silence' ? 't:sayit' : 't:again');
@@ -733,7 +760,7 @@
   E.next.addEventListener('click', () => {
     if (!E.next.classList.contains('show')) return;
     S.sfx('tap'); hideHand(); S.stopVoice();
-    E.next.classList.remove('show'); E.word.classList.remove('show');
+    E.next.classList.remove('show'); E.word.classList.remove('show'); picStarsEl.classList.remove('show');
     G.idx++;
     if (G.idx >= PER || G.level * PER + G.idx >= G.order.length) levelClear();
     else startPuzzle();
@@ -744,16 +771,19 @@
     G.tok++; G.busy = true; clearTimers();
     const last = G.level >= LEVELS.length - 1;
     candyText(E.clearTitle, last ? 'ALL CLEAR!' : `LEVEL ${G.level + 1} CLEAR!`);
-    const tilt = [-3, 2, -2, 3, -2, 2];
-    E.clearPics.innerHTML = G.order.slice(G.level * PER, G.level * PER + PER).map((w, i) => `<img src="${w.img}" alt="${w.w}" style="--d:${(0.35 + i * 0.08).toFixed(2)}s;--r:${tilt[i % 6]}deg">`).join('');
-    setRib(E.clearScore, G.score);
+    const tilt = [-3, 2, -2, 3, -2, 2], words = G.order.slice(G.level * PER, G.level * PER + PER);
+    const mini = n => `<span class="mini-stars">${[0, 1, 2].map(i => `<i class="${i < n ? '' : 'off'}"></i>`).join('')}</span>`;
+    E.clearPics.innerHTML = words.map((w, i) => `<figure><img src="${w.img}" alt="${w.w}" style="--d:${(0.35 + i * 0.08).toFixed(2)}s;--r:${tilt[i % 6]}deg">${mini(G.levelStars[w.w] || 0)}</figure>`).join('');
+    // the big stars: how the level went (of 3 x 6 = 18 stars: 16+ = 3, 10+ = 2, else 1)
+    const got = words.reduce((s, w) => s + (G.levelStars[w.w] || 0), 0), big = got >= 16 ? 3 : got >= 10 ? 2 : 1;
+    document.querySelectorAll('.clear-stars i').forEach((st, i) => st.classList.toggle('off', i >= big));
     E.goTxt.textContent = last ? 'Play again' : 'Next';
     E.go.setAttribute('aria-label', last ? 'Play again' : 'Next level');
     restartAnim(E.clear, 'show');
     S.sfx('fanfare'); FX.confetti(160);
     // each star lands with a sparkle
     [.25, .45, .65].forEach((d, i) => setTimeout(() => {
-      const st = document.querySelectorAll('.clear-stars i')[i]; if (!st || !E.clear.classList.contains('show')) return;
+      const st = document.querySelectorAll('.clear-stars i')[i]; if (!st || st.classList.contains('off') || !E.clear.classList.contains('show')) return;
       const r = st.getBoundingClientRect(); FX.sparkles(r.left + r.width / 2, r.top + r.height / 2, 12, 120, u() / 9); S.sfx('sparkle');
     }, (d + .3) * 1000));
     setTimeout(() => S.say(last ? 't:allclear' : 't:level'), 700);
@@ -766,6 +796,24 @@
     startPuzzle();
   });
   $('#btnHome').addEventListener('click', () => { S.sfx('tap'); showTitle(); });
+  // ── MY STICKERS (title): all the m-words, finished ones as stickers (gold edge with 3 stars); tap = hear the word ──
+  layoutLights($('#bookLights'), 104, 84, 17, 13);
+  function openBook() {
+    S.unlock(); S.sfx('tap');
+    candyText($('#bookTitle'), 'MY STICKERS'); showBookCount();
+    const tilt = [-3, 2, -2, 3, -1, 2, 2, -3, 1, -2, 3, -1, -2, 3, -3, 1, 2, -2];
+    $('#bookGrid').innerHTML = WORDS.map((x, i) => {
+      const n = stickers[x.w] || 0, name = `<span class="name"><b>${x.w[0]}</b>${x.w.slice(1)}</span>`;
+      if (!n) return `<div class="sticker empty"><div class="slot">?</div><span class="name">?</span></div>`;
+      return `<button class="sticker${n >= 3 ? ' gold' : ''}" data-w="${x.w}" style="--r:${tilt[i % 18]}deg"><img class="pic" src="${x.img}" alt="${x.w}" draggable="false">`
+        + `<span class="mini-stars">${[0, 1, 2].map(j => `<i class="${j < n ? '' : 'off'}"></i>`).join('')}</span>${name}</button>`;
+    }).join('');
+    $('#bookGrid').querySelectorAll('button.sticker').forEach(b => b.addEventListener('click', () => { restartAnim(b, 'bump'); S.stopVoice(); S.chant(b.dataset.w); }));
+    restartAnim($('#book'), 'show');
+  }
+  $('#btnBook').addEventListener('click', openBook);
+  $('#btnBookClose').addEventListener('click', () => { S.sfx('tap'); S.stopVoice(); $('#book').classList.remove('show'); });
+  showBookCount();
 
   // ── HUD ─────────────────────────────────────────────────────────────────────────────────────────────────
   const btnSound = $('#btnSound');
@@ -804,7 +852,7 @@
     endDrag(x, y);
     return true;
   }
-  window.__pp = { G, E, startGame, showTitle, startPuzzle, solveOne, beginDrag, moveDrag, endDrag, levelClear, fake, judgeSpeech, setFace };
+  window.__pp = { G, E, startGame, showTitle, startPuzzle, solveOne, beginDrag, moveDrag, endDrag, levelClear, fake, judgeSpeech, setFace, openBook, earnStar };
   showTitle();
   window.__ready = true;
 })();

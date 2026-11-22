@@ -8,7 +8,7 @@
 </defs>
 <polygon points="60.00,22.00 74.11,48.58 103.75,53.79 82.83,75.42 87.04,105.21 60.00,92.00 32.96,105.21 37.17,75.42 16.25,53.79 45.89,48.58" fill="url(#side)" stroke="url(#side)" stroke-width="16" stroke-linejoin="round"/>
 <polygon points="60.00,14.00 74.11,40.58 103.75,45.79 82.83,67.42 87.04,97.21 60.00,84.00 32.96,97.21 37.17,67.42 16.25,45.79 45.89,40.58" fill="url(#rim)" stroke="url(#rim)" stroke-width="16" stroke-linejoin="round"/>
-<polygon points="60.00,20.00 72.34,43.01 98.04,47.64 79.97,66.49 83.51,92.36 60.00,81.00 36.49,92.36 40.03,66.49 21.96,47.64 47.66,43.01" fill="url(#top)" stroke="url(#top)" stroke-width="10" stroke-linejoin="round"/>
+<polygon points="60.00,14.00 74.11,40.58 103.75,45.79 82.83,67.42 87.04,97.21 60.00,84.00 32.96,97.21 37.17,67.42 16.25,45.79 45.89,40.58" fill="url(#top)" stroke="url(#top)" stroke-width="14.6" stroke-linejoin="round"/>   <!-- rim shows ~1 px (user) -->
 <ellipse cx="45" cy="41" rx="13" ry="7.5" fill="url(#hl)" transform="rotate(-30 45 41)"/>
 <ellipse cx="43" cy="40" rx="6" ry="3.4" fill="#fff" opacity=".9" transform="rotate(-30 43 40)"/>
 <circle cx="62" cy="27" r="3.2" fill="#fff" opacity=".8"/>
