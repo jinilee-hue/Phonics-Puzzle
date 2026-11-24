@@ -21,44 +21,46 @@ LEAD, TAIL = .10, .25
 WJ = json.loads((ROOT / 'js/words.js').read_text(encoding='utf-8').split('=', 1)[1].rstrip().rstrip(';'))
 WORDS = [w['w'] for w in WJ['words']]
 
+# lines said the way you talk to a child (user 2026-11-24: "가이드 음성이 어색하대" → 문장·말투): no "잘했어" after a miss,
+# no stiff requests ("마이크를 허용해 줘" → "네 목소리를 들을 수 있게 마이크를 켜 줘")
 LINES = {
     'hello': "Let's play Phonics Puzzle!",
-    'howto': 'Drag the pieces to the right places!',
-    'howto2': 'When the picture is done, say the word!',     # the explanation demo (user 2026-11-22)
-    'tryit': 'Now you try!',
+    'howto': 'Drag each piece to the right spot!',
+    'howto2': 'When the picture is done, say the word!',
+    'tryit': "Now it's your turn!",
     'done': 'You did it!',
-    'sayit': 'Now you say it!',
+    'sayit': 'Your turn! Say it!',
     'again': 'One more time!',
     'great1': 'Great job!',
     'great2': 'You got it!',
     'great3': 'Wonderful!',
-    'goodtry': "Good try! Let's go on.",
-    'jump': 'Want to skip? Tap the jump button!',          # the say step's JUMP guide (phonics-kit rule 2)
+    'goodtry': "That's okay! Let's keep going!",
+    'jump': 'Too tricky? Tap the jump button!',
     'hint': 'This piece goes here!',
-    'oops': 'Oops! Try another spot.',
+    'oops': 'Oops! Try another spot!',
     'level': 'Level clear!',
     'allclear': 'Amazing! You finished every puzzle!',
-    'micask': 'Please allow the microphone.',
-    'pressstart': 'Press start!',
+    'micask': 'Turn on the microphone so I can hear you!',
+    'pressstart': 'Tap start to play!',
 }
 LINES_KO = {
-    'hello': '파닉스 퍼즐 놀이 하자!',
-    'howto': '조각을 끌어서 알맞은 자리에 놓아 봐!',
-    'howto2': '그림을 다 맞추면 단어를 말해 봐!',
-    'tryit': '이제 혼자 해 봐!',
-    'done': '다 맞췄어!',
+    'hello': '우리 파닉스 퍼즐 하자!',
+    'howto': '조각을 끌어다가 꼭 맞는 자리에 놓아 봐!',
+    'howto2': '그림을 다 맞추면 단어를 말해 보자!',
+    'tryit': '이번엔 직접 해 봐!',          # '네 차례' is heard as '내 차례' (네/내 sound alike)
+    'done': '와, 그림 완성!',
     'sayit': '이제 네가 말해 봐!',
-    'again': '한 번 더 말해 봐!',
+    'again': '한 번 더 말해 볼까?',
     'great1': '잘했어!',
     'great2': '맞았어!',
     'great3': '정말 멋져!',
-    'goodtry': '잘했어! 다음으로 가자!',
-    'jump': '넘어가고 싶으면 점프 버튼을 눌러!',
-    'hint': '이 조각은 여기에 들어가!',
-    'oops': '앗, 다른 자리를 찾아봐!',
-    'level': '레벨 통과!',
+    'goodtry': '괜찮아! 계속 해 보자!',
+    'jump': '어려우면 점프 버튼을 눌러서 넘어가도 돼!',
+    'hint': '이 조각은 여기야!',
+    'oops': '앗, 거기가 아니야. 다른 자리에 놓아 봐!',
+    'level': '야호! 통과했어!',
     'allclear': '우와! 퍼즐을 전부 완성했어!',
-    'micask': '마이크를 허용해 줘.',
+    'micask': '네 목소리를 들을 수 있게 마이크를 켜 줘!',
     'pressstart': '시작 버튼을 눌러 봐!',
 }
 assert set(LINES) == set(LINES_KO), set(LINES) ^ set(LINES_KO)

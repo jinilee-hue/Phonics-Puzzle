@@ -126,8 +126,8 @@ window.PP_VOICE = {
 "t:howto": [
 "t_howto.mp3",
 0.0,
-1.161,
-2.45
+1.134,
+2.44
 ],
 "t:howto2": [
 "t_howto2.mp3",
@@ -138,8 +138,8 @@ window.PP_VOICE = {
 "t:tryit": [
 "t_tryit.mp3",
 0.0,
-0.893,
-1.19
+0.828,
+1.51
 ],
 "t:done": [
 "t_done.mp3",
@@ -150,8 +150,8 @@ window.PP_VOICE = {
 "t:sayit": [
 "t_sayit.mp3",
 0.0,
-0.898,
-1.34
+0.778,
+1.98
 ],
 "t:again": [
 "t_again.mp3",
@@ -180,14 +180,14 @@ window.PP_VOICE = {
 "t:goodtry": [
 "t_goodtry.mp3",
 0.0,
-0.794,
-1.92
+0.849,
+2.308
 ],
 "t:jump": [
 "t_jump.mp3",
 0.0,
-1.105,
-2.52
+0.986,
+2.5
 ],
 "t:hint": [
 "t_hint.mp3",
@@ -198,8 +198,8 @@ window.PP_VOICE = {
 "t:oops": [
 "t_oops.mp3",
 0.0,
-1.021,
-2.09
+0.958,
+2.29
 ],
 "t:level": [
 "t_level.mp3",
@@ -216,44 +216,44 @@ window.PP_VOICE = {
 "t:micask": [
 "t_micask.mp3",
 0.0,
-0.994,
-1.71
+1.048,
+2.54
 ],
 "t:pressstart": [
 "t_pressstart.mp3",
 0.0,
-1.334,
-1.08
+0.898,
+1.61
 ],
 "k:hello": [
 "k_hello.mp3",
 0.0,
-1.35,
-1.566
+1.526,
+1.56
 ],
 "k:howto": [
 "k_howto.mp3",
 0.0,
-1.258,
-2.31
+1.226,
+2.5
 ],
 "k:howto2": [
 "k_howto2.mp3",
 0.0,
-1.441,
-2.206
+1.422,
+2.218
 ],
 "k:tryit": [
 "k_tryit.mp3",
 0.0,
-1.303,
-1.15
+1.267,
+1.33
 ],
 "k:done": [
 "k_done.mp3",
 0.0,
-1.378,
-0.94
+1.448,
+1.65
 ],
 "k:sayit": [
 "k_sayit.mp3",
@@ -264,8 +264,8 @@ window.PP_VOICE = {
 "k:again": [
 "k_again.mp3",
 0.0,
-1.326,
-1.37
+1.275,
+1.55
 ],
 "k:great1": [
 "k_great1.mp3",
@@ -288,32 +288,32 @@ window.PP_VOICE = {
 "k:goodtry": [
 "k_goodtry.mp3",
 0.0,
-1.272,
-1.821
+1.278,
+2.078
 ],
 "k:jump": [
 "k_jump.mp3",
 0.0,
-1.327,
-2.24
+1.225,
+2.6
 ],
 "k:hint": [
 "k_hint.mp3",
 0.0,
-1.334,
-1.56
+1.393,
+1.48
 ],
 "k:oops": [
 "k_oops.mp3",
 0.0,
-1.334,
-1.864
+1.23,
+3.041
 ],
 "k:level": [
 "k_level.mp3",
 0.0,
-1.097,
-1.05
+1.269,
+1.5
 ],
 "k:allclear": [
 "k_allclear.mp3",
@@ -324,8 +324,8 @@ window.PP_VOICE = {
 "k:micask": [
 "k_micask.mp3",
 0.0,
-1.366,
-1.36
+1.223,
+2.54
 ],
 "k:pressstart": [
 "k_pressstart.mp3",
@@ -336,42 +336,42 @@ window.PP_VOICE = {
 },
 "lines": {
 "hello": "Let's play Phonics Puzzle!",
-"howto": "Drag the pieces to the right places!",
+"howto": "Drag each piece to the right spot!",
 "howto2": "When the picture is done, say the word!",
-"tryit": "Now you try!",
+"tryit": "Now it's your turn!",
 "done": "You did it!",
-"sayit": "Now you say it!",
+"sayit": "Your turn! Say it!",
 "again": "One more time!",
 "great1": "Great job!",
 "great2": "You got it!",
 "great3": "Wonderful!",
-"goodtry": "Good try! Let's go on.",
-"jump": "Want to skip? Tap the jump button!",
+"goodtry": "That's okay! Let's keep going!",
+"jump": "Too tricky? Tap the jump button!",
 "hint": "This piece goes here!",
-"oops": "Oops! Try another spot.",
+"oops": "Oops! Try another spot!",
 "level": "Level clear!",
 "allclear": "Amazing! You finished every puzzle!",
-"micask": "Please allow the microphone.",
-"pressstart": "Press start!"
+"micask": "Turn on the microphone so I can hear you!",
+"pressstart": "Tap start to play!"
 },
 "lines_ko": {
-"hello": "파닉스 퍼즐 놀이 하자!",
-"howto": "조각을 끌어서 알맞은 자리에 놓아 봐!",
-"howto2": "그림을 다 맞추면 단어를 말해 봐!",
-"tryit": "이제 혼자 해 봐!",
-"done": "다 맞췄어!",
+"hello": "우리 파닉스 퍼즐 하자!",
+"howto": "조각을 끌어다가 꼭 맞는 자리에 놓아 봐!",
+"howto2": "그림을 다 맞추면 단어를 말해 보자!",
+"tryit": "이번엔 직접 해 봐!",
+"done": "와, 그림 완성!",
 "sayit": "이제 네가 말해 봐!",
-"again": "한 번 더 말해 봐!",
+"again": "한 번 더 말해 볼까?",
 "great1": "잘했어!",
 "great2": "맞았어!",
 "great3": "정말 멋져!",
-"goodtry": "잘했어! 다음으로 가자!",
-"jump": "넘어가고 싶으면 점프 버튼을 눌러!",
-"hint": "이 조각은 여기에 들어가!",
-"oops": "앗, 다른 자리를 찾아봐!",
-"level": "레벨 통과!",
+"goodtry": "괜찮아! 계속 해 보자!",
+"jump": "어려우면 점프 버튼을 눌러서 넘어가도 돼!",
+"hint": "이 조각은 여기야!",
+"oops": "앗, 거기가 아니야. 다른 자리에 놓아 봐!",
+"level": "야호! 통과했어!",
 "allclear": "우와! 퍼즐을 전부 완성했어!",
-"micask": "마이크를 허용해 줘.",
+"micask": "네 목소리를 들을 수 있게 마이크를 켜 줘!",
 "pressstart": "시작 버튼을 눌러 봐!"
 }
 };
