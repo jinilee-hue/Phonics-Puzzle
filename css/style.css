@@ -711,3 +711,62 @@ img { -webkit-user-drag: none; user-select: none; }
 .grid { display: grid; grid-template-columns: repeat(var(--c), 1fr); grid-template-rows: repeat(var(--r), 1fr); gap: calc(.35 * var(--u));
   height: calc(5.6 * var(--u)); aspect-ratio: var(--c) / var(--r); }
 .grid i { border-radius: calc(.5 * var(--u)); background: linear-gradient(var(--orange-hi), var(--orange)); box-shadow: inset 0 calc(-.25 * var(--u)) 0 var(--orange-lo); }
+
+/* ── phones held sideways (2026-11-26, "모바일 용을 고친다고 태블릿이나 pc버전이 깨지면 안돼"): only a short screen with a finger
+   pointer gets these rules — tablets (≥ 768 tall) and PCs (mouse) never match, so they stay exactly as above. On a phone
+   the unit is ~3.4 px: the corner buttons came out 26 px, the tray arrows 36, the word bar's buttons 31, the sticker
+   names 9 px. The corner bars get a unit of their own (44 px buttons, same parts and shares), the small controls get
+   finger sizes, small words 12 px+, and the cards that got too tight are re-spaced to fit the short screen. ── */
+:root { --rotate-bg: rgba(40, 30, 80, 0.92); }
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  /* corner bars: 44 px, 10 px from the screen's edges */
+  .hud-left, .sys { --u: 5.8px; --hb: calc(7.6 * var(--u)); top: 10px; }
+  .hud-left, .sys.sys-left { left: 10px; }
+  .sys { right: 10px; }
+  /* SKIP: 44 px, in the real screen corner (the stage is narrower than a phone) */
+  .skip-btn { --hb: 44px; right: calc((177.78 * var(--u) - 100vw) / 2 + 10px); bottom: 10px; }
+  /* tray: the arrows 44 px, centred in the room above and below the pieces; the tab's word 12.5 px */
+  .tray-btn { width: 44px; height: 44px; margin-left: -22px; }
+  .tray-btn.up { top: calc(7.25 * var(--u) - 22px); }
+  .tray-btn.down { top: calc((14.5 * var(--u) + 3 * var(--slot) + 75 * var(--u)) / 2 - 22px); }
+  .tray-tab { font-size: 12.5px; }
+  /* the LEVEL tab: 12 px label, 17 px number; a little taller, still tucked under the frame */
+  .board-tab { top: calc(19 * var(--u) - 30px); height: 30px; left: calc(38.6 * var(--u)); padding-left: 6px; padding-right: 6px; gap: 2.5px; }
+  .board-tab small { font-size: 12px; letter-spacing: .02em; }
+  .board-tab b { font-size: 17px; }
+  .board-tab .pips i { width: 5px; height: 5px; }
+  /* the word bar (say the word): listen / JUMP 44 px, the mic 54 px; it grows upward from where it ended */
+  .wordbar { top: auto; bottom: calc(3.2 * var(--u)); height: 64px; gap: 8px; padding: 0 10px 0 18px; border-radius: 32px; }
+  .snd, .wordbar .jump { width: 44px; height: 44px; }
+  .mic { width: 54px; height: 54px; }
+  /* result card: Home / Next 44 px (a tighter gap so they fit), "LEVEL n" 12 px */
+  .clear-btns { --hb: 44px; }
+  .clear-panel { gap: calc(3 * var(--u)); padding-top: calc(7 * var(--u)); }
+  .lv-cap { height: 14px; font-size: 12px; }
+  /* MY STICKERS: 12 px names under bigger stickers (6 × 3 kept); Decorate and ✕ 44 px. The card's right edge stays 212 px
+     from the screen's, so its ✕ (on the corner) keeps ≥ 8 px clear of the language toggle behind it; centred when there is room */
+  .clear-card.book-card { width: 367px; height: 306px; translate: min(0px, 50vw - 212px - 183.5px) 0; }
+  .clear-panel.book-panel { gap: 5px; padding: 8px 10px 12px; }
+  .book-grid { grid-template-columns: repeat(6, 48px); gap: 3px 5px; }
+  .sticker .pic, .sticker.empty .slot { height: 40px; }
+  .sticker .mini-stars { top: 33px; }
+  .sticker .name { font-size: 12px; }
+  .book-close { --hb: 44px; }
+  /* decorating the title: stickers 48 px in up to two rows, Done 46 px, the knobs 40 px */
+  .decor-tray { width: max-content; }
+  .decor-list { flex-wrap: wrap; justify-content: center; max-width: 520px; }
+  .dsticker { width: 48px; }
+  .decor-done { width: 46px; height: 46px; }
+  .decal .h { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
+}
+
+/* phones held upright: a full-screen card asks to turn the phone (the game is made for the wide screen) */
+.rotate-hint { display: none; }
+@media (orientation: portrait) and (max-width: 500px) and (pointer: coarse) {
+  .rotate-hint { position: fixed; inset: 0; z-index: 2147483647; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    padding: 24px; color: var(--white); background: var(--rotate-bg); text-align: center; touch-action: none; }
+  .rotate-hint svg { width: 132px; height: 132px; overflow: visible; filter: drop-shadow(0 3px 6px var(--shadow)); }
+  .rotate-hint .rh-dev { transform-box: view-box; transform-origin: 50% 50%; animation: rhTurn 2s ease-in-out infinite; }
+  .rotate-hint p { margin: 0; font: 800 22px / 1.2 var(--font); letter-spacing: .02em; }
+}
+@keyframes rhTurn { 0%, 15% { transform: rotate(0); } 55%, 85% { transform: rotate(90deg); } 100% { transform: rotate(0); } }
