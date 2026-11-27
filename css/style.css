@@ -719,44 +719,60 @@ img { -webkit-user-drag: none; user-select: none; }
    finger sizes, small words 12 px+, and the cards that got too tight are re-spaced to fit the short screen. ── */
 :root { --rotate-bg: rgba(40, 30, 80, 0.92); }
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
-  /* corner bars: 44 px, 10 px from the screen's edges */
-  .hud-left, .sys { --u: 5.8px; --hb: calc(7.6 * var(--u)); top: 10px; }
-  .hud-left, .sys.sys-left { left: 10px; }
-  .sys { right: 10px; }
-  /* SKIP: 44 px, in the real screen corner (the stage is narrower than a phone) */
-  .skip-btn { --hb: 44px; right: calc((177.78 * var(--u) - 100vw) / 2 + 10px); bottom: 10px; }
-  /* tray: the arrows 44 px, centred in the room above and below the pieces; the tab's word 12.5 px */
-  .tray-btn { width: 44px; height: 44px; margin-left: -22px; }
-  .tray-btn.up { top: calc(7.25 * var(--u) - 22px); }
-  .tray-btn.down { top: calc((14.5 * var(--u) + 3 * var(--slot) + 75 * var(--u)) / 2 - 22px); }
+  /* edges (user 2026-11-26: "너무 좌우 상하 여백없이 붙어있는건 아닌지"): every button keeps 12 px from the top and the sides and
+     14 px from the bottom; buttons side by side keep 8 px apart */
+  /* corner bars: 44 px, 8 px apart, 12 px from the sides; 18 px down so the score's star (a little smaller here, it stands
+     out over the pill) keeps 12 px from the top too */
+  .hud-left, .sys { --u: 5.8px; --hb: calc(7.6 * var(--u)); top: 18px; }
+  .hud-left, .sys.sys-left { left: 12px; }
+  .sys { right: 12px; gap: 8px; }
+  .sysbtn.book { margin-left: 0; }
+  .score-box .trophy-img { height: calc(1.1 * var(--hb)); }
+  .hud-left { --hb: 40px; top: 20px; left: 14px; }   /* the score (a display, not a button) a touch smaller: centred on the
+     buttons' row, its star 12 px+ from the corner, the pill 8 px+ clear of the LEVEL tab */
+  /* SKIP: 44 px, in the screen's corner (the stage is narrower than a phone), 12 px / 14 px in */
+  .skip-btn { --hb: 44px; right: calc((177.78 * var(--u) - 100vw) / 2 + 12px); bottom: 14px; }
+  /* tray: as on the big screens (3 pieces, ▲ above them, ▼ under them); the arrows as big as the room above and under the
+     pieces allows (46 px); the tab's word 12.5 px */
+  .tray-btn { width: 46px; height: 46px; margin-left: -23px; }
+  .tray-btn.up { top: calc(7.25 * var(--u) - 23px); }
+  .tray-btn.down { top: calc((14.5 * var(--u) + 3 * var(--slot) + 75 * var(--u)) / 2 - 23px); }
   .tray-tab { font-size: 12.5px; }
   /* the LEVEL tab: 12 px label, 17 px number; a little taller, still tucked under the frame */
   .board-tab { top: calc(19 * var(--u) - 30px); height: 30px; left: calc(38.6 * var(--u)); padding-left: 6px; padding-right: 6px; gap: 2.5px; }
   .board-tab small { font-size: 12px; letter-spacing: .02em; }
   .board-tab b { font-size: 17px; }
   .board-tab .pips i { width: 5px; height: 5px; }
-  /* the word bar (say the word): listen / JUMP 44 px, the mic 54 px; it grows upward from where it ended */
-  .wordbar { top: auto; bottom: calc(3.2 * var(--u)); height: 64px; gap: 8px; padding: 0 10px 0 18px; border-radius: 32px; }
-  .snd, .wordbar .jump { width: 44px; height: 44px; }
-  .mic { width: 54px; height: 54px; }
-  /* result card: Home / Next 44 px (a tighter gap so they fit), "LEVEL n" 12 px */
-  .clear-btns { --hb: 44px; }
+  /* the word bar (say the word) where it is on the big screens: one row at the board's bottom. Its buttons as big as the
+     longest word ("mushroom", 155 px) leaves room for between the tutor and the tray: listen / JUMP 46 px, the mic 60 px */
+  .wordbar { top: auto; bottom: 14px; height: 68px; gap: 8px; padding: 0 8px 0 12px; border-radius: 34px; }
+  .snd, .wordbar .jump { width: 46px; height: 46px; }
+  .mic { width: 60px; height: 60px; }
+  /* Next (in the emptied tray) 72 px, its centre where it was */
+  .next-btn { width: 72px; height: 72px; left: calc(152 * var(--u) - 36px); top: calc(58.5 * var(--u) - 36px); }
+  /* result card: Home / Next 64 px high, 160 px+ wide (the card grows to hold them), "LEVEL n" 12 px */
+  .clear-card { width: 410px; height: 252px; }
+  .clear-btns { --hb: 64px; gap: 16px; }
+  .clear-btns .pill-btn { min-width: 160px; justify-content: center; }
   .clear-panel { gap: calc(3 * var(--u)); padding-top: calc(7 * var(--u)); }
   .lv-cap { height: 14px; font-size: 12px; }
-  /* MY STICKERS: 12 px names under bigger stickers (6 × 3 kept); Decorate and ✕ 44 px. The card's right edge stays 212 px
-     from the screen's, so its ✕ (on the corner) keeps ≥ 8 px clear of the language toggle behind it; centred when there is room */
-  .clear-card.book-card { width: 367px; height: 306px; translate: min(0px, 50vw - 212px - 183.5px) 0; }
+  /* MY STICKERS (the big screens' card: heading, 6 × 3 stickers, Decorate): stickers 48 × 39 with 12 px names, 8 px apart
+     (each one is a button), Decorate 44 px; the card is 330 px high to hold that. Its ✕ keeps 12 px+ from the screen's top
+     (it slides into the corner when the card comes that close) and 8 px+ clear of the language toggle behind it (the card's
+     right edge 214 px from the screen's; centred when there is room) */
+  .clear-card.book-card { width: 382px; height: 330px; translate: min(0px, 50vw - 214px - 191px) 0; }
   .clear-panel.book-panel { gap: 5px; padding: 8px 10px 12px; }
-  .book-grid { grid-template-columns: repeat(6, 48px); gap: 3px 5px; }
-  .sticker .pic, .sticker.empty .slot { height: 40px; }
-  .sticker .mini-stars { top: 33px; }
+  .book-grid { grid-template-columns: repeat(6, 48px); gap: 8px; }
+  .sticker .pic, .sticker.empty .slot { height: 39px; }
+  .sticker .mini-stars { top: 32px; }
   .sticker .name { font-size: 12px; }
-  .book-close { --hb: 44px; }
-  /* decorating the title: stickers 48 px in up to two rows, Done 46 px, the knobs 40 px */
-  .decor-tray { width: max-content; }
-  .decor-list { flex-wrap: wrap; justify-content: center; max-width: 520px; }
+  .book-btns { --hb: 44px; }
+  .book-close { --hb: 44px; top: max(calc(-1.6 * var(--u)), calc(14px - (100dvh - 330px) / 2)); }
+  /* decorating the title: stickers 48 px in up to two rows, Done 64 px, the knobs 40 px */
+  .decor-tray { width: max-content; bottom: 14px; }
+  .decor-list { flex-wrap: wrap; justify-content: center; max-width: 545px; gap: 12px; }   /* 9 a row, 8 px+ apart even tilted */
   .dsticker { width: 48px; }
-  .decor-done { width: 46px; height: 46px; }
+  .decor-done { width: 64px; height: 64px; }
   .decal .h { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
 }
 
